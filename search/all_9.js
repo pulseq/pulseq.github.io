@@ -17,7 +17,6 @@ var searchData=
   ['m_5fte',['m_TE',['../classExternalSequence.html#abb22411ac8434ca664e86063bd23f226',1,'ExternalSequence']]],
   ['m_5ftr',['m_TR',['../classExternalSequence.html#a061ddd82b25c6ac729ff7bd1916fd3a2',1,'ExternalSequence']]],
   ['magshape',['magShape',['../structRFEvent.html#a052b00e1ed1473f2d9eff7c4db28db70',1,'RFEvent']]],
-  ['main',['main',['../parsemri_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'parsemri.cpp']]],
   ['matlab_20source_20code',['MATLAB source code',['../matlab.html',1,'']]],
   ['max_5fline_5fsize',['MAX_LINE_SIZE',['../classExternalSequence.html#a5cbbaffbd472d20a541051d9ecc81034',1,'ExternalSequence']]],
   ['messagetype',['MessageType',['../ExternalSequence_8h.html#ac6606ebe91c8ac66a2c314c79f5ab013',1,'ExternalSequence.h']]]

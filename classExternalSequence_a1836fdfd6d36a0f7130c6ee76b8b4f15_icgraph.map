@@ -1,5 +1,4 @@
 <map id="ExternalSequence::print_msg" name="ExternalSequence::print_msg">
 <area shape="rect" id="node3" href="$classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c" title="Load the sequence from file. " alt="" coords="257,5,417,35"/>
-<area shape="rect" id="node7" href="$classExternalSequence.html#a64a4fad365448d9b767a4ed8b0c589d5" title="Decode a block by looking up indexed events. " alt="" coords="248,58,427,105"/>
-<area shape="rect" id="node5" href="$parsemri_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="Entry point for console program. " alt="" coords="475,5,525,35"/>
+<area shape="rect" id="node5" href="$classExternalSequence.html#a64a4fad365448d9b767a4ed8b0c589d5" title="Decode a block by looking up indexed events. " alt="" coords="248,58,427,105"/>
 </map>

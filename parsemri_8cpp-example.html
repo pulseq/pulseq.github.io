@@ -29,7 +29,7 @@
    <div id="projectname">Open source pulse sequences
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Easily create and share sequences</div>
+   <div id="projectbrief">Easily create and share MR sequences</div>
   </td>
  </tr>
  </tbody>
@@ -45,6 +45,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="index.html"><span>Home</span></a></li>
       <li><a href="matlab.html"><span>MATLAB</span></a></li>
       <li><a href="annotated.html"><span>C++</span></a></li>
+      <li><a href="https://github.com/pulseq/pulseq"><span>Source</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -90,61 +91,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Iterate over sequence blocks and count the occurrence of different events.</li>
 <li>Print a summary of the sequence to the standard output.</li>
 </ul>
-<div class="fragment"><div class="line"></div>
-<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="ExternalSequence_8h.html">ExternalSequence.h</a>&quot;</span></div>
-<div class="line"></div>
-<div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &lt;fstream&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><span class="preprocessor">#include &lt;iomanip&gt;</span></div>
-<div class="line"></div>
-<div class="line"><span class="keywordtype">void</span> custom_print(<span class="keyword">const</span> std::string &amp;str) {</div>
-<div class="line">        std::cout &lt;&lt; <span class="stringliteral">&quot;# &quot;</span> &lt;&lt; str &lt;&lt; std::endl;</div>
-<div class="line">}</div>
-<div class="line"></div>
-<div class="line"><span class="keywordtype">int</span> <a name="a0"></a><a class="code" href="parsemri_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>* argv[])</div>
-<div class="line">{</div>
-<div class="line">        std::string path(<span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line">        <span class="keywordflow">if</span> (argc&gt;1) {</div>
-<div class="line">                path = std::string(argv[1]);</div>
-<div class="line">        }</div>
-<div class="line"></div>
-<div class="line">        <span class="comment">// Create sequence object and assign output function</span></div>
-<div class="line">        <a name="_a1"></a><a class="code" href="classExternalSequence.html">ExternalSequence</a> seq;</div>
-<div class="line">        <a name="a2"></a><a class="code" href="classExternalSequence.html#a9a82b5f6f0aed6ac614489b676db10be">ExternalSequence::SetPrintFunction</a>(&amp;custom_print);</div>
-<div class="line"></div>
-<div class="line">        <span class="comment">// Load sequence file</span></div>
-<div class="line">        <span class="keywordflow">if</span> (!seq.<a name="a3"></a><a class="code" href="classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c">load</a>(path)) {</div>
-<div class="line">                std::cout &lt;&lt; <span class="stringliteral">&quot;*** ERROR Cannot load external sequence&quot;</span> &lt;&lt; std::endl;</div>
-<div class="line">                <span class="keywordflow">return</span> 1;</div>
-<div class="line">        }</div>
-<div class="line"></div>
-<div class="line">        <span class="comment">// Loop through blocks and count events</span></div>
-<div class="line">        <span class="keywordtype">int</span> numRf=0, numGx=0, numGy=0, numGz=0, numAdc=0, numDelay=0;</div>
-<div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=0; i&lt;seq.<a name="a4"></a><a class="code" href="classExternalSequence.html#a80e5cb9aacb4d431d9384ce963becfe8">GetNumberOfBlocks</a>(); i++) {</div>
-<div class="line">                <a name="_a5"></a><a class="code" href="classSeqBlock.html">SeqBlock</a>* block = seq.<a name="a6"></a><a class="code" href="classExternalSequence.html#ab9f9070c213b6e35850c4f7352cce32f">GetBlock</a>(i);</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a name="a7"></a><a class="code" href="classSeqBlock.html#ab8e502746dce1341663a0a1319ab1069">isADC</a>())   numAdc++;</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a name="a8"></a><a class="code" href="classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f">isRF</a>())    numRf++;</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a name="a9"></a><a class="code" href="classSeqBlock.html#a2ee51573506eecdf87cb8d629daf95bf">isDelay</a>()) numDelay++;</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a name="a10"></a><a class="code" href="classSeqBlock.html#aeaf3bb4e0650799ff27be883fe43cc9d">isTrapGradient</a>(0) || block-&gt;<a name="a11"></a><a class="code" href="classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8">isArbitraryGradient</a>(0) ) numGx++;</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a class="code" href="classSeqBlock.html#aeaf3bb4e0650799ff27be883fe43cc9d">isTrapGradient</a>(1) || block-&gt;<a class="code" href="classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8">isArbitraryGradient</a>(1) ) numGy++;</div>
-<div class="line">                <span class="keywordflow">if</span> (block-&gt;<a class="code" href="classSeqBlock.html#aeaf3bb4e0650799ff27be883fe43cc9d">isTrapGradient</a>(2) || block-&gt;<a class="code" href="classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8">isArbitraryGradient</a>(2) ) numGz++;</div>
-<div class="line">        }</div>
-<div class="line"></div>
-<div class="line">        <span class="comment">// Display summary of sequence events</span></div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of blocks: &quot;</span>     &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; seq.<a class="code" href="classExternalSequence.html#a80e5cb9aacb4d431d9384ce963becfe8">GetNumberOfBlocks</a>() &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of RF pulses: &quot;</span>  &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numRf &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of GX events: &quot;</span>  &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numGx &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of GY events: &quot;</span>  &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numGy &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of GZ events: &quot;</span>  &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numGz &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of readouts: &quot;</span>   &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numAdc &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::setw(22) &lt;&lt; std::left &lt;&lt; <span class="stringliteral">&quot;Number of Delays: &quot;</span>     &lt;&lt; std::setw(4) &lt;&lt; std::right &lt;&lt; numDelay &lt;&lt; std::endl;</div>
-<div class="line">        std::cout &lt;&lt; std::endl;</div>
-<div class="line"></div>
-<div class="line">        <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-<div class="line"></div>
-</div><!-- fragment --> </div><!-- contents -->
+<div class="fragment"></div><!-- fragment --> </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
