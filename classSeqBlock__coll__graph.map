@@ -1,0 +1,5 @@
+<map id="SeqBlock" name="SeqBlock">
+<area shape="rect" id="node2" href="$structGradEvent.html" title="Gradient event data. " alt="" coords="5,5,88,35"/>
+<area shape="rect" id="node4" href="$structADCEvent.html" title="ADC readout event. " alt="" coords="112,5,197,35"/>
+<area shape="rect" id="node6" href="$structRFEvent.html" title="RF event data. " alt="" coords="221,5,296,35"/>
+</map>

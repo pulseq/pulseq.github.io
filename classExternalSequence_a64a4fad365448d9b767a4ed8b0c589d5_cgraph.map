@@ -1,0 +1,6 @@
+<map id="ExternalSequence::decodeBlock" name="ExternalSequence::decodeBlock">
+<area shape="rect" id="node3" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="247,5,439,35"/>
+<area shape="rect" id="node5" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape. " alt="" coords="240,58,445,105"/>
+<area shape="rect" id="node7" href="$classExternalSequence.html#a4a5b59c38694728411d48cebd3ed5d23" title="Check the shapes defining the arbitrary gradient events (if present) " alt="" coords="233,128,452,157"/>
+<area shape="rect" id="node9" href="$classExternalSequence.html#a65962ae575700ed3eb0b6060f9370be9" title="Check the shapes defining the RF event (if present) " alt="" coords="248,181,437,211"/>
+</map>
