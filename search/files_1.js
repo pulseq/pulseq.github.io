@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['parsemri_2ecpp',['parsemri.cpp',['../parsemri_8cpp.html',1,'']]]
+  ['parsemr_2ecpp',['parsemr.cpp',['../parsemr_8cpp.html',1,'']]]
 ];

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-28"><meta name="DC.source" content="Sequence.m"><style type="text/css">
+      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-04-30"><meta name="DC.source" content="Sequence.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -72,8 +72,8 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
     <span class="comment">% MR sequence including RF pulses, gradients, ADC events, etc.</span>
     <span class="comment">%</span>
     <span class="comment">% The class provides an implementation of the open MR sequence format</span>
-    <span class="comment">% defined in doc/specificaiton.pdf</span>
-    <span class="comment">%   See http://www.git/whatever</span>
+    <span class="comment">% defined by the Pulseq project.</span>
+    <span class="comment">%   See http://pulseq.github.io/</span>
     <span class="comment">%</span>
     <span class="comment">% Sequence Properties:</span>
     <span class="comment">%    definitions - A list of custom definitions</span>
@@ -88,13 +88,13 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
     <span class="comment">% Examples:</span>
     <span class="comment">%</span>
     <span class="comment">% To read a sequence from file:</span>
-    <span class="comment">%     read(seqObj,'my_sequences/seq.txt');</span>
+    <span class="comment">%     read(seqObj,'my_sequences/gre.seq');</span>
     <span class="comment">%</span>
     <span class="comment">% To plot a sequence:</span>
     <span class="comment">%     plot(seqObj)</span>
     <span class="comment">%</span>
     <span class="comment">% See also   demoRead.m, demoWrite.m</span>
-    <span class="comment">% Examples defining a sequence and reading/writing files</span>
+    <span class="comment">% Examples defining an MRI sequence and reading/writing files</span>
     <span class="comment">%</span>
     <span class="comment">% Kelvin Layton &lt;kelvin.layton@uniklinik-freiburg.de&gt;</span>
 
@@ -468,8 +468,8 @@ classdef Sequence < handle
     % MR sequence including RF pulses, gradients, ADC events, etc.
     %
     % The class provides an implementation of the open MR sequence format
-    % defined in doc/specificaiton.pdf
-    %   See http://www.git/whatever
+    % defined by the Pulseq project.
+    %   See http://pulseq.github.io/
     %
     % Sequence Properties:
     %    definitions - A list of custom definitions
@@ -484,13 +484,13 @@ classdef Sequence < handle
     % Examples:
     %
     % To read a sequence from file:
-    %     read(seqObj,'my_sequences/seq.txt');
+    %     read(seqObj,'my_sequences/gre.seq');
     %
     % To plot a sequence:
     %     plot(seqObj)
     %
     % See also   demoRead.m, demoWrite.m
-    % Examples defining a sequence and reading/writing files
+    % Examples defining an MRI sequence and reading/writing files
     %
     % Kelvin Layton <kelvin.layton@uniklinik-freiburg.de>
     
