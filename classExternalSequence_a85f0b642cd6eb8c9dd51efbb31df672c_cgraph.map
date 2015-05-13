@@ -2,5 +2,6 @@
 <area shape="rect" id="node3" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="229,5,421,35"/>
 <area shape="rect" id="node5" href="$classExternalSequence.html#a7cfd1aeba9bac7a5f110942780475cc7" title="Search the file stream for section headers e.g. [RF], [GRAD] etc. " alt="" coords="233,58,417,105"/>
 <area shape="rect" id="node7" href="$classExternalSequence.html#a42ee03d51708cab806a96139c5bacd5d" title="Skip the comments and empty lines in the given input stream. " alt="" coords="213,128,437,157"/>
-<area shape="rect" id="node9" href="$classExternalSequence.html#ac7a3038c5f0bd665506cc3af6359eae4" title="Check the block contains references to defined events. " alt="" coords="224,181,427,227"/>
+<area shape="rect" id="node9" href="$classExternalSequence.html#a66b1bbc2b27281533fa5df466016a83a" title="Check the IDs contains references to valid events in the library. " alt="" coords="224,181,427,227"/>
+<area shape="rect" id="node11" href="$classExternalSequence.html#a4f8ec2a770a0a593214dfdd7212311db" title="Lookup the custom definition. " alt="" coords="220,251,431,280"/>
 </map>

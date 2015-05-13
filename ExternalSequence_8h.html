@@ -105,7 +105,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">ExternalSequence.h File Reference</div>  </div>
 </div><!--header-->
@@ -149,6 +150,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structADCEvent.html">ADCEvent</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">ADC readout event.  <a href="structADCEvent.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structEventIDs.html">EventIDs</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of event IDs.  <a href="structEventIDs.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSeqBlock.html">SeqBlock</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequence block.  <a href="classSeqBlock.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,9 +171,6 @@ Macros</h2></td></tr>
 <tr class="memitem:a3b947f4b635461030ff2d87833e5049e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b947f4b635461030ff2d87833e5049e"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>TWO_PI</b>&#160;&#160;&#160;6.283185307179586476925286766558</td></tr>
 <tr class="separator:a3b947f4b635461030ff2d87833e5049e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae92d87624905b51297e9b1b5c58b836"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae92d87624905b51297e9b1b5c58b836"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>MSG_LEVEL</b>&#160;&#160;&#160;NORMAL_MSG</td></tr>
-<tr class="separator:aae92d87624905b51297e9b1b5c58b836"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -186,16 +187,29 @@ Enumerations</h2></td></tr>
 <tr class="separator:ac6606ebe91c8ac66a2c314c79f5ab013"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </td></tr>
 <tr class="memitem:a5667b805d857c6d28f83f6038a0272d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5667b805d857c6d28f83f6038a0272d3"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ExternalSequence_8h.html#a5667b805d857c6d28f83f6038a0272d3">Event</a> { <br />
-&#160;&#160;<b>RF_EVENT</b>, 
-<b>XGRAD_EVENT</b>, 
-<b>YGRAD_EVENT</b>, 
-<b>ZGRAD_EVENT</b>, 
+&#160;&#160;<b>DELAY</b>, 
+<b>RF</b>, 
+<b>GX</b>, 
+<b>GY</b>, 
 <br />
-&#160;&#160;<b>ADC_EVENT</b>
+&#160;&#160;<b>GZ</b>, 
+<b>ADC</b>
 <br />
  }<tr class="memdesc:a5667b805d857c6d28f83f6038a0272d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal storage order. <br /></td></tr>
 <tr class="separator:a5667b805d857c6d28f83f6038a0272d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a49aba4b27559c0c6b8242cebb6c422d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49aba4b27559c0c6b8242cebb6c422d6"></a>
+const <a class="el" href="ExternalSequence_8h.html#ac6606ebe91c8ac66a2c314c79f5ab013">MessageType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>MSG_LEVEL</b> = NORMAL_MSG</td></tr>
+<tr class="separator:a49aba4b27559c0c6b8242cebb6c422d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5da6d9ec042926de0511396589d1a77a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5da6d9ec042926de0511396589d1a77a"></a>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>NUM_EVENTS</b> =ADC+1</td></tr>
+<tr class="separator:a5da6d9ec042926de0511396589d1a77a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa080683720f4181a0607ca70e6b7f10c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa080683720f4181a0607ca70e6b7f10c"></a>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>NUM_GRADS</b> =ADC-GX</td></tr>
+<tr class="separator:aa080683720f4181a0607ca70e6b7f10c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
