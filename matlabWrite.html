@@ -41,7 +41,7 @@
    <div id="projectname">Open source pulse sequences
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Easily create and share MR sequences</div>
+   <div id="projectbrief">Easily create and execute MR sequences</div>
   </td>
  </tr>
  </tbody>
@@ -104,7 +104,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Generate a sequence in MATLAB and write to files</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-13"><meta name="DC.source" content="demoWrite.m"><style type="text/css">
+      --><title>Generate a sequence in MATLAB and write to files</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-27"><meta name="DC.source" content="demoWrite.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -176,7 +176,7 @@ gradOpts =
 </pre><h2>Sequence events<a name="3"></a></h2><p>Some sequence parameters are defined using standard MATLAB variables</p><pre class="codeinput">fov=220e-3;
 Nx=64; Ny=64;
 sliceThickness=5e-3;
-</pre><h2>Slice selection<a name="4"></a></h2><p>Key concepts in the sequence description are <b>blocks</b> and <b>events</b>. Blocks describe a group of events that are executed simulaneously. This heirachial structure means that one event can be used in multiple blocks, a common occurance in MR sequences, particularly in imaging sequences.</p><p>First, a slice selective RF pulse (and corresponding slice gradient) can be generated using the <tt>makeSincPulse</tt> function.</p><pre class="codeinput">flip=15*pi/180;
+</pre><h2>Slice selection<a name="4"></a></h2><p>Key concepts in the sequence description are <b>blocks</b> and <b>events</b>. Blocks describe a group of events that are executed simultaneously. This hierarchical structure means that one event can be used in multiple blocks, a common occurrence in MR sequences, particularly in imaging sequences.</p><p>First, a slice selective RF pulse (and corresponding slice gradient) can be generated using the <tt>makeSincPulse</tt> function.</p><pre class="codeinput">flip=15*pi/180;
 [rf, gz] = mr.makeSincPulse(flip,<span class="string">'Duration'</span>,4e-3,<span class="string">'SliceThickness'</span>,sliceThickness,<span class="keyword">...</span>
     <span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4,gradOpts);
 
@@ -262,9 +262,10 @@ sliceThickness=5e-3;
 
 %%% Slice selection
 % Key concepts in the sequence description are *blocks* and *events*.
-% Blocks describe a group of events that are executed simulaneously. This
-% heirachial structure means that one event can be used in multiple blocks,
-% a common occurance in MR sequences, particularly in imaging sequences.
+% Blocks describe a group of events that are executed simultaneously. This
+% hierarchical structure means that one event can be used in multiple
+% blocks, a common occurrence in MR sequences, particularly in imaging
+% sequences. 
 %
 % First, a slice selective RF pulse (and corresponding slice gradient) can
 % be generated using the |makeSincPulse| function.

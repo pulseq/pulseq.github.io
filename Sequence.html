@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-13"><meta name="DC.source" content="Sequence.m"><style type="text/css">
+      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-27"><meta name="DC.source" content="Sequence.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -173,8 +173,8 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
         <span class="keyword">end</span>
 
-        <span class="comment">%TODO: replacing blocks mid sequence can cause library indexing</span>
-        <span class="comment">%issues, no longer run in order (ok?), unused library entries (can prune).</span>
+        <span class="comment">%TODO: Replacing blocks in the middle of sequence can cause unused</span>
+        <span class="comment">%events in the libraries. These can be detected and pruned.</span>
         <span class="keyword">function</span> setBlock(obj,index,varargin)
             <span class="comment">%setBlock Replace sequence block.</span>
             <span class="comment">%   setBlock(obj, index, bStruct) Replace block at index with new</span>
@@ -183,8 +183,8 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
             <span class="comment">%   setBlock(obj, index, e1, e2, ...) Create a new block from</span>
             <span class="comment">%   events and store at position given by index.</span>
             <span class="comment">%</span>
-            <span class="comment">%   The block or events are provides in uncompressed form and</span>
-            <span class="comment">%   will be stored in a compressed, non-redundant internal</span>
+            <span class="comment">%   The block or events are provided in uncompressed form and</span>
+            <span class="comment">%   will be stored in the compressed, non-redundant internal</span>
             <span class="comment">%   libraries.</span>
             <span class="comment">%</span>
             <span class="comment">%   See also  getBlock, addBlock</span>
@@ -199,7 +199,8 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
                 event = varargin{i};
                 <span class="keyword">switch</span> event.type
                     <span class="keyword">case</span> <span class="string">'rf'</span>
-                        <span class="comment">% TODO: interpolate to 1us time grid using event.t</span>
+                        <span class="comment">% TODO: Interpolate to 1us time grid using event.t</span>
+                        <span class="comment">% if required.</span>
 
                         mag = abs(event.signal);
                         amplitude=max(mag);
@@ -569,8 +570,8 @@ classdef Sequence < handle
             
         end
         
-        %TODO: replacing blocks mid sequence can cause library indexing
-        %issues, no longer run in order (ok?), unused library entries (can prune).
+        %TODO: Replacing blocks in the middle of sequence can cause unused
+        %events in the libraries. These can be detected and pruned.
         function setBlock(obj,index,varargin)
             %setBlock Replace sequence block.
             %   setBlock(obj, index, bStruct) Replace block at index with new
@@ -579,8 +580,8 @@ classdef Sequence < handle
             %   setBlock(obj, index, e1, e2, ...) Create a new block from
             %   events and store at position given by index.
             %
-            %   The block or events are provides in uncompressed form and
-            %   will be stored in a compressed, non-redundant internal
+            %   The block or events are provided in uncompressed form and
+            %   will be stored in the compressed, non-redundant internal
             %   libraries.
             %
             %   See also  getBlock, addBlock
@@ -595,7 +596,8 @@ classdef Sequence < handle
                 event = varargin{i};
                 switch event.type
                     case 'rf'
-                        % TODO: interpolate to 1us time grid using event.t
+                        % TODO: Interpolate to 1us time grid using event.t
+                        % if required.
                         
                         mag = abs(event.signal);
                         amplitude=max(mag);

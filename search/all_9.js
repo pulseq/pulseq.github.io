@@ -15,5 +15,5 @@ var searchData=
   ['matlab_20write_20example',['MATLAB write example',['../matlabWrite.html',1,'']]],
   ['max_5fline_5fsize',['MAX_LINE_SIZE',['../classExternalSequence.html#a5cbbaffbd472d20a541051d9ecc81034',1,'ExternalSequence']]],
   ['messagetype',['MessageType',['../ExternalSequence_8h.html#ac6606ebe91c8ac66a2c314c79f5ab013',1,'ExternalSequence.h']]],
-  ['matlab_20class',['MATLAB class',['../SequenceCode.html',1,'']]]
+  ['matlab_20sequence_20class',['MATLAB sequence class',['../SequenceCode.html',1,'']]]
 ];

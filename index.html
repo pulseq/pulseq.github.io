@@ -41,7 +41,7 @@
    <div id="projectname">Open source pulse sequences
    &#160;<span id="projectnumber">1.0</span>
    </div>
-   <div id="projectbrief">Easily create and share MR sequences</div>
+   <div id="projectbrief">Easily create and execute MR sequences</div>
   </td>
  </tr>
  </tbody>
@@ -96,14 +96,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Introduction </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>This project is an open source framework for the development and execution of magnetic resonance (MR) sequences for imaging and spectroscopy. A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MR scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a></p>
+<div class="textblock"><p>This project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MR scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a></p>
 <p>The source code provides example implementations of this format. Code documentation is divided into <a href="matlab.html">MATLAB</a> and <a href="annotated.html">C++</a> sections.</p>
-<h2>Examples</h2>
-<p>Some example uses of the source code are</p>
+<h2>Sequence examples</h2>
+<p>Some source code examples are</p>
 <ul>
-<li><a href="matlabWrite.html">MATLAB write sequence</a></li>
-<li><a href="matlabRead.html">MATLAB read sequence</a></li>
+<li><a href="matlabWrite.html">Create an MRI sequence in MATLAB</a></li>
+<li><a href="matlabRead.html">Load a sequence into MATLAB</a></li>
 <li><a href="examples.html">C++ console parser</a></li>
+</ul>
+<h2>Scanner implementations</h2>
+<p>Currently, <em>Pulseq</em> sequences can be executed on the following platforms. Please <a href="#" onclick="location.href='mai'+'lto:'+'kel'+'vi'+'n.l'+'ay'+'ton'+'@u'+'nik'+'li'+'nik'+'-f'+'rei'+'bu'+'rg.'+'de'; return false;">contact us</a> if you would like to run open and flexible sequences at your institution.</p>
+<ul>
+<li>Siemens</li>
+<li>Bruker</li>
 </ul>
 <h2>Download source code</h2>
 <p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
@@ -111,13 +117,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 ./configure
 </pre><p>Now run <code>make</code> to build the executables and/or documentation. </p><pre class="fragment">make
 </pre><h2>Sneak peak</h2>
-<p>The C++ class <code><a class="el" href="classExternalSequence.html" title="Data representing the entire MR sequence. ">ExternalSequence</a></code> provides functionality to read a sequence file and decompress the sequence blocks. This implementation is ideal for running MR sequences on different hardware platforms. </p><div class="fragment"><div class="line"><span class="comment">// Create sequence object and load file</span></div>
+<p>The C++ class <code><a class="el" href="classExternalSequence.html" title="Data representing the entire MR sequence. ">ExternalSequence</a></code> provides functionality to read a pulse sequence file and decompress the sequence blocks. This implementation is ideal for running MR sequences on different hardware platforms. </p><div class="fragment"><div class="line"><span class="comment">// Create sequence object and load file</span></div>
 <div class="line"><a class="code" href="classExternalSequence.html">ExternalSequence</a> seq;</div>
 <div class="line">seq.<a class="code" href="classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c">load</a>(path);</div>
 <div class="line"></div>
 <div class="line"><a class="code" href="classSeqBlock.html">SeqBlock</a>* block = seq.<a class="code" href="classExternalSequence.html#ab9f9070c213b6e35850c4f7352cce32f">GetBlock</a>(1);</div>
 <div class="line"><span class="keywordtype">bool</span> isRF = block-&gt;<a class="code" href="classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f">isRF</a>();</div>
-</div><!-- fragment --><p>The MATLAB package <code>mr</code> provides extended functionality to create and visualize sequences as well as reading and writing sequence files. </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;% Load a sequence and add a new GX gradient to the end before visualizing.</div>
+</div><!-- fragment --><p>The <a href="matlab.html">MATLAB package</a> <code>mr</code> provides extended functionality to create and visualize sequences as well as reading and writing sequence files. </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;% Load a sequence and add a new GX gradient to the end before visualizing.</div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;seq = mr.Sequence();</div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;seq.load(&#39;gre.seq&#39;);</div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;gx = mr.makeTrapezoid(&#39;x&#39;,&#39;FlatArea&#39;,kWidth,&#39;FlatTime&#39;,readoutTime);</div>
