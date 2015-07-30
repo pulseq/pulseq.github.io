@@ -9,7 +9,7 @@
 <meta name="description" content="Open source pulse sequences for NMR and MRI">
 <meta name="author" content="University Medical Center Freiburg">
 <link rel="shortcut icon" href="http://pulseq.github.io/favicon.ico" type="image/x-icon" />
-<title>Open source pulse sequences: MATLAB sequence class</title>
+<title>Open-source pulse sequences: MATLAB sequence class</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -35,11 +35,11 @@
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
  <tbody>
- <tr style="height: 56px;">
-  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
+ <tr style="height: 60px;">
+  <td id="projectlogo" style="vertical-align:middle"><img alt="Logo" src="logo.png"/></td>
   <td style="padding-left: 1.5em;">
-   <div id="projectname">Open source pulse sequences
-   &#160;<span id="projectnumber">1.0</span>
+   <div id="projectname">Open-source pulse sequences
+   &#160;<span id="projectnumber"></span>
    </div>
    <div id="projectbrief">Easily create and execute MR sequences</div>
   </td>
@@ -104,7 +104,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-27"><meta name="DC.source" content="Sequence.m"><style type="text/css">
+      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-07-30"><meta name="DC.source" content="Sequence.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -230,6 +230,10 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
         <span class="comment">% See write.m</span>
         write(obj,filename)
+
+        <span class="comment">% See writeBinary.m</span>
+        writeBinary(obj,filename);
+
 
         <span class="keyword">function</span> value=getDefinition(obj,key)
             <span class="comment">%getDefinition Return the values of custom definition.</span>
@@ -552,7 +556,23 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
             <span class="keyword">end</span>
         <span class="keyword">end</span>
 
+        <span class="keyword">function</span> codes=getBinaryCodes()
+            <span class="comment">%getBinaryCodes Return binary codes for section headers in</span>
+            <span class="comment">%   in a binary sequence file.</span>
+            <span class="comment">%</span>
+            <span class="comment">%   See also  writeBinary</span>
 
+            codes.fileHeader = [1 <span class="string">'pulseq'</span> 2];
+            codes.version = int64(1);
+            codes.section.definitions = int32(hex2dec(<span class="string">'FFFFFFFF00000001'</span>));
+            codes.section.blocks      = int32(hex2dec(<span class="string">'FFFFFFFF00000002'</span>));
+            codes.section.rf          = int32(hex2dec(<span class="string">'FFFFFFFF00000003'</span>));
+            codes.section.gradients   = int32(hex2dec(<span class="string">'FFFFFFFF00000004'</span>));
+            codes.section.trapezoids  = int32(hex2dec(<span class="string">'FFFFFFFF00000005'</span>));
+            codes.section.adc         = int32(hex2dec(<span class="string">'FFFFFFFF00000006'</span>));
+            codes.section.delays      = int32(hex2dec(<span class="string">'FFFFFFFF00000007'</span>));
+            codes.section.shapes      = int32(hex2dec(<span class="string">'FFFFFFFF00000008'</span>));
+        <span class="keyword">end</span>
 
     <span class="keyword">end</span> <span class="comment">% Static methods</span>
 
@@ -627,6 +647,10 @@ classdef Sequence < handle
         
         % See write.m
         write(obj,filename)
+        
+        % See writeBinary.m
+        writeBinary(obj,filename);
+        
         
         function value=getDefinition(obj,key)
             %getDefinition Return the values of custom definition.
@@ -949,7 +973,23 @@ classdef Sequence < handle
             end
         end
         
-        
+        function codes=getBinaryCodes()
+            %getBinaryCodes Return binary codes for section headers in
+            %   in a binary sequence file.
+            %
+            %   See also  writeBinary
+
+            codes.fileHeader = [1 'pulseq' 2];
+            codes.version = int64(1);
+            codes.section.definitions = int32(hex2dec('FFFFFFFF00000001'));
+            codes.section.blocks      = int32(hex2dec('FFFFFFFF00000002'));
+            codes.section.rf          = int32(hex2dec('FFFFFFFF00000003'));
+            codes.section.gradients   = int32(hex2dec('FFFFFFFF00000004'));
+            codes.section.trapezoids  = int32(hex2dec('FFFFFFFF00000005'));
+            codes.section.adc         = int32(hex2dec('FFFFFFFF00000006'));
+            codes.section.delays      = int32(hex2dec('FFFFFFFF00000007'));
+            codes.section.shapes      = int32(hex2dec('FFFFFFFF00000008'));
+        end
         
     end % Static methods
     

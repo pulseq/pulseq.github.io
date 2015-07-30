@@ -9,7 +9,7 @@
 <meta name="description" content="Open source pulse sequences for NMR and MRI">
 <meta name="author" content="University Medical Center Freiburg">
 <link rel="shortcut icon" href="http://pulseq.github.io/favicon.ico" type="image/x-icon" />
-<title>Open source pulse sequences: MATLAB source code</title>
+<title>Open-source pulse sequences: MATLAB source code</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -35,11 +35,11 @@
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
  <tbody>
- <tr style="height: 56px;">
-  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
+ <tr style="height: 60px;">
+  <td id="projectlogo" style="vertical-align:middle"><img alt="Logo" src="logo.png"/></td>
   <td style="padding-left: 1.5em;">
-   <div id="projectname">Open source pulse sequences
-   &#160;<span id="projectnumber">1.0</span>
+   <div id="projectname">Open-source pulse sequences
+   &#160;<span id="projectnumber"></span>
    </div>
    <div id="projectbrief">Easily create and execute MR sequences</div>
   </td>
@@ -96,15 +96,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">MATLAB source code </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>A MATLAB interface is provided through the <code>mr</code> package. The package contains stand-alone functions for generating common sequence blocks suitable for MRI or spectroscopy such as selective RF pulses, trapezoid gradients and ADC readout events. The <code>Sequence</code> class maintains all sequence data in a compressed form and provides methods to read/write sequence files or modify blocks directly.</p>
+<div class="textblock"><p>A MATLAB interface is provided through the <code>mr</code> package. The package contains stand-alone functions for generating common sequence blocks suitable for MRI or spectroscopy such as selective RF pulses, trapezoid gradients and ADC readout events. The <code>Sequence</code> class maintains all sequence data in a compressed form and provides methods to read/write sequence files or modify blocks directly. Sequences are executed on real MR hardware using vendor-specific interpreter modules.</p>
 <p>Examples</p>
 <p> 
 <div class="directory">
 <table class="directory">
 <tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
-<span class="icona"><span class="icon">M</span></span><a class="el" href="matlabWrite.html">Write sequence</a></td><td class="desc">Generate sequence blocks and write to file.</td></tr>
+<span class="icona"><span class="icon">M</span></span><a class="el" href="matlabWriteGre.html">Gradient echo sequence</a></td><td class="desc">Generate a GRE sequence and export for execution.</td></tr>
 
 <tr><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span>
+<span class="icona"><span class="icon">M</span></span><a class="el" href="matlabWriteRf.html">Arbitrary RF pulses</a></td><td class="desc">Generate sequecne with a 2D RF pulse and export for execution.</td></tr>
+
+<tr class="even"><td class="entry"><span style="width:16px;display:inline-block;">&#160;</span>
 <span class="icona"><span class="icon">M</span></span><a class="el" href="matlabRead.html">Read sequence</a></td><td class="desc">Read file and visualise the MR sequence.</td></tr>
 
 </table>
@@ -131,7 +134,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <span class="icona"><span class="icon">M</span></span>compressShape
 </td><td class="desc">Compress a waveform using a run-length compression scheme.</td></tr>
 
-<tr class=""><td class="entry"><span style="width:16px;display:inline-block;"></span>
+<tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
 <span class="icona"><span class="icon">M</span></span>decompressShape
 </td><td class="desc">Decompress a shape to the original waveform.</td></tr>
 
@@ -140,14 +143,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </td><td class="desc">Create an ADC readout event.</td></tr>
 
 <tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
+<span class="icona"><span class="icon">M</span></span>makeArbitraryGrad
+</td><td class="desc">Create an arbitrary gradient shape.</td></tr>
+
+<tr class=""><td class="entry"><span style="width:16px;display:inline-block;"></span>
+<span class="icona"><span class="icon">M</span></span>makeArbitraryRf
+</td><td class="desc">Create an arbitrary RF pulse.</td></tr>
+
+<tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
 <span class="icona"><span class="icon">M</span></span>makeDelay
 </td><td class="desc">Create a delay event.</td></tr>
 
 <tr class=""><td class="entry"><span style="width:16px;display:inline-block;"></span>
+<span class="icona"><span class="icon">M</span></span>makeBlockPulse
+</td><td class="desc">Create a constant (block) RF pulse and optionally the slice-select gradient.</td></tr>
+
+<tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
 <span class="icona"><span class="icon">M</span></span>makeSincPulse
 </td><td class="desc">Create a sinc RF pulse and optionally the slice-select gradient.</td></tr>
 
-<tr class="even"><td class="entry"><span style="width:16px;display:inline-block;"></span>
+<tr class=""><td class="entry"><span style="width:16px;display:inline-block;"></span>
 <span class="icona"><span class="icon">M</span></span>makeTrapezoid
 </td><td class="desc">Create a trapezoid gradient event.</td></tr>
 
