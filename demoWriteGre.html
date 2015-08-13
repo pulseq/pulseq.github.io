@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Create a gradient echo sequence and export for execution</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-07-30"><meta name="DC.source" content="demoWriteGre.m"><style type="text/css">
+      --><title>Create a gradient echo sequence and export for execution</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-13"><meta name="DC.source" content="demoWriteGre.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -84,13 +84,13 @@ sliceThickness=5e-3;
 
 figure
 plot(rf.t,real(rf.signal))
-</pre><h2>Readout gradient<a name="5"></a></h2><p>To define the remaining encoding gradients we need to calculate the <img src="demoWriteGre_eq86607.png" alt="$k$">-space sampling. The Fourier relationship</p><p><img src="demoWriteGre_eq70128.png" alt="$$\Delta k = \frac{1}{FOV}$$"></p><p>Therefore the area of the readout gradient is <img src="demoWriteGre_eq88565.png" alt="$n\Delta k$">.</p><pre class="codeinput">deltak=1/fov;
+</pre><h2>Readout gradient<a name="5"></a></h2><p>To define the remaining encoding gradients we need to calculate the <img src="demoWriteGre_eq15636846968047188835.png" alt="$k$">-space sampling. The Fourier relationship</p><p><img src="demoWriteGre_eq09991720815298279205.png" alt="$$\Delta k = \frac{1}{FOV}$$"></p><p>Therefore the area of the readout gradient is <img src="demoWriteGre_eq06551878854635137080.png" alt="$n\Delta k$">.</p><pre class="codeinput">deltak=1/fov;
 kWidth = Nx*deltak;
 readoutTime = 6.4e-3;
 gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,kWidth,<span class="string">'FlatTime'</span>,readoutTime,gradOpts);
 
 adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime);
-</pre><h2>Phase encoding<a name="6"></a></h2><p>To move the <img src="demoWriteGre_eq86607.png" alt="$k$">-space trajectory away from 0 prior to the readout a prephasing gradient must be used. Furthermore rephasing of the slice select gradient is required.</p><pre class="codeinput">gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,2e-3,gradOpts);
+</pre><h2>Phase encoding<a name="6"></a></h2><p>To move the <img src="demoWriteGre_eq15636846968047188835.png" alt="$k$">-space trajectory away from 0 prior to the readout a prephasing gradient must be used. Furthermore rephasing of the slice select gradient is required.</p><pre class="codeinput">gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,2e-3,gradOpts);
 gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,-gz.area/2,<span class="string">'Duration'</span>,2e-3,gradOpts);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
 </pre><h2>Calculate timing<a name="7"></a></h2><pre class="codeinput">delayTE=10e-3 - mr.calcDuration(gxPre) - mr.calcDuration(rf)/2 <span class="keyword">...</span>
@@ -110,8 +110,8 @@ delay2 = mr.makeDelay(delayTR);
 </pre><h2>Write to file<a name="9"></a></h2><p>The sequence is written to file in compressed form according to the file format specification using the <tt>write</tt> method.</p><pre class="codeinput">seq.write(<span class="string">'external.seq'</span>)
 </pre><p>Display the first few lines of the output file</p><pre class="codeinput">s=fileread(<span class="string">'external.seq'</span>);
 disp(s(1:309))
-</pre><pre class="codeoutput"># Sequence Blocks
-# Created by MATLAB open sequence
+</pre><pre class="codeoutput"># Pulseq sequence file
+# Created by MATLAB mr toolbox
 
 # Format of blocks:
 ##  D RF  GX  GY  GZ ADC
@@ -124,8 +124,8 @@ disp(s(1:309))
   6  0  1   0   0   1  0
   7  0  0   2   6   4  0
   8  1  0   0   0   0  0
-  
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Create a gradient echo sequence and export for execution
 % 

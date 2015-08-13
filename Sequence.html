@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Sequence</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-07-30"><meta name="DC.source" content="Sequence.m"><style type="text/css">
+      --><title>Sequence</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-13"><meta name="DC.source" content="Sequence.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -133,6 +133,9 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
         <span class="comment">% See write.m</span>
         write(obj,filename)
 
+        <span class="comment">% See readBinary.m</span>
+        readBinary(obj,filename);
+
         <span class="comment">% See writeBinary.m</span>
         writeBinary(obj,filename);
 
@@ -236,13 +239,15 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
                         grad.type = <span class="string">'grad'</span>;
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        obj.blockEvents(index,2+event.channel)=id;
+                        idx = 2+find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
+                        obj.blockEvents(index,idx)=id;
                     <span class="keyword">case</span> <span class="string">'trap'</span>
                         grad.data = [event.amplitude event.riseTime event.flatTime event.fallTime];
                         grad.type = <span class="string">'trap'</span>;
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        obj.blockEvents(index,event.channel+2)=id;
+                        idx = 2+find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
+                        obj.blockEvents(index,idx)=id;
                     <span class="keyword">case</span> <span class="string">'adc'</span>
                         adc.data = [event.numSamples event.dwell event.delay event.freqOffset event.phaseOffset];
                         id = mr.Sequence.searchLibrary(obj.adcLibrary,adc);
@@ -466,14 +471,15 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
             codes.fileHeader = [1 <span class="string">'pulseq'</span> 2];
             codes.version = int64(1);
-            codes.section.definitions = int32(hex2dec(<span class="string">'FFFFFFFF00000001'</span>));
-            codes.section.blocks      = int32(hex2dec(<span class="string">'FFFFFFFF00000002'</span>));
-            codes.section.rf          = int32(hex2dec(<span class="string">'FFFFFFFF00000003'</span>));
-            codes.section.gradients   = int32(hex2dec(<span class="string">'FFFFFFFF00000004'</span>));
-            codes.section.trapezoids  = int32(hex2dec(<span class="string">'FFFFFFFF00000005'</span>));
-            codes.section.adc         = int32(hex2dec(<span class="string">'FFFFFFFF00000006'</span>));
-            codes.section.delays      = int32(hex2dec(<span class="string">'FFFFFFFF00000007'</span>));
-            codes.section.shapes      = int32(hex2dec(<span class="string">'FFFFFFFF00000008'</span>));
+            prefix = bitshift(int64(hex2dec(<span class="string">'FFFFFFFF'</span>)),32);
+            codes.section.definitions = bitor(prefix,int64(1));
+            codes.section.blocks      = bitor(prefix,int64(2));
+            codes.section.rf          = bitor(prefix,int64(3));
+            codes.section.gradients   = bitor(prefix,int64(4));
+            codes.section.trapezoids  = bitor(prefix,int64(5));
+            codes.section.adc         = bitor(prefix,int64(6));
+            codes.section.delays      = bitor(prefix,int64(7));
+            codes.section.shapes      = bitor(prefix,int64(8));
         <span class="keyword">end</span>
 
     <span class="keyword">end</span> <span class="comment">% Static methods</span>
@@ -481,7 +487,7 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 <span class="keyword">end</span> <span class="comment">% classdef</span>
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 classdef Sequence < handle
     % Sequence   Generate sequences and read/write sequence files.
@@ -549,6 +555,9 @@ classdef Sequence < handle
         
         % See write.m
         write(obj,filename)
+        
+        % See readBinary.m
+        readBinary(obj,filename);
         
         % See writeBinary.m
         writeBinary(obj,filename);
@@ -653,13 +662,15 @@ classdef Sequence < handle
                         grad.type = 'grad';
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        obj.blockEvents(index,2+event.channel)=id;
+                        idx = 2+find(strcmp(event.channel,{'x','y','z'}));
+                        obj.blockEvents(index,idx)=id;
                     case 'trap'
                         grad.data = [event.amplitude event.riseTime event.flatTime event.fallTime];
                         grad.type = 'trap';
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        obj.blockEvents(index,event.channel+2)=id;
+                        idx = 2+find(strcmp(event.channel,{'x','y','z'}));
+                        obj.blockEvents(index,idx)=id;
                     case 'adc'
                         adc.data = [event.numSamples event.dwell event.delay event.freqOffset event.phaseOffset];
                         id = mr.Sequence.searchLibrary(obj.adcLibrary,adc);
@@ -883,14 +894,15 @@ classdef Sequence < handle
 
             codes.fileHeader = [1 'pulseq' 2];
             codes.version = int64(1);
-            codes.section.definitions = int32(hex2dec('FFFFFFFF00000001'));
-            codes.section.blocks      = int32(hex2dec('FFFFFFFF00000002'));
-            codes.section.rf          = int32(hex2dec('FFFFFFFF00000003'));
-            codes.section.gradients   = int32(hex2dec('FFFFFFFF00000004'));
-            codes.section.trapezoids  = int32(hex2dec('FFFFFFFF00000005'));
-            codes.section.adc         = int32(hex2dec('FFFFFFFF00000006'));
-            codes.section.delays      = int32(hex2dec('FFFFFFFF00000007'));
-            codes.section.shapes      = int32(hex2dec('FFFFFFFF00000008'));
+            prefix = bitshift(int64(hex2dec('FFFFFFFF')),32);
+            codes.section.definitions = bitor(prefix,int64(1));
+            codes.section.blocks      = bitor(prefix,int64(2));
+            codes.section.rf          = bitor(prefix,int64(3));
+            codes.section.gradients   = bitor(prefix,int64(4));
+            codes.section.trapezoids  = bitor(prefix,int64(5));
+            codes.section.adc         = bitor(prefix,int64(6));
+            codes.section.delays      = bitor(prefix,int64(7));
+            codes.section.shapes      = bitor(prefix,int64(8));
         end
         
     end % Static methods

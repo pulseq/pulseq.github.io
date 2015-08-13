@@ -1,10 +1,10 @@
 <map id="ExternalSequence::decodeBlock" name="ExternalSequence::decodeBlock">
-<area shape="rect" id="node3" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="247,5,439,35"/>
-<area shape="rect" id="node5" href="$classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f" title="Return true if block has RF event. " alt="" coords="285,59,400,88"/>
-<area shape="rect" id="node7" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape. " alt="" coords="240,111,445,158"/>
-<area shape="rect" id="node9" href="$classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8" title="Return true if block has arbitrary event on given channel. " alt="" coords="245,181,440,211"/>
-<area shape="rect" id="node11" href="$classSeqBlock.html#ab8e502746dce1341663a0a1319ab1069" title="Return true if block has ADC readout event. " alt="" coords="280,235,405,264"/>
-<area shape="rect" id="node13" href="$classSeqBlock.html#a2ee51573506eecdf87cb8d629daf95bf" title="Return true if block has delay. " alt="" coords="277,288,408,317"/>
-<area shape="rect" id="node15" href="$classExternalSequence.html#a4a5b59c38694728411d48cebd3ed5d23" title="Check the shapes defining the arbitrary gradient events (if present) " alt="" coords="233,341,452,371"/>
-<area shape="rect" id="node17" href="$classExternalSequence.html#a65962ae575700ed3eb0b6060f9370be9" title="Check the shapes defining the RF event (if present) " alt="" coords="248,395,437,424"/>
+<area shape="rect" id="node2" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="245,5,439,32"/>
+<area shape="rect" id="node3" href="$classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f" title="Return true if block has RF event. " alt="" coords="285,56,399,83"/>
+<area shape="rect" id="node4" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape. " alt="" coords="239,107,445,149"/>
+<area shape="rect" id="node5" href="$classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8" title="Return true if block has arbitrary event on given channel. " alt="" coords="245,173,439,200"/>
+<area shape="rect" id="node6" href="$classSeqBlock.html#ab8e502746dce1341663a0a1319ab1069" title="Return true if block has ADC readout event. " alt="" coords="281,224,403,251"/>
+<area shape="rect" id="node7" href="$classSeqBlock.html#a2ee51573506eecdf87cb8d629daf95bf" title="Return true if block has delay. " alt="" coords="277,275,407,301"/>
+<area shape="rect" id="node8" href="$classExternalSequence.html#a4a5b59c38694728411d48cebd3ed5d23" title="Check the shapes defining the arbitrary gradient events (if present) " alt="" coords="232,325,452,352"/>
+<area shape="rect" id="node9" href="$classExternalSequence.html#a65962ae575700ed3eb0b6060f9370be9" title="Check the shapes defining the RF event (if present) " alt="" coords="248,376,436,403"/>
 </map>

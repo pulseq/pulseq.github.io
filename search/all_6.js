@@ -10,6 +10,7 @@ var searchData=
   ['getgradientlength',['GetGradientLength',['../classSeqBlock.html#a14130d97e82f0484bc852b117fdde95d',1,'SeqBlock']]],
   ['getgradientptr',['GetGradientPtr',['../classSeqBlock.html#a5cf28c8862014973f8f2c191a1faea79',1,'SeqBlock']]],
   ['getindex',['GetIndex',['../classSeqBlock.html#a7e7a4d69638c22a4e5fd4c0404822e61',1,'SeqBlock']]],
+  ['getline',['getline',['../classExternalSequence.html#aa3c10f4bf9d1c851d1041c3961260ecc',1,'ExternalSequence']]],
   ['getnumberofblocks',['GetNumberOfBlocks',['../classExternalSequence.html#a80e5cb9aacb4d431d9384ce963becfe8',1,'ExternalSequence']]],
   ['getrfamplitudeptr',['GetRFAmplitudePtr',['../classSeqBlock.html#ad9d999f5d36a11a879d3903bccf1b0dc',1,'SeqBlock']]],
   ['getrfevent',['GetRFEvent',['../classSeqBlock.html#aaa4980481a7c0eab1bb5798da3becfef',1,'SeqBlock']]],
