@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Sequence</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-27"><meta name="DC.source" content="Sequence.m"><style type="text/css">
+      --><title>Sequence</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-11-16"><meta name="DC.source" content="Sequence.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -198,8 +198,11 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
             <span class="comment">% Convert block structure to cell array of events</span>
             varargin=mr.block2events(varargin);
+            varargin(cellfun(@(C)isempty(C),varargin))=[];
 
             obj.blockEvents(index,:) = zeros(1,6);
+            duration = 0;
+
             <span class="comment">% Loop over events adding to library if necessary and creating</span>
             <span class="comment">% block event structure.</span>
             <span class="keyword">for</span> i=1:length(varargin)
@@ -216,7 +219,7 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
                         phase(phase&lt;0)=phase(phase&lt;0)+2*pi;
                         phase=phase/(2*pi);
 
-                        magShape = mr.compressShape(mag);
+                        magShape = mr.compressShape(mag(:));
                         magId = mr.Sequence.searchLibrary(obj.shapeLibrary,magShape);
                         obj.shapeLibrary(magId) = magShape;
 
@@ -228,7 +231,9 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
                         id = mr.Sequence.searchLibrary(obj.rfLibrary,rf);
                         obj.rfLibrary(id) = rf;
                         obj.blockEvents(index,2)=id;
+                        duration=max(duration,length(mag)*mr.Sequence.RfRasterTime);
                     <span class="keyword">case</span> <span class="string">'grad'</span>
+                        channelNum = find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
                         amplitude = max(abs(event.waveform));
                         g = event.waveform./amplitude;
                         shape = mr.compressShape(g);
@@ -239,25 +244,30 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
                         grad.type = <span class="string">'grad'</span>;
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        idx = 2+find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
+                        idx = 2+channelNum;
                         obj.blockEvents(index,idx)=id;
+                        duration=max(duration,length(g)*mr.Sequence.GradRasterTime);
                     <span class="keyword">case</span> <span class="string">'trap'</span>
+                        channelNum = find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
                         grad.data = [event.amplitude event.riseTime event.flatTime event.fallTime];
                         grad.type = <span class="string">'trap'</span>;
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        idx = 2+find(strcmp(event.channel,{<span class="string">'x'</span>,<span class="string">'y'</span>,<span class="string">'z'</span>}));
+                        idx = 2+channelNum;
                         obj.blockEvents(index,idx)=id;
+                        duration=max(duration,event.riseTime+event.flatTime+event.fallTime);
                     <span class="keyword">case</span> <span class="string">'adc'</span>
                         adc.data = [event.numSamples event.dwell event.delay event.freqOffset event.phaseOffset];
                         id = mr.Sequence.searchLibrary(obj.adcLibrary,adc);
                         obj.adcLibrary(id) = adc;
                         obj.blockEvents(index,6)=id;
+                        duration=max(duration,event.delay+event.numSamples*event.dwell);
                     <span class="keyword">case</span> <span class="string">'delay'</span>
                         delay.data = [event.delay];
                         id = mr.Sequence.searchLibrary(obj.delayLibrary,delay);
                         obj.delayLibrary(id) = delay;
                         obj.blockEvents(index,1)=id;
+                        duration=max(duration,event.delay);
                 <span class="keyword">end</span>
             <span class="keyword">end</span>
         <span class="keyword">end</span>
@@ -383,47 +393,43 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
             xlabel(ax(3),[<span class="string">'t ('</span> opt.timeDisp <span class="string">')'</span>]);
             xlabel(ax(6),[<span class="string">'t ('</span> opt.timeDisp <span class="string">')'</span>]);
 
-            t=0;
+            t0=0;
             <span class="keyword">for</span> i=1:size(obj.blockEvents,1)
                 block = obj.getBlock(i);
-                isValid = t&gt;=opt.timeRange(1) &amp;&amp; t&lt;=opt.timeRange(2);
-                <span class="keyword">if</span> ~isempty(block.adc)
-                    <span class="keyword">if</span> isValid
+                isValid = t0&gt;=opt.timeRange(1) &amp;&amp; t0&lt;=opt.timeRange(2);
+                <span class="keyword">if</span> isValid
+                    <span class="keyword">if</span> ~isempty(block.adc)
                         adc=block.adc;
-                        tt=adc.delay + (0:adc.numSamples-1)*adc.dwell;
-                        plot(tFactor*(t+tt),zeros(size(tt)),<span class="string">'rx'</span>,<span class="string">'Parent'</span>,ax(1));
+                        t=adc.delay + (0:adc.numSamples-1)*adc.dwell;
+                        plot(tFactor*(t0+t),zeros(size(t)),<span class="string">'rx'</span>,<span class="string">'Parent'</span>,ax(1));
                     <span class="keyword">end</span>
-                <span class="keyword">end</span>
-                <span class="keyword">if</span> ~isempty(block.rf)
-                    <span class="keyword">if</span> isValid
+                    <span class="keyword">if</span> ~isempty(block.rf)
                         rf=block.rf;
-                        tt=rf.t;
-                        plot(tFactor*(t+tt),abs(rf.signal),<span class="string">'Parent'</span>,ax(2));
-                        plot(tFactor*(t+tt),angle(rf.signal),<span class="string">'Parent'</span>,ax(3));
+                        t=rf.t;
+                        plot(tFactor*(t0+t),abs(rf.signal),<span class="string">'Parent'</span>,ax(2));
+                        plot(tFactor*(t0+t),angle(rf.signal),<span class="string">'Parent'</span>,ax(3));
                     <span class="keyword">end</span>
-                <span class="keyword">end</span>
-                gradChannels={<span class="string">'gx'</span>,<span class="string">'gy'</span>,<span class="string">'gz'</span>};
-                <span class="keyword">for</span> j=1:length(gradChannels)
-                    grad=block.(gradChannels{j});
-                    <span class="keyword">if</span> ~isempty(block.(gradChannels{j}))
-                        <span class="keyword">if</span> strcmp(grad.type,<span class="string">'grad'</span>)
-                            tt=grad.t;
-                            waveform=grad.waveform;
-                        <span class="keyword">else</span>
-                            tt=cumsum([0 grad.riseTime grad.flatTime grad.fallTime]);
-                            waveform=grad.amplitude*[0 1 1 0];
-                        <span class="keyword">end</span>
-
-                        <span class="keyword">if</span> isValid
-                            plot(tFactor*(t+tt),waveform,<span class="string">'Parent'</span>,ax(3+j));
+                    gradChannels={<span class="string">'gx'</span>,<span class="string">'gy'</span>,<span class="string">'gz'</span>};
+                    <span class="keyword">for</span> j=1:length(gradChannels)
+                        grad=block.(gradChannels{j});
+                        <span class="keyword">if</span> ~isempty(block.(gradChannels{j}))
+                            <span class="keyword">if</span> strcmp(grad.type,<span class="string">'grad'</span>)
+                                t=grad.t;
+                                waveform=grad.waveform;
+                            <span class="keyword">else</span>
+                                t=cumsum([0 grad.riseTime grad.flatTime grad.fallTime]);
+                                waveform=grad.amplitude*[0 1 1 0];
+                            <span class="keyword">end</span>
+                            plot(tFactor*(t0+t),waveform,<span class="string">'Parent'</span>,ax(3+j));
                         <span class="keyword">end</span>
                     <span class="keyword">end</span>
                 <span class="keyword">end</span>
-                t=t+mr.calcDuration(block);
+                t0=t0+mr.calcDuration(block);
             <span class="keyword">end</span>
 
+
             linkaxes(ax(:),<span class="string">'x'</span>)
-            dispRange = tFactor*[opt.timeRange(1) min(opt.timeRange(2),t)];
+            dispRange = tFactor*[opt.timeRange(1) min(opt.timeRange(2),t0)];
             xlim(ax(1),dispRange);
 
             h = zoom;
@@ -444,14 +450,14 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
             <span class="comment">%   See also  addBlock</span>
 
             found=0;
-            keys=cell2mat(library.keys);
+            keys=library.keys;
             values=library.values;
             <span class="keyword">for</span> iL=1:length(keys)
                 <span class="comment">%                 data=library(keys(iL)).data;</span>
                 data=values{iL}.data;
                 <span class="keyword">if</span> length(data)==length(dataStruct.data) &amp;&amp; <span class="keyword">...</span>
                         norm(data-dataStruct.data)&lt;1e-6
-                    id=keys(iL);
+                    id=keys{iL};
                     found=1;
                     <span class="keyword">break</span>;
                 <span class="keyword">end</span>
@@ -459,8 +465,9 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
             <span class="keyword">if</span> isempty(keys)
                 id=1;
             <span class="keyword">elseif</span> ~found
-                id=max(keys)+1;
+                id=max(cell2mat(keys))+1;
             <span class="keyword">end</span>
+
         <span class="keyword">end</span>
 
         <span class="keyword">function</span> codes=getBinaryCodes()
@@ -621,8 +628,11 @@ classdef Sequence < handle
             
             % Convert block structure to cell array of events
             varargin=mr.block2events(varargin);
+            varargin(cellfun(@(C)isempty(C),varargin))=[];
             
             obj.blockEvents(index,:) = zeros(1,6);
+            duration = 0;
+            
             % Loop over events adding to library if necessary and creating
             % block event structure.
             for i=1:length(varargin)
@@ -639,7 +649,7 @@ classdef Sequence < handle
                         phase(phase<0)=phase(phase<0)+2*pi;
                         phase=phase/(2*pi);
                         
-                        magShape = mr.compressShape(mag);
+                        magShape = mr.compressShape(mag(:));
                         magId = mr.Sequence.searchLibrary(obj.shapeLibrary,magShape);
                         obj.shapeLibrary(magId) = magShape;
                         
@@ -651,7 +661,9 @@ classdef Sequence < handle
                         id = mr.Sequence.searchLibrary(obj.rfLibrary,rf);
                         obj.rfLibrary(id) = rf;
                         obj.blockEvents(index,2)=id;
+                        duration=max(duration,length(mag)*mr.Sequence.RfRasterTime);
                     case 'grad'
+                        channelNum = find(strcmp(event.channel,{'x','y','z'}));
                         amplitude = max(abs(event.waveform));
                         g = event.waveform./amplitude;
                         shape = mr.compressShape(g);
@@ -662,25 +674,30 @@ classdef Sequence < handle
                         grad.type = 'grad';
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        idx = 2+find(strcmp(event.channel,{'x','y','z'}));
+                        idx = 2+channelNum;
                         obj.blockEvents(index,idx)=id;
+                        duration=max(duration,length(g)*mr.Sequence.GradRasterTime);
                     case 'trap'
+                        channelNum = find(strcmp(event.channel,{'x','y','z'}));
                         grad.data = [event.amplitude event.riseTime event.flatTime event.fallTime];
                         grad.type = 'trap';
                         id = mr.Sequence.searchLibrary(obj.gradLibrary,grad);
                         obj.gradLibrary(id) = grad;
-                        idx = 2+find(strcmp(event.channel,{'x','y','z'}));
+                        idx = 2+channelNum;
                         obj.blockEvents(index,idx)=id;
+                        duration=max(duration,event.riseTime+event.flatTime+event.fallTime);
                     case 'adc'
                         adc.data = [event.numSamples event.dwell event.delay event.freqOffset event.phaseOffset];
                         id = mr.Sequence.searchLibrary(obj.adcLibrary,adc);
                         obj.adcLibrary(id) = adc;
                         obj.blockEvents(index,6)=id;
+                        duration=max(duration,event.delay+event.numSamples*event.dwell);
                     case 'delay'
                         delay.data = [event.delay];
                         id = mr.Sequence.searchLibrary(obj.delayLibrary,delay);
                         obj.delayLibrary(id) = delay;
                         obj.blockEvents(index,1)=id;
+                        duration=max(duration,event.delay);
                 end
             end
         end
@@ -806,47 +823,43 @@ classdef Sequence < handle
             xlabel(ax(3),['t (' opt.timeDisp ')']);
             xlabel(ax(6),['t (' opt.timeDisp ')']);
             
-            t=0;
+            t0=0;
             for i=1:size(obj.blockEvents,1)
                 block = obj.getBlock(i);
-                isValid = t>=opt.timeRange(1) && t<=opt.timeRange(2);
-                if ~isempty(block.adc)
-                    if isValid
+                isValid = t0>=opt.timeRange(1) && t0<=opt.timeRange(2);
+                if isValid
+                    if ~isempty(block.adc)
                         adc=block.adc;
-                        tt=adc.delay + (0:adc.numSamples-1)*adc.dwell;
-                        plot(tFactor*(t+tt),zeros(size(tt)),'rx','Parent',ax(1));
+                        t=adc.delay + (0:adc.numSamples-1)*adc.dwell;
+                        plot(tFactor*(t0+t),zeros(size(t)),'rx','Parent',ax(1));
                     end
-                end
-                if ~isempty(block.rf)
-                    if isValid
+                    if ~isempty(block.rf)
                         rf=block.rf;
-                        tt=rf.t;
-                        plot(tFactor*(t+tt),abs(rf.signal),'Parent',ax(2));
-                        plot(tFactor*(t+tt),angle(rf.signal),'Parent',ax(3));
+                        t=rf.t;
+                        plot(tFactor*(t0+t),abs(rf.signal),'Parent',ax(2));
+                        plot(tFactor*(t0+t),angle(rf.signal),'Parent',ax(3));
                     end
-                end
-                gradChannels={'gx','gy','gz'};
-                for j=1:length(gradChannels)
-                    grad=block.(gradChannels{j});
-                    if ~isempty(block.(gradChannels{j}))
-                        if strcmp(grad.type,'grad')
-                            tt=grad.t;
-                            waveform=grad.waveform;
-                        else
-                            tt=cumsum([0 grad.riseTime grad.flatTime grad.fallTime]);
-                            waveform=grad.amplitude*[0 1 1 0];
+                    gradChannels={'gx','gy','gz'};
+                    for j=1:length(gradChannels)
+                        grad=block.(gradChannels{j});
+                        if ~isempty(block.(gradChannels{j}))
+                            if strcmp(grad.type,'grad')
+                                t=grad.t;
+                                waveform=grad.waveform;
+                            else
+                                t=cumsum([0 grad.riseTime grad.flatTime grad.fallTime]);
+                                waveform=grad.amplitude*[0 1 1 0];
+                            end
+                            plot(tFactor*(t0+t),waveform,'Parent',ax(3+j));
                         end
-                        
-                        if isValid
-                            plot(tFactor*(t+tt),waveform,'Parent',ax(3+j));
-                        end
-                    end
+                    end                
                 end
-                t=t+mr.calcDuration(block);
+                t0=t0+mr.calcDuration(block);
             end
             
+            
             linkaxes(ax(:),'x')
-            dispRange = tFactor*[opt.timeRange(1) min(opt.timeRange(2),t)];
+            dispRange = tFactor*[opt.timeRange(1) min(opt.timeRange(2),t0)];
             xlim(ax(1),dispRange);
             
             h = zoom;
@@ -867,14 +880,14 @@ classdef Sequence < handle
             %   See also  addBlock
             
             found=0;
-            keys=cell2mat(library.keys);
+            keys=library.keys;
             values=library.values;
             for iL=1:length(keys)
                 %                 data=library(keys(iL)).data;
                 data=values{iL}.data;
                 if length(data)==length(dataStruct.data) && ...
                         norm(data-dataStruct.data)<1e-6
-                    id=keys(iL);
+                    id=keys{iL};
                     found=1;
                     break;
                 end
@@ -882,8 +895,9 @@ classdef Sequence < handle
             if isempty(keys)
                 id=1;
             elseif ~found
-                id=max(keys)+1;
+                id=max(cell2mat(keys))+1;
             end
+            
         end
         
         function codes=getBinaryCodes()

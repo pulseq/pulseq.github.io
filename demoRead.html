@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-08-27"><meta name="DC.source" content="demoRead.m"><style type="text/css">
+      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-11-16"><meta name="DC.source" content="demoRead.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -138,7 +138,7 @@ ans =
            type: 'adc'
 
 </pre><h2>Plot the sequence<a name="6"></a></h2><p>Visualise the sequence using the <tt>plot</tt> method of the class. This creates a new figure and shows ADC, RF and gradient events. The axes are linked so zooming is consistent. In this example, a simple gradient echo sequence for MRI is displayed.</p><pre class="codeinput">seq.plot()
-</pre><img vspace="5" hspace="5" src="demoRead_02.png" alt=""> <p>The details of individual pulses are not well-represented when the entire sequence is visualised. Interactive zooming is helpful here. Alternatively, a time range can be specified.  An additional parameter also allows the display units to be changed for easy reading. Further, the handle of the created figure can be returned if required.</p><pre class="codeinput">fig=seq.plot(<span class="string">'TimeRange'</span>,[0 15e-3],<span class="string">'timeDisp'</span>,<span class="string">'ms'</span>)
+</pre><img vspace="5" hspace="5" src="demoRead_02.png" alt=""> <p>The details of individual pulses are not well-represented when the entire sequence is visualised. Interactive zooming is helpful here. Alternatively, a time range can be specified.  An additional parameter also allows the display units to be changed for easy reading. Further, the handle of the created figure can be returned if required.</p><pre class="codeinput">fig=seq.plot(<span class="string">'TimeRange'</span>,[0 16e-3],<span class="string">'timeDisp'</span>,<span class="string">'ms'</span>)
 </pre><pre class="codeoutput">
 fig = 
 
@@ -247,7 +247,7 @@ seq.plot()
 % Alternatively, a time range can be specified.  An additional parameter
 % also allows the display units to be changed for easy reading. 
 % Further, the handle of the created figure can be returned if required.
-fig=seq.plot('TimeRange',[0 15e-3],'timeDisp','ms')
+fig=seq.plot('TimeRange',[0 16e-3],'timeDisp','ms')
 
 %% Modifying sequence blocks
 % In addition to loading a sequence and accessing sequence blocks, blocks

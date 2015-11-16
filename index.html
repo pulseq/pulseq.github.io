@@ -96,8 +96,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Introduction </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>This project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MRI scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a></p>
-<p>The source code provides example implementations of this format. Code documentation is divided into <a href="matlab.html">MATLAB</a> and <a href="annotated.html">C++</a> sections.</p>
+<div class="textblock"><p>This project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. In summary, MRI sequence can be programmed directly in MATLAB and executed on real hardware.</p>
+<div class="image">
+<img src="overview.png" />
+</div>
+<p>A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MRI scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a></p>
+<p>The source code provides example implementations of this format. Code documentation is divided into <a href="matlab.html">MATLAB</a> and <a href="annotated.html">C++</a> sections. Alternatively, sequences can be programming in <a href="http://www.jemris.org/">JEMRIS</a> using a graphical interface and exported to the Pulseq file format for execution.</p>
 <h2>Sequence examples</h2>
 <p>Some source code examples are</p>
 <ul>

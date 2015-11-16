@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['matlab_20source_20code',['MATLAB source code',['../matlab.html',1,'']]],
+  ['matlab_20toolbox',['MATLAB toolbox',['../matlab.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabRead.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabWriteGre.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabWriteRf.html',1,'']]],

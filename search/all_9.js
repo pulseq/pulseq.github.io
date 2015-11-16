@@ -10,7 +10,7 @@ var searchData=
   ['m_5fshapelibrary',['m_shapeLibrary',['../classExternalSequence.html#a90bc1c3e31d7d59c72ee4af72ecabf38',1,'ExternalSequence']]],
   ['magshape',['magShape',['../structRFEvent.html#a052b00e1ed1473f2d9eff7c4db28db70',1,'RFEvent']]],
   ['main',['main',['../parsemr_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'parsemr.cpp']]],
-  ['matlab_20source_20code',['MATLAB source code',['../matlab.html',1,'']]],
+  ['matlab_20toolbox',['MATLAB toolbox',['../matlab.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabRead.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabWriteGre.html',1,'']]],
   ['matlab_20example',['MATLAB example',['../matlabWriteRf.html',1,'']]],
