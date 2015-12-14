@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-07"><meta name="DC.source" content="demoRead.m"><style type="text/css">
+      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-14"><meta name="DC.source" content="demoRead.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -102,6 +102,7 @@ rf =
               t: [4000x1 double]
      freqOffset: 0
     phaseOffset: 0
+       deadTime: 0
 
 </pre><img vspace="5" hspace="5" src="demoRead_01.png" alt=""> <p>The next three blocks contain: three gradient events; a delay; and readout gradient with ADC event, each with corresponding fields defining the details of the events.</p><pre class="codeinput">b2 = seq.getBlock(2);
 b3 = seq.getBlock(3);
@@ -135,6 +136,7 @@ ans =
           delay: 1.0000e-05
      freqOffset: 0
     phaseOffset: 0
+       deadTime: 0
            type: 'adc'
 
 </pre><h2>Plot the sequence<a name="6"></a></h2><p>Visualise the sequence using the <tt>plot</tt> method of the class. This creates a new figure and shows ADC, RF and gradient events. The axes are linked so zooming is consistent. In this example, a simple gradient echo sequence for MRI is displayed.</p><pre class="codeinput">seq.plot()
@@ -161,7 +163,7 @@ window = (1.0-alpha+alpha*cos(2*pi*t/duration));    <span class="comment">% Hamm
 signal = window.*sinc(BW*t);
 
 <span class="comment">% Normalise area to achieve 2*pi rotation</span>
-signal=signal./(mr.Sequence.RfRasterTime*sum(real(signal)));
+signal=signal./(seq.rfRasterTime*sum(real(signal)));
 
 <span class="comment">% Scale to 45 degree flip angle</span>
 rf2.signal=signal.*45/360;
@@ -264,7 +266,7 @@ window = (1.0-alpha+alpha*cos(2*pi*t/duration));    % Hamming window
 signal = window.*sinc(BW*t);
 
 % Normalise area to achieve 2*pi rotation
-signal=signal./(mr.Sequence.RfRasterTime*sum(real(signal)));
+signal=signal./(seq.rfRasterTime*sum(real(signal)));
 
 % Scale to 45 degree flip angle
 rf2.signal=signal.*45/360;

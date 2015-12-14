@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Create a 2D selective RF pulse for a spin echo sequence</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-07"><meta name="DC.source" content="demoWriteRf.m"><style type="text/css">
+      --><title>Create a 2D selective RF pulse for a spin echo sequence</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-14"><meta name="DC.source" content="demoWriteRf.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h1>Create a 2D selective RF pulse for a spin echo sequence</h1><!--introduction--><p>This demo defines an entire MRI sequence in MATLAB to selectively excite a volume. A slice through this excited volume is then imaged with a slice-selective refocusing pulse.</p><p>This example performs the following steps:</p><div><ol><li>Create a 2D RF pulse and corresponding k-space trajectory.</li><li>Calculate the gradient waveforms from the trajectory</li><li>Create readout gradient and phase encode strategy.</li><li>Loop through phase encoding and generate sequence blocks.</li><li>Write the sequence to an open file format suitable for execution on a scanner.</li></ol></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Sequence parameters</a></li><li><a href="#3">Excitation k-space</a></li><li><a href="#4">RF pulse definition</a></li><li><a href="#9">Refocusing pulse and spoiling gradients.</a></li><li><a href="#10">Calculate timing</a></li><li><a href="#11">Define sequence blocks</a></li></ul></div><h2>Sequence parameters<a name="1"></a></h2><p>A new sequence object is created by calling the class constructor.</p><pre class="codeinput">seq=mr.Sequence();
+  </style></head><body><div class="content"><h1>Create a 2D selective RF pulse for a spin echo sequence</h1><!--introduction--><p>This demo defines an entire MRI sequence in MATLAB to selectively excite a volume. A slice through this excited volume is then imaged with a slice-selective refocusing pulse.</p><p>This example performs the following steps:</p><div><ol><li>Create a 2D RF pulse and corresponding k-space trajectory.</li><li>Calculate the gradient waveforms from the trajectory</li><li>Create readout gradient and phase encode strategy.</li><li>Loop through phase encoding and generate sequence blocks.</li><li>Write the sequence to an open file format suitable for execution on a scanner.</li></ol></div><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Sequence parameters</a></li><li><a href="#3">Excitation k-space</a></li><li><a href="#4">RF pulse definition</a></li><li><a href="#9">Refocusing pulse and spoiling gradients</a></li><li><a href="#10">Calculate timing</a></li><li><a href="#11">Define sequence blocks</a></li></ul></div><h2>Sequence parameters<a name="1"></a></h2><p>A new sequence object is created by calling the class constructor.</p><pre class="codeinput">seq=mr.Sequence();
 </pre><p>Sequence parameters are defined using standard MATLAB variables</p><pre class="codeinput">fov=220e-3;                     <span class="comment">% Field-of-view</span>
 Nx=256; Ny=256;                 <span class="comment">% Imaging resolution</span>
 foe=200e-3;                     <span class="comment">% Field of excitation</span>
@@ -74,13 +74,13 @@ targetWidth=22.5e-3;            <span class="comment">% Diameter of target excit
 n=8;                            <span class="comment">% Number of spiral turns</span>
 T=8e-3;                         <span class="comment">% Pulse duration</span>
 </pre><h2>Excitation k-space<a name="3"></a></h2><p>A inward spiral trajectory for the excitation k-space is defined. The field-of-excitation and number of spiral turns defines the maximum k-space extent.</p><pre class="codeinput">kMax=(2*n)/foe/2;               <span class="comment">% Units of 1/m (not rad/m)</span>
-tk=0:mr.Sequence.GradRasterTime:T-mr.Sequence.GradRasterTime;
+tk=0:seq.gradRasterTime:T-seq.gradRasterTime;
 kx=kMax*(1-tk/T).*cos(2*pi*n*tk/T);
 ky=kMax*(1-tk/T).*sin(2*pi*n*tk/T);
 
 plot(kx,ky)
 xlabel(<span class="string">'k_x (1/m)'</span>); ylabel(<span class="string">'k_y (1/m)'</span>);
-</pre><img vspace="5" hspace="5" src="demoWriteRf_01.png" alt=""> <h2>RF pulse definition<a name="4"></a></h2><p>The RF pulse is defined closely following Pauly et al, JMR 1989; 81:43-56. The target excitation is a Gaussian defined by</p><p><img src="demoWriteRf_eq10653464104027047902.png" alt="$$f(x) = a \exp(-|x|^2/\sigma^2)$$"></p><p>The equivalent in k-space is calculated with the Fourier transform</p><p><img src="demoWriteRf_eq01509701930173805873.png" alt="$$g(x) = b \exp(-\beta^2 |k|^2)$$"></p><p>where the width is given by</p><p><img src="demoWriteRf_eq02607881910663342120.png" alt="$$\beta=\frac{2\pi K_{\rm max} \sigma}{2\sqrt{2}}$$"></p><pre class="codeinput">tr=0:mr.Sequence.RfRasterTime:T-mr.Sequence.RfRasterTime;
+</pre><img vspace="5" hspace="5" src="demoWriteRf_01.png" alt=""> <h2>RF pulse definition<a name="4"></a></h2><p>The RF pulse is defined closely following Pauly et al, JMR 1989; 81:43-56. The target excitation is a Gaussian defined by</p><p><img src="demoWriteRf_eq10653464104027047902.png" alt="$$f(x) = a \exp(-|x|^2/\sigma^2)$$"></p><p>The equivalent in k-space is calculated with the Fourier transform</p><p><img src="demoWriteRf_eq01509701930173805873.png" alt="$$g(x) = b \exp(-\beta^2 |k|^2)$$"></p><p>where the width is given by</p><p><img src="demoWriteRf_eq02607881910663342120.png" alt="$$\beta=\frac{2\pi K_{\rm max} \sigma}{2\sqrt{2}}$$"></p><pre class="codeinput">tr=0:seq.rfRasterTime:T-seq.rfRasterTime;
 kxRf=interp1(tk,kx,tr,<span class="string">'linear'</span>,<span class="string">'extrap'</span>);
 kyRf=interp1(tk,ky,tr,<span class="string">'linear'</span>,<span class="string">'extrap'</span>);
 beta=2*pi*kMax*targetWidth/2/sqrt(2);  <span class="comment">% Gaussian width in k-space</span>
@@ -89,7 +89,7 @@ signal0 = exp(-beta.^2.*(1-tr/T).^2).*sqrt((2*pi*n*(1-tr/T)).^2+1);
 
 plot(1e3*tr,real(signal),1e3*tr,imag(signal));
 xlabel(<span class="string">'t (ms)'</span>); ylabel(<span class="string">'Signal (Hz)'</span>);
-</pre><p>Add gradient ramps to achieve the starting gradient value and moment (first k-space point) and likewise ramp the gradients to zero afterwards. The RF pulse is also padded with zeros during the ramp times.</p><pre class="codeinput">[kx,ky,signal]=mr.addRamps({kx,ky},<span class="string">'rf'</span>,signal);
+</pre><img vspace="5" hspace="5" src="demoWriteRf_02.png" alt=""> <p>Add gradient ramps to achieve the starting gradient value and moment (first k-space point) and likewise ramp the gradients to zero afterwards. The RF pulse is also padded with zeros during the ramp times.</p><pre class="codeinput">[kx,ky,signal]=mr.addRamps({kx,ky},<span class="string">'rf'</span>,signal);
 </pre><p>The gradient waveforms are calculated based from the k-space trajectory using the <tt>traj2grad</tt> function, which internally calculates the finite differences. The arbitrary gradient and RF events are then defined using functions in the <tt>mr</tt> toolbox.</p><pre class="codeinput">gx = mr.traj2grad(kx);
 gy = mr.traj2grad(ky);
 
@@ -101,12 +101,12 @@ gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Flat
 adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime);
 gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,2e-3);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
-</pre><h2>Refocusing pulse and spoiling gradients.<a name="9"></a></h2><p>The refocusing pulse selects a single slice through the excited volume.</p><pre class="codeinput">[rf180, gz] = mr.makeBlockPulse(pi,<span class="string">'Duration'</span>,1e-3,<span class="string">'SliceThickness'</span>,5e-3);
+</pre><h2>Refocusing pulse and spoiling gradients<a name="9"></a></h2><p>The refocusing pulse selects a single slice through the excited volume.</p><pre class="codeinput">[rf180, gz] = mr.makeBlockPulse(pi,<span class="string">'Duration'</span>,1e-3,<span class="string">'SliceThickness'</span>,5e-3);
 gzSpoil = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,gx.area,<span class="string">'Duration'</span>,2e-3);
 </pre><h2>Calculate timing<a name="10"></a></h2><p>Echo time and repetition time are, TE=20ms, TR=500ms</p><pre class="codeinput">delayTE1=20e-3/2 - mr.calcDuration(gzSpoil) - mr.calcDuration(rf180)/2;
 delayTE2=delayTE1 - mr.calcDuration(gxPre) - mr.calcDuration(gx)/2;
 delayTR=500e-3 - 20e-3 - mr.calcDuration(rf) - mr.calcDuration(gx)/2;
-</pre><img vspace="5" hspace="5" src="demoWriteRf_02.png" alt=""> <h2>Define sequence blocks<a name="11"></a></h2><p>Loop over phase encodes and define sequence blocks</p><pre class="codeinput"><span class="keyword">for</span> i=1:Ny
+</pre><h2>Define sequence blocks<a name="11"></a></h2><p>Loop over phase encodes and define sequence blocks</p><pre class="codeinput"><span class="keyword">for</span> i=1:Ny
     seq.addBlock(rf,gxRf,gyRf);
     seq.addBlock(mr.makeDelay(delayTE1));
     seq.addBlock(gzSpoil);
@@ -159,7 +159,7 @@ T=8e-3;                         % Pulse duration
 % field-of-excitation and number of spiral turns defines the maximum
 % k-space extent. 
 kMax=(2*n)/foe/2;               % Units of 1/m (not rad/m)
-tk=0:mr.Sequence.GradRasterTime:T-mr.Sequence.GradRasterTime;
+tk=0:seq.gradRasterTime:T-seq.gradRasterTime;
 kx=kMax*(1-tk/T).*cos(2*pi*n*tk/T);
 ky=kMax*(1-tk/T).*sin(2*pi*n*tk/T);
 
@@ -180,13 +180,13 @@ xlabel('k_x (1/m)'); ylabel('k_y (1/m)');
 %
 % $$\beta=\frac{2\pi K_{\rm max} \sigma}{2\sqrt{2}}$$
 %
-tr=0:mr.Sequence.RfRasterTime:T-mr.Sequence.RfRasterTime;
+tr=0:seq.rfRasterTime:T-seq.rfRasterTime;
 kxRf=interp1(tk,kx,tr,'linear','extrap');
 kyRf=interp1(tk,ky,tr,'linear','extrap');
 beta=2*pi*kMax*targetWidth/2/sqrt(2);  % Gaussian width in k-space
 signal0 = exp(-beta.^2.*(1-tr/T).^2).*sqrt((2*pi*n*(1-tr/T)).^2+1);
 
-%%%
+%%
 % Two RF waveforms are superimposed to excite a replica pattern offset 5cm
 % in x and y directions. The shifted pattern is achieved with modulation by
 % a complex exponential.
@@ -195,7 +195,7 @@ signal = signal0.*(1 + exp(-1j.*2*pi*5e-2*(kxRf + kyRf)));
 plot(1e3*tr,real(signal),1e3*tr,imag(signal));
 xlabel('t (ms)'); ylabel('Signal (Hz)');
 
-%%%
+%%
 % Add gradient ramps to achieve the starting gradient value and moment
 % (first k-space point) and likewise ramp the gradients to zero afterwards.
 % The RF pulse is also padded with zeros during the ramp times.
@@ -221,7 +221,7 @@ adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime);
 gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'Duration',2e-3);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
 
-%%% Refocusing pulse and spoiling gradients. 
+%%% Refocusing pulse and spoiling gradients
 % The refocusing pulse selects a single slice through the excited volume.
 [rf180, gz] = mr.makeBlockPulse(pi,'Duration',1e-3,'SliceThickness',5e-3);
 gzSpoil = mr.makeTrapezoid('z','Area',gx.area,'Duration',2e-3);
