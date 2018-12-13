@@ -1,0 +1,237 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>reconExample2DGD</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="reconExample2DGD.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">very basic and crude non-cartesian recon using griddata()</a></li><li><a href="#2">Load data</a></li><li><a href="#3">Load the latest file from a dir</a></li><li><a href="#5">Load sequence from the file (optional)</a></li><li><a href="#6">Define FOV and resolution and simple off-resonance frequency correction</a></li><li><a href="#7">here we expect Nx, Ny, deltak to be set already</a></li><li><a href="#8">Sum of squares combination</a></li></ul></div><h2 id="1">very basic and crude non-cartesian recon using griddata()</h2><pre class="codeinput"><span class="comment">%addpath('/raid/home/extern/range/code/mapvbvd')</span>
+</pre><h2 id="2">Load data</h2><pre class="codeinput"><span class="comment">%scan_ID = 7546;</span>
+<span class="comment">%rawDir = '/raid/groupspace/range/rawdata';</span>
+
+<span class="comment">%twix_obj = mapVBVD(sprintf('%s/%d/raw.dat', rawDir, scan_ID));</span>
+</pre><h2 id="3">Load the latest file from a dir</h2><pre class="codeinput">path=<span class="string">'../IceNIH_RawSend/'</span>
+pattern=<span class="string">'*.dat'</span>
+
+D=dir([path pattern]);
+[~,I]=sort([D(:).datenum]);
+data_file_path=[path D(I(end)).name]
+</pre><pre class="codeoutput">
+path =
+
+../IceNIH_RawSend/
+
+
+pattern =
+
+*.dat
+
+</pre><pre class="codeoutput error">Subscript indices must either be real positive integers or logicals.
+
+Error in reconExample2DGD (line 18)
+data_file_path=[path D(I(end)).name]
+</pre><pre class="codeinput">twix_obj = mapVBVD(data_file_path);
+</pre><h2 id="5">Load sequence from the file (optional)</h2><pre class="codeinput">seq_file_path = [data_file_path(1:end-3) <span class="string">'seq'</span>];
+
+traj_recon_delay=0e-6;<span class="comment">%1.75e-6; % adjust this parameter to potentially improve resolution &amp; geometric accuracy. It can be calibrated by inverting the spiral revolution dimension and making two images match. for our Prisma and a particular trajectory we found 1.75e-6</span>
+
+seq = mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+seq.read(seq_file_path,<span class="string">'detectRFuse'</span>);
+[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace(<span class="string">'trajectory_delay'</span>, traj_recon_delay);
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
+             ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
+axis(<span class="string">'equal'</span>);
+</pre><h2 id="6">Define FOV and resolution and simple off-resonance frequency correction</h2><pre class="codeinput">fov=256e-3; Nx=128; Ny=Nx;
+deltak=1/fov;
+os=2; <span class="comment">% oversampling factor (we oversample both in image and k-space)</span>
+offresonance=0; <span class="comment">% global off-resonance in Hz</span>
+
+<span class="comment">%</span>
+rawdata = double(twix_obj.image.unsorted());
+rawdata = permute(rawdata, [1,3,2]);
+rawdata = reshape(rawdata, [size(rawdata,1)*size(rawdata,2),size(rawdata,3)]);
+channels=size(rawdata,2);
+
+<span class="keyword">for</span> c=1:channels
+    rawdata(:,c) = rawdata(:,c) .* exp(-1i*2*pi*t_adc*offresonance);
+<span class="keyword">end</span>
+</pre><h2 id="7">here we expect Nx, Ny, deltak to be set already</h2><p>and rawdata ktraj_adc loaded (and having the same dimensions)</p><pre class="codeinput">kxm=round(os*os*Nx/2);
+kym=round(os*os*Ny/2);
+
+[kyy,kxx] = meshgrid(-kxm:(kxm-1), -kym:(kym-1));
+kyy=-kyy*deltak/os;
+kxx=kxx*deltak/os;
+
+kgd=zeros([size(kxx) channels]);
+<span class="keyword">for</span> c=1:channels
+    kgd(:,:,c)=griddata(ktraj_adc(1,:),ktraj_adc(2,:),rawdata(:,c),kxx,kyy,<span class="string">'cubic'</span>); <span class="comment">% we swap the order ind invert one sign to account for Matlab's strange column/line convention</span>
+<span class="keyword">end</span>
+kgd(isnan(kgd))=0;
+
+figure;imagesc(log(abs(kgd(:,:,1))));axis(<span class="string">'square'</span>);
+
+igd=ifftshift(ifft2(ifftshift(kgd())));
+
+Nxo=round(Nx*os);
+Nyo=round(Ny*os);
+Nxs=round((size(igd,1)-Nxo)/2);
+Nys=round((size(igd,2)-Nyo)/2);
+igdc = igd((Nxs+1):(Nxs+Nxo),(Nys+1):(Nys+Nyo),:);
+figure;imab(abs(igdc));colormap(<span class="string">'gray'</span>);
+<span class="comment">%axis('equal');</span>
+</pre><h2 id="8">Sum of squares combination</h2><pre class="codeinput">sos=abs(sum(igdc.^2,ndims(igdc)).^(1/2));
+sos=sos./max(sos(:));
+figure;imab(sos);colormap(<span class="string">'gray'</span>);
+<span class="comment">%imwrite(sos, ['img_combined.png'])</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% very basic and crude non-cartesian recon using griddata()
+
+%addpath('/raid/home/extern/range/code/mapvbvd')
+
+%% Load data
+
+%scan_ID = 7546;
+%rawDir = '/raid/groupspace/range/rawdata';
+
+%twix_obj = mapVBVD(sprintf('%s/%d/raw.dat', rawDir, scan_ID));
+
+%% Load the latest file from a dir
+path='../IceNIH_RawSend/'
+pattern='*.dat'
+
+D=dir([path pattern]);
+[~,I]=sort([D(:).datenum]);
+data_file_path=[path D(I(end)).name]
+
+%%
+twix_obj = mapVBVD(data_file_path);
+
+%% Load sequence from the file (optional)
+
+seq_file_path = [data_file_path(1:end-3) 'seq'];
+
+traj_recon_delay=0e-6;%1.75e-6; % adjust this parameter to potentially improve resolution & geometric accuracy. It can be calibrated by inverting the spiral revolution dimension and making two images match. for our Prisma and a particular trajectory we found 1.75e-6
+
+seq = mr.Sequence();              % Create a new sequence object
+seq.read(seq_file_path,'detectRFuse');
+[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace('trajectory_delay', traj_recon_delay);
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal');
+
+%% Define FOV and resolution and simple off-resonance frequency correction 
+
+fov=256e-3; Nx=128; Ny=Nx; 
+deltak=1/fov;
+os=2; % oversampling factor (we oversample both in image and k-space)
+offresonance=0; % global off-resonance in Hz
+
+%
+rawdata = double(twix_obj.image.unsorted());
+rawdata = permute(rawdata, [1,3,2]);
+rawdata = reshape(rawdata, [size(rawdata,1)*size(rawdata,2),size(rawdata,3)]);
+channels=size(rawdata,2);
+
+for c=1:channels
+    rawdata(:,c) = rawdata(:,c) .* exp(-1i*2*pi*t_adc*offresonance);
+end
+
+%% here we expect Nx, Ny, deltak to be set already
+% and rawdata ktraj_adc loaded (and having the same dimensions)
+
+kxm=round(os*os*Nx/2);
+kym=round(os*os*Ny/2);
+
+[kyy,kxx] = meshgrid(-kxm:(kxm-1), -kym:(kym-1));
+kyy=-kyy*deltak/os;
+kxx=kxx*deltak/os;
+
+kgd=zeros([size(kxx) channels]);
+for c=1:channels
+    kgd(:,:,c)=griddata(ktraj_adc(1,:),ktraj_adc(2,:),rawdata(:,c),kxx,kyy,'cubic'); % we swap the order ind invert one sign to account for Matlab's strange column/line convention
+end
+kgd(isnan(kgd))=0;
+
+figure;imagesc(log(abs(kgd(:,:,1))));axis('square');
+
+igd=ifftshift(ifft2(ifftshift(kgd())));
+
+Nxo=round(Nx*os);
+Nyo=round(Ny*os);
+Nxs=round((size(igd,1)-Nxo)/2);
+Nys=round((size(igd,2)-Nyo)/2);
+igdc = igd((Nxs+1):(Nxs+Nxo),(Nys+1):(Nys+Nyo),:);
+figure;imab(abs(igdc));colormap('gray');
+%axis('equal');
+
+%% Sum of squares combination
+sos=abs(sum(igdc.^2,ndims(igdc)).^(1/2));
+sos=sos./max(sos(:));
+figure;imab(sos);colormap('gray');
+%imwrite(sos, ['img_combined.png'])
+
+
+##### SOURCE END #####
+--></body></html>

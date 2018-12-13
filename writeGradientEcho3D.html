@@ -1,0 +1,225 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>writeGradientEcho3D</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="writeGradientEcho3D.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+fov=[190e-3 190e-3 190e-3];     <span class="comment">% Define FOV</span>
+Nx=64; Ny=Nx; Nz=Nx;            <span class="comment">% Define FOV and resolution</span>
+Tread=3.2e-3;
+Tpre=3e-3;
+riseTime=400e-6;
+Ndummy=50;
+sys=mr.opts(<span class="string">'maxGrad'</span>,20,<span class="string">'gradUnit'</span>,<span class="string">'mT/m'</span>,<span class="string">'riseTime'</span>,riseTime,<span class="keyword">...</span>
+            <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadTime'</span>, 100e-6);
+
+
+<span class="comment">% Create non-selective pulse</span>
+rf = mr.makeBlockPulse(8*pi/180,sys,<span class="string">'Duration'</span>,0.2e-3);
+
+<span class="comment">% Define other gradients and ADC events</span>
+deltak=1./fov;
+gx = mr.makeTrapezoid(<span class="string">'x'</span>,sys,<span class="string">'FlatArea'</span>,Nx*deltak(1),<span class="string">'FlatTime'</span>,Tread);
+adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime);
+gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,sys,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,Tpre);
+gxSpoil = mr.makeTrapezoid(<span class="string">'x'</span>,sys,<span class="string">'Area'</span>,gx.area,<span class="string">'Duration'</span>,Tpre);
+areaY = ((0:Ny-1)-Ny/2)*deltak(2);
+areaZ = ((0:Nz-1)-Nz/2)*deltak(3);
+
+<span class="comment">% Calculate timing</span>
+TE=10e-3;
+TR=40e-3;
+delayTE = ceil((TE - mr.calcDuration(rf) + mr.calcRfCenter(rf) + rf.delay - mr.calcDuration(gxPre)  <span class="keyword">...</span>
+    - mr.calcDuration(gx)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTR = ceil((TR - mr.calcDuration(rf) - mr.calcDuration(gxPre) <span class="keyword">...</span>
+    - mr.calcDuration(gx) - mr.calcDuration(gxSpoil) - delayTE)/seq.gradRasterTime)*seq.gradRasterTime;
+
+<span class="comment">% Drive magnetization to steady state</span>
+<span class="keyword">for</span> iY=1:Ndummy
+    <span class="comment">% RF</span>
+    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+    seq.addBlock(rf);
+    <span class="comment">% Gradients</span>
+    gyPre = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,areaY(floor(Ny/2)),<span class="string">'Duration'</span>,Tpre);
+    gyReph = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-areaY(floor(Ny/2)),<span class="string">'Duration'</span>,Tpre);
+    seq.addBlock(gxPre,gyPre);
+    seq.addBlock(mr.makeDelay(delayTE));
+    seq.addBlock(gx);
+    seq.addBlock(gyReph,gxSpoil);
+    seq.addBlock(mr.makeDelay(delayTR))
+<span class="keyword">end</span>
+
+<span class="comment">% Make trapezoids for inner loop to save computation</span>
+<span class="keyword">for</span> iY=1:Ny
+    gyPre(iY) = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,areaY(iY),<span class="string">'Duration'</span>,Tpre);
+    gyReph(iY) = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-areaY(iY),<span class="string">'Duration'</span>,Tpre);
+<span class="keyword">end</span>
+
+<span class="comment">% Loop over phase encodes and define sequence blocks</span>
+<span class="keyword">for</span> iZ=1:Nz
+    gzPre = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,areaZ(iZ),<span class="string">'Duration'</span>,Tpre);
+    gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,-areaZ(iZ),<span class="string">'Duration'</span>,Tpre);
+    <span class="keyword">for</span> iY=1:Ny
+        <span class="comment">% RF spoiling</span>
+        rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+        adc.phaseOffset = rf.phaseOffset;
+
+        <span class="comment">% Excitation</span>
+        seq.addBlock(rf);
+
+        <span class="comment">% Encoding</span>
+        seq.addBlock(gxPre,gyPre(iY),gzPre);
+        seq.addBlock(mr.makeDelay(delayTE));
+        seq.addBlock(gx,adc);
+        seq.addBlock(gyReph(iY),gzReph,gxSpoil);
+        seq.addBlock(mr.makeDelay(delayTR))
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Visualise sequence and output for execution</span>
+seq.plot(<span class="string">'TimeRange'</span>,[Ndummy+1 Ndummy+3]*TR)
+seq.write(<span class="string">'external.seq'</span>);
+</pre><img vspace="5" hspace="5" src="writeGradientEcho3D_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+seq=mr.Sequence();              % Create a new sequence object
+fov=[190e-3 190e-3 190e-3];     % Define FOV
+Nx=64; Ny=Nx; Nz=Nx;            % Define FOV and resolution
+Tread=3.2e-3;
+Tpre=3e-3;
+riseTime=400e-6;
+Ndummy=50;
+sys=mr.opts('maxGrad',20,'gradUnit','mT/m','riseTime',riseTime,...
+            'rfRingdownTime', 30e-6, 'rfDeadTime', 100e-6);
+
+
+% Create non-selective pulse
+rf = mr.makeBlockPulse(8*pi/180,sys,'Duration',0.2e-3);
+
+% Define other gradients and ADC events
+deltak=1./fov;
+gx = mr.makeTrapezoid('x',sys,'FlatArea',Nx*deltak(1),'FlatTime',Tread);
+adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime);
+gxPre = mr.makeTrapezoid('x',sys,'Area',-gx.area/2,'Duration',Tpre);
+gxSpoil = mr.makeTrapezoid('x',sys,'Area',gx.area,'Duration',Tpre);
+areaY = ((0:Ny-1)-Ny/2)*deltak(2);
+areaZ = ((0:Nz-1)-Nz/2)*deltak(3);
+
+% Calculate timing
+TE=10e-3;
+TR=40e-3;
+delayTE = ceil((TE - mr.calcDuration(rf) + mr.calcRfCenter(rf) + rf.delay - mr.calcDuration(gxPre)  ...
+    - mr.calcDuration(gx)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTR = ceil((TR - mr.calcDuration(rf) - mr.calcDuration(gxPre) ...
+    - mr.calcDuration(gx) - mr.calcDuration(gxSpoil) - delayTE)/seq.gradRasterTime)*seq.gradRasterTime;
+
+% Drive magnetization to steady state
+for iY=1:Ndummy
+    % RF
+    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+    seq.addBlock(rf);
+    % Gradients
+    gyPre = mr.makeTrapezoid('y','Area',areaY(floor(Ny/2)),'Duration',Tpre);
+    gyReph = mr.makeTrapezoid('y','Area',-areaY(floor(Ny/2)),'Duration',Tpre);
+    seq.addBlock(gxPre,gyPre);
+    seq.addBlock(mr.makeDelay(delayTE));
+    seq.addBlock(gx);
+    seq.addBlock(gyReph,gxSpoil);
+    seq.addBlock(mr.makeDelay(delayTR))
+end
+
+% Make trapezoids for inner loop to save computation
+for iY=1:Ny
+    gyPre(iY) = mr.makeTrapezoid('y','Area',areaY(iY),'Duration',Tpre);
+    gyReph(iY) = mr.makeTrapezoid('y','Area',-areaY(iY),'Duration',Tpre);
+end
+
+% Loop over phase encodes and define sequence blocks
+for iZ=1:Nz
+    gzPre = mr.makeTrapezoid('z','Area',areaZ(iZ),'Duration',Tpre);
+    gzReph = mr.makeTrapezoid('z','Area',-areaZ(iZ),'Duration',Tpre);
+    for iY=1:Ny
+        % RF spoiling
+        rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+        adc.phaseOffset = rf.phaseOffset;
+        
+        % Excitation
+        seq.addBlock(rf);
+        
+        % Encoding
+        seq.addBlock(gxPre,gyPre(iY),gzPre);
+        seq.addBlock(mr.makeDelay(delayTE));
+        seq.addBlock(gx,adc);
+        seq.addBlock(gyReph(iY),gzReph,gxSpoil);
+        seq.addBlock(mr.makeDelay(delayTR))
+    end
+end
+
+% Visualise sequence and output for execution
+seq.plot('TimeRange',[Ndummy+1 Ndummy+3]*TR)
+seq.write('external.seq');
+
+##### SOURCE END #####
+--></body></html>

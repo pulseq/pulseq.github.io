@@ -1,0 +1,358 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>reconExample2DFFT</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="reconExample2DFFT.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Reconstruction of 2D cartesian Pulseq data.</a></li><li><a href="#2">Load data</a></li><li><a href="#3">Load the latest file from a dir</a></li><li><a href="#5">Load sequence from the file (optional)</a></li><li><a href="#6">Analyze the trajectory data (ktraj_adc)</a></li><li><a href="#7">sort in the k-space data</a></li><li><a href="#8">Reconstruct coil images</a></li><li><a href="#9">Sum of squares combination</a></li><li><a href="#10">reconstruct field map (optional)</a></li></ul></div><h2 id="1">Reconstruction of 2D cartesian Pulseq data.</h2><pre class="codeinput"><span class="comment">%addpath('/raid/home/extern/range/code/mapvbvd')</span>
+</pre><h2 id="2">Load data</h2><pre class="codeinput"><span class="comment">%scan_ID = 7545;</span>
+<span class="comment">%rawDir = '/raid/groupspace/range/rawdata';</span>
+
+<span class="comment">%twix_obj = mapVBVD(sprintf('%s/%d/raw.dat', rawDir, scan_ID));</span>
+</pre><h2 id="3">Load the latest file from a dir</h2><pre class="codeinput">path=<span class="string">'../IceNIH_RawSend/'</span>
+pattern=<span class="string">'*.dat'</span>
+
+D=dir([path pattern]);
+[~,I]=sort([D(:).datenum]);
+<span class="comment">%</span>
+data_file_path=[path D(I(end)).name]
+</pre><pre class="codeoutput">
+path =
+
+../IceNIH_RawSend/
+
+
+pattern =
+
+*.dat
+
+</pre><pre class="codeoutput error">Subscript indices must either be real positive integers or logicals.
+
+Error in reconExample2DFFT (line 19)
+data_file_path=[path D(I(end)).name]
+</pre><pre class="codeinput">twix_obj = mapVBVD(data_file_path);
+</pre><h2 id="5">Load sequence from the file (optional)</h2><pre class="codeinput">seq_file_path = [data_file_path(1:end-3) <span class="string">'seq'</span>];
+
+seq = mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+seq.read(seq_file_path,<span class="string">'detectRFuse'</span>);
+[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
+             ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
+axis(<span class="string">'equal'</span>);
+</pre><h2 id="6">Analyze the trajectory data (ktraj_adc)</h2><pre class="codeinput">k_extent=max(abs(ktraj_adc),[],2);
+k_scale=max(k_extent);
+k_threshold=k_scale/10000;
+
+<span class="comment">% detect unused dimensions and delete them</span>
+<span class="keyword">if</span> any(k_extent&lt;k_threshold)
+    ktraj_adc(k_extent&lt;k_threshold,:)=[]; <span class="comment">% delete rows</span>
+    k_extent(k_extent&lt;k_threshold)=[];
+<span class="keyword">end</span>
+
+<span class="comment">% detect dK, k-space reordering and repetitions (or slices, etc)</span>
+kt_sorted=sort(ktraj_adc,2);
+dk_all=kt_sorted(:,2:end)-kt_sorted(:,1:(end-1));
+dk_all(dk_all&lt;k_threshold)=NaN;
+dk_min=min(dk_all,[],2);
+dk_max=max(dk_all,[],2);
+dk_all(dk_all-dk_min(:,ones(1,size(dk_all,2)))&gt;k_threshold)=NaN;
+dk_all_cnt=sum(isfinite(dk_all),2);
+dk_all(~isfinite(dk_all))=0;
+dk=sum(dk_all,2)./dk_all_cnt;
+[~,k0_ind]=min(sum(ktraj_adc.^2,1));
+kindex=round((ktraj_adc-ktraj_adc(:,k0_ind*ones(1,size(ktraj_adc,2))))./dk(:,ones(1,size(ktraj_adc,2))));
+kindex_min=min(kindex,[],2);
+kindex_mat=kindex-kindex_min(:,ones(1,size(ktraj_adc,2)))+1;
+kindex_end=max(kindex_mat,[],2);
+sampler=zeros(kindex_end');
+repeat=zeros(1,size(ktraj_adc,2));
+<span class="keyword">for</span> i=1:size(kindex_mat,2)
+    <span class="keyword">if</span> (size(kindex_mat,1)==3)
+        ind=sub2ind(kindex_end,kindex_mat(1,i),kindex_mat(2,i),kindex_mat(3,i));
+    <span class="keyword">else</span>
+        ind=sub2ind(kindex_end,kindex_mat(1,i),kindex_mat(2,i));
+    <span class="keyword">end</span>
+    repeat(i)=sampler(ind);
+    sampler(ind)=repeat(i)+1;
+<span class="keyword">end</span>
+<span class="keyword">if</span> (max(repeat(:))&gt;0)
+    kindex=[kindex;(repeat+1)];
+    kindex_mat=[kindex_mat;(repeat+1)];
+    kindex_end=max(kindex_mat,[],2);
+<span class="keyword">end</span>
+<span class="comment">%figure; plot(kindex(1,:),kindex(2,:),'.-');</span>
+</pre><h2 id="7">sort in the k-space data</h2><pre class="codeinput"><span class="keyword">if</span> iscell(twix_obj)
+    data_unsorted = twix_obj{2}.image.unsorted();
+<span class="keyword">else</span>
+    data_unsorted = twix_obj.image.unsorted();
+<span class="keyword">end</span>
+
+<span class="comment">% the incoming data order is [kx coils acquisitions]</span>
+data_coils_last = permute(data_unsorted, [1, 3, 2]);
+nCoils = size(data_coils_last, 3);
+
+data_coils_last=reshape(data_coils_last, [size(data_coils_last,1)*size(data_coils_last,2), nCoils]);
+
+data=zeros([kindex_end' nCoils]);
+<span class="keyword">if</span> (size(kindex,1)==3)
+    <span class="keyword">for</span> i=1:size(kindex,2)
+        data(kindex_mat(1,i),kindex_mat(2,i),kindex_mat(3,i),:)=data_coils_last(i,:);
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="keyword">for</span> i=1:size(kindex,2)
+        data(kindex_mat(1,i),kindex_mat(2,i),:)=data_coils_last(i,:);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> size(kindex,1)==3
+    nImages=size(data,3);
+<span class="keyword">else</span>
+    nImages=1;
+    data=reshape(data, [size(data,1) size(data,2) 1 size(data,3)]); <span class="comment">% we need a dummy images/slices dimension</span>
+<span class="keyword">end</span>
+
+<span class="comment">%figure; imab(data);</span>
+</pre><h2 id="8">Reconstruct coil images</h2><pre class="codeinput">images = zeros(size(data));
+<span class="comment">%figure;</span>
+
+<span class="keyword">for</span> ii = 1:nCoils
+    <span class="comment">%images(:,:,:,ii) = fliplr(rot90(fftshift(fft2(fftshift(data(:,:,:,ii))))));</span>
+    images(:,:,:,ii) = fftshift(fft2(fftshift(data(end:-1:1,:,:,ii))));
+    <span class="comment">%subplot(2,2,ii);</span>
+    <span class="comment">%imshow(abs(images(:,:,ii)), []);</span>
+    <span class="comment">%title(['RF Coil ' num2str(ii)]);</span>
+    <span class="comment">%for ni = 1:nImages</span>
+        <span class="comment">%tmp = abs(images(:,:,ni,ii));</span>
+        <span class="comment">%tmp = tmp./max(tmp(:));</span>
+        <span class="comment">%imwrite(tmp, ['img_coil_' num2str(ii) '.png'])</span>
+    <span class="comment">%end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Phase images (possibly channel-by-channel and echo-by-echo)</span>
+figure;
+imab(angle(images));colormap(<span class="string">'jet'</span>);
+</pre><h2 id="9">Sum of squares combination</h2><pre class="codeinput">sos=abs(sum(images.^2,ndims(images)).^(1/2));
+sos=sos./max(sos(:));
+figure;
+imab(sos);colormap(<span class="string">'gray'</span>);
+<span class="comment">%imwrite(sos, ['img_combined.png'])</span>
+</pre><h2 id="10">reconstruct field map (optional)</h2><pre class="codeinput"><span class="keyword">if</span> size(images,3)==2
+    cmplx_diff=images(:,:,2,:).*conj(images(:,:,1,:));
+    phase_diff_image=angle(sum(cmplx_diff,4));
+    figure;
+    imab(phase_diff_image);colormap(<span class="string">'jet'</span>);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Reconstruction of 2D cartesian Pulseq data.
+
+%addpath('/raid/home/extern/range/code/mapvbvd')
+
+%% Load data
+
+%scan_ID = 7545;
+%rawDir = '/raid/groupspace/range/rawdata';
+
+%twix_obj = mapVBVD(sprintf('%s/%d/raw.dat', rawDir, scan_ID));
+
+%% Load the latest file from a dir
+path='../IceNIH_RawSend/'
+pattern='*.dat'
+
+D=dir([path pattern]);
+[~,I]=sort([D(:).datenum]);
+%
+data_file_path=[path D(I(end)).name]
+%%
+twix_obj = mapVBVD(data_file_path);
+
+%% Load sequence from the file (optional)
+
+seq_file_path = [data_file_path(1:end-3) 'seq'];
+
+seq = mr.Sequence();              % Create a new sequence object
+seq.read(seq_file_path,'detectRFuse');
+[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal');
+
+%% Analyze the trajectory data (ktraj_adc)
+k_extent=max(abs(ktraj_adc),[],2);
+k_scale=max(k_extent);
+k_threshold=k_scale/10000;
+
+% detect unused dimensions and delete them
+if any(k_extent<k_threshold)
+    ktraj_adc(k_extent<k_threshold,:)=[]; % delete rows
+    k_extent(k_extent<k_threshold)=[];
+end
+
+% detect dK, k-space reordering and repetitions (or slices, etc)
+kt_sorted=sort(ktraj_adc,2);
+dk_all=kt_sorted(:,2:end)-kt_sorted(:,1:(end-1));
+dk_all(dk_all<k_threshold)=NaN;
+dk_min=min(dk_all,[],2);
+dk_max=max(dk_all,[],2);
+dk_all(dk_all-dk_min(:,ones(1,size(dk_all,2)))>k_threshold)=NaN;
+dk_all_cnt=sum(isfinite(dk_all),2);
+dk_all(~isfinite(dk_all))=0;
+dk=sum(dk_all,2)./dk_all_cnt;
+[~,k0_ind]=min(sum(ktraj_adc.^2,1));
+kindex=round((ktraj_adc-ktraj_adc(:,k0_ind*ones(1,size(ktraj_adc,2))))./dk(:,ones(1,size(ktraj_adc,2))));
+kindex_min=min(kindex,[],2);
+kindex_mat=kindex-kindex_min(:,ones(1,size(ktraj_adc,2)))+1;
+kindex_end=max(kindex_mat,[],2);
+sampler=zeros(kindex_end');
+repeat=zeros(1,size(ktraj_adc,2));
+for i=1:size(kindex_mat,2)
+    if (size(kindex_mat,1)==3)
+        ind=sub2ind(kindex_end,kindex_mat(1,i),kindex_mat(2,i),kindex_mat(3,i));
+    else
+        ind=sub2ind(kindex_end,kindex_mat(1,i),kindex_mat(2,i)); 
+    end
+    repeat(i)=sampler(ind);
+    sampler(ind)=repeat(i)+1;
+end
+if (max(repeat(:))>0)
+    kindex=[kindex;(repeat+1)];
+    kindex_mat=[kindex_mat;(repeat+1)];
+    kindex_end=max(kindex_mat,[],2);
+end
+%figure; plot(kindex(1,:),kindex(2,:),'.-');
+
+%% sort in the k-space data
+if iscell(twix_obj)
+    data_unsorted = twix_obj{2}.image.unsorted();
+else
+    data_unsorted = twix_obj.image.unsorted();
+end
+
+% the incoming data order is [kx coils acquisitions]
+data_coils_last = permute(data_unsorted, [1, 3, 2]);
+nCoils = size(data_coils_last, 3);
+
+data_coils_last=reshape(data_coils_last, [size(data_coils_last,1)*size(data_coils_last,2), nCoils]);
+
+data=zeros([kindex_end' nCoils]);
+if (size(kindex,1)==3)
+    for i=1:size(kindex,2)
+        data(kindex_mat(1,i),kindex_mat(2,i),kindex_mat(3,i),:)=data_coils_last(i,:);
+    end
+else
+    for i=1:size(kindex,2)
+        data(kindex_mat(1,i),kindex_mat(2,i),:)=data_coils_last(i,:);
+    end
+end
+
+if size(kindex,1)==3
+    nImages=size(data,3);
+else
+    nImages=1;
+    data=reshape(data, [size(data,1) size(data,2) 1 size(data,3)]); % we need a dummy images/slices dimension
+end
+
+%figure; imab(data);
+
+%% Reconstruct coil images
+
+images = zeros(size(data));
+%figure;
+
+for ii = 1:nCoils
+    %images(:,:,:,ii) = fliplr(rot90(fftshift(fft2(fftshift(data(:,:,:,ii))))));
+    images(:,:,:,ii) = fftshift(fft2(fftshift(data(end:-1:1,:,:,ii))));
+    %subplot(2,2,ii);
+    %imshow(abs(images(:,:,ii)), []);
+    %title(['RF Coil ' num2str(ii)]);
+    %for ni = 1:nImages
+        %tmp = abs(images(:,:,ni,ii));
+        %tmp = tmp./max(tmp(:));
+        %imwrite(tmp, ['img_coil_' num2str(ii) '.png'])
+    %end
+end
+
+% Phase images (possibly channel-by-channel and echo-by-echo)
+figure;
+imab(angle(images));colormap('jet');
+
+%% Sum of squares combination
+sos=abs(sum(images.^2,ndims(images)).^(1/2));
+sos=sos./max(sos(:));
+figure;
+imab(sos);colormap('gray');
+%imwrite(sos, ['img_combined.png'])
+
+%% reconstruct field map (optional)
+
+if size(images,3)==2
+    cmplx_diff=images(:,:,2,:).*conj(images(:,:,1,:));
+    phase_diff_image=angle(sum(cmplx_diff,4));
+    figure;
+    imab(phase_diff_image);colormap('jet');
+end
+
+##### SOURCE END #####
+--></body></html>

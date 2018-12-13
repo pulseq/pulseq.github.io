@@ -1,0 +1,229 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>writeSelectiveRf</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="writeSelectiveRf.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Calculate timing (TE=20ms, TR=500ms)</a></li><li><a href="#3">Write to file</a></li></ul></div><pre class="codeinput">seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+fov=220e-3; Nx=256; Ny=256;     <span class="comment">% Define FOV and resolution</span>
+
+foe=200e-3;             <span class="comment">% Field of excitation</span>
+targetWidth=22.5e-3;    <span class="comment">% Diameter of target excitation pattern</span>
+n=8;                    <span class="comment">% Number of spiral turns</span>
+T=8e-3;                 <span class="comment">% Pulse duration</span>
+
+<span class="comment">% Set system limits</span>
+lims = mr.opts(<span class="string">'MaxGrad'</span>,32,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
+    <span class="string">'MaxSlew'</span>,130,<span class="string">'SlewUnit'</span>,<span class="string">'T/m/s'</span>,<span class="keyword">...</span>
+    <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadtime'</span>, 100e-6);
+
+<span class="comment">% Define spiral k-space trajectory</span>
+kMax=(2*n)/foe/2;       <span class="comment">% Units of 1/m (not rad/m)</span>
+tk=0:seq.gradRasterTime:T-seq.gradRasterTime;
+kx=kMax*(1-tk/T).*cos(2*pi*n*tk/T);
+ky=kMax*(1-tk/T).*sin(2*pi*n*tk/T);
+
+<span class="comment">% Define RF pulse</span>
+tr=0:seq.rfRasterTime:T-seq.rfRasterTime;
+kxRf=interp1(tk,kx,tr,<span class="string">'linear'</span>,<span class="string">'extrap'</span>);
+kyRf=interp1(tk,ky,tr,<span class="string">'linear'</span>,<span class="string">'extrap'</span>);
+beta=2*pi*kMax*targetWidth/2/sqrt(2);  <span class="comment">% Gaussian width in k-space</span>
+signal0 = exp(-beta.^2.*(1-tr/T).^2).*sqrt((2*pi*n*(1-tr/T)).^2+1);
+signal = signal0.*(1 + exp(-1j.*2*pi*5e-2*(kxRf + kyRf)));
+
+<span class="comment">% Add gradient ramps</span>
+[kx,ky,signal]=mr.addRamps({kx,ky},<span class="string">'rf'</span>,signal);
+
+rf = mr.makeArbitraryRf(signal,20*pi/180,<span class="string">'system'</span>,lims);
+gxRf = mr.makeArbitraryGrad(<span class="string">'x'</span>,mr.traj2grad(kx));
+gyRf = mr.makeArbitraryGrad(<span class="string">'y'</span>,mr.traj2grad(ky));
+
+<span class="comment">% Define other gradients and ADC events</span>
+deltak=1/fov;
+gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,Nx*deltak,<span class="string">'FlatTime'</span>,6.4e-3);
+adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime);
+gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,2e-3);
+phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
+
+<span class="comment">% Refocusing pulse and spoiling gradients</span>
+<span class="comment">%[rf180, gz] = mr.makeBlockPulse(pi,'Duration',1e-3,'SliceThickness',5e-3);</span>
+[rf180, gz] = mr.makeSincPulse(pi,<span class="string">'system'</span>,lims,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
+    <span class="string">'SliceThickness'</span>,5e-3,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4);
+
+gzSpoil = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,gx.area,<span class="string">'Duration'</span>,2e-3);
+</pre><h2 id="2">Calculate timing (TE=20ms, TR=500ms)</h2><pre class="codeinput">delayTE1=ceil((20e-3/2 - mr.calcDuration(gzSpoil) - mr.calcDuration(rf180)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTE2=delayTE1 - mr.calcDuration(gxPre) - mr.calcDuration(gx)/2;
+delayTR=500e-3 - 20e-3 - mr.calcDuration(rf) - mr.calcDuration(gx)/2;
+
+<span class="comment">% Loop over phase encodes and define sequence blocks</span>
+<span class="keyword">for</span> i=1:Ny
+    seq.addBlock(rf,gxRf,gyRf);
+    seq.addBlock(mr.makeDelay(delayTE1));
+    seq.addBlock(gzSpoil);
+    seq.addBlock(rf180,gz);
+    seq.addBlock(gzSpoil);
+    seq.addBlock(mr.makeDelay(delayTE2));
+    gyPre = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,phaseAreas(i),<span class="string">'Duration'</span>,2e-3);
+    seq.addBlock(gxPre,gyPre);
+    seq.addBlock(gx,adc);
+    seq.addBlock(mr.makeDelay(delayTR));
+<span class="keyword">end</span>
+
+seq.write(<span class="string">'selectiveRf.seq'</span>);   <span class="comment">% Write to pulseq file</span>
+seq.plot();
+
+<span class="keyword">return</span>
+</pre><img vspace="5" hspace="5" src="writeSelectiveRf_01.png" alt=""> <h2 id="3">Write to file</h2><p>The sequence is written to file in compressed form according to the file format specification using the <tt>write</tt> method.</p><pre class="codeinput">seq.setDefinition(<span class="string">'Scan_ID'</span>,2068);
+seq.setDefinition(<span class="string">'Recon_Mode'</span>,1);
+seq.write(<span class="string">'external.seq'</span>)
+
+<span class="comment">%seq.plot</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+seq=mr.Sequence();              % Create a new sequence object
+fov=220e-3; Nx=256; Ny=256;     % Define FOV and resolution
+
+foe=200e-3;             % Field of excitation
+targetWidth=22.5e-3;    % Diameter of target excitation pattern
+n=8;                    % Number of spiral turns
+T=8e-3;                 % Pulse duration
+
+% Set system limits
+lims = mr.opts('MaxGrad',32,'GradUnit','mT/m',...
+    'MaxSlew',130,'SlewUnit','T/m/s',...
+    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6);  
+
+% Define spiral k-space trajectory
+kMax=(2*n)/foe/2;       % Units of 1/m (not rad/m)
+tk=0:seq.gradRasterTime:T-seq.gradRasterTime;
+kx=kMax*(1-tk/T).*cos(2*pi*n*tk/T);
+ky=kMax*(1-tk/T).*sin(2*pi*n*tk/T);
+
+% Define RF pulse
+tr=0:seq.rfRasterTime:T-seq.rfRasterTime;
+kxRf=interp1(tk,kx,tr,'linear','extrap');
+kyRf=interp1(tk,ky,tr,'linear','extrap');
+beta=2*pi*kMax*targetWidth/2/sqrt(2);  % Gaussian width in k-space
+signal0 = exp(-beta.^2.*(1-tr/T).^2).*sqrt((2*pi*n*(1-tr/T)).^2+1);
+signal = signal0.*(1 + exp(-1j.*2*pi*5e-2*(kxRf + kyRf)));
+
+% Add gradient ramps
+[kx,ky,signal]=mr.addRamps({kx,ky},'rf',signal);
+
+rf = mr.makeArbitraryRf(signal,20*pi/180,'system',lims);
+gxRf = mr.makeArbitraryGrad('x',mr.traj2grad(kx));
+gyRf = mr.makeArbitraryGrad('y',mr.traj2grad(ky));
+
+% Define other gradients and ADC events
+deltak=1/fov;
+gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',6.4e-3);
+adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime);
+gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'Duration',2e-3);
+phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
+
+% Refocusing pulse and spoiling gradients
+%[rf180, gz] = mr.makeBlockPulse(pi,'Duration',1e-3,'SliceThickness',5e-3);
+[rf180, gz] = mr.makeSincPulse(pi,'system',lims,'Duration',3e-3,...
+    'SliceThickness',5e-3,'apodization',0.5,'timeBwProduct',4);
+
+gzSpoil = mr.makeTrapezoid('z','Area',gx.area,'Duration',2e-3);
+
+%%% Calculate timing (TE=20ms, TR=500ms)
+delayTE1=ceil((20e-3/2 - mr.calcDuration(gzSpoil) - mr.calcDuration(rf180)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTE2=delayTE1 - mr.calcDuration(gxPre) - mr.calcDuration(gx)/2;
+delayTR=500e-3 - 20e-3 - mr.calcDuration(rf) - mr.calcDuration(gx)/2;
+
+% Loop over phase encodes and define sequence blocks
+for i=1:Ny
+    seq.addBlock(rf,gxRf,gyRf);
+    seq.addBlock(mr.makeDelay(delayTE1));
+    seq.addBlock(gzSpoil);
+    seq.addBlock(rf180,gz);
+    seq.addBlock(gzSpoil);
+    seq.addBlock(mr.makeDelay(delayTE2));
+    gyPre = mr.makeTrapezoid('y','Area',phaseAreas(i),'Duration',2e-3);
+    seq.addBlock(gxPre,gyPre);
+    seq.addBlock(gx,adc);
+    seq.addBlock(mr.makeDelay(delayTR));
+end
+
+seq.write('selectiveRf.seq');   % Write to pulseq file
+seq.plot();
+
+return
+
+
+%% Write to file
+% The sequence is written to file in compressed form according to the file
+% format specification using the |write| method.
+seq.setDefinition('Scan_ID',2068);
+seq.setDefinition('Recon_Mode',1);
+seq.write('external.seq')
+
+%seq.plot
+
+
+##### SOURCE END #####
+--></body></html>

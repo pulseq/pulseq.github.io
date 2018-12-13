@@ -1,0 +1,310 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>writeUTE_rs</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="writeUTE_rs.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Create alpha-degree slice selection pulse and gradient</a></li><li><a href="#3">plot gradients to check for gaps and optimality of the timing</a></li><li><a href="#4">trajectory calculation</a></li></ul></div><pre class="codeinput"><span class="comment">% a basic UTE-like sequence</span>
+<span class="comment">% achieves "TE" below 100 us</span>
+
+seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+fov=250e-3; Nx=256;             <span class="comment">% Define FOV and resolution</span>
+alpha=30;                       <span class="comment">% flip angle</span>
+sliceThickness=3e-3;            <span class="comment">% slice</span>
+TR=10e-3;                       <span class="comment">% TR</span>
+Nr=321;                         <span class="comment">% number of radial spokes</span>
+Ndummy=20;                      <span class="comment">% number of dummy scans</span>
+delta= 2* pi / Nr;              <span class="comment">% angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it</span>
+rf_duration=1.0e-3;             <span class="comment">% duration of the excitation pulse</span>
+ro_duration=1.6e-3;             <span class="comment">% read-out time: controls RO bandwidth and T2-blurring</span>
+ro_os=2;                        <span class="comment">% oversampling</span>
+minRF_to_ADC_time=70e-6;        <span class="comment">% the parameter wich defines TE together with ro_discard</span>
+ro_discard=0;                   <span class="comment">% dummy ADC samples to discard (due to ADC filter</span>
+ro_spoil=2;                     <span class="comment">% extend RO to achieve spoiling</span>
+
+<span class="comment">% more in-depth parameters</span>
+rfSpoilingInc=117;              <span class="comment">% RF spoiling increment</span>
+
+<span class="comment">% set system limits</span>
+sys = mr.opts(<span class="string">'MaxGrad'</span>, 28, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>, <span class="keyword">...</span>
+    <span class="string">'MaxSlew'</span>, 120, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 0e-6, <span class="keyword">...</span>
+    <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
+</pre><h2 id="2">Create alpha-degree slice selection pulse and gradient</h2><pre class="codeinput">[rf, gz] = mr.makeSincPulse(alpha*pi/180,<span class="string">'Duration'</span>,rf_duration,<span class="keyword">...</span>
+    <span class="string">'SliceThickness'</span>,sliceThickness,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,2,<span class="keyword">...</span>
+    <span class="string">'centerpos'</span>,1,<span class="string">'system'</span>,sys);
+
+<span class="comment">% resample the RF pulse to the ramp</span>
+gza=[0 1 1 0];
+gzt=cumsum([0 gz.riseTime gz.flatTime gz.fallTime]);
+gzas_0=interp1(gzt+gz.delay,gza,rf.t+rf.delay);
+rft_1=[sys.rfRasterTime:sys.rfRasterTime:rf_duration+0.5*gz.fallTime];
+gzas_1=interp1(gzt+gz.delay,gza,rft_1+rf.delay+gz.fallTime*0.5);
+kzs_0=cumsum(gzas_0);
+kzs_1=cumsum(gzas_1);
+kzs_0=kzs_0-max(kzs_0);
+kzs_1=kzs_1-max(kzs_1);
+rfs_1=interp1(kzs_0,rf.signal,kzs_1);
+<span class="comment">%figure; plot(kzs_1, abs(rfs_1),'r.');</span>
+<span class="comment">%hold; plot(kzs_0, abs(rf.signal),'b-');</span>
+rf.t=rft_1;
+rf.signal=rfs_1.*gzas_1;
+gz.flatTime=gz.flatTime-gz.fallTime*0.5; <span class="comment">% oops, we can get off gradient raster here, FIXME</span>
+
+<span class="comment">% Align RO assymmetry to ADC samples</span>
+Nxo=round(ro_os*Nx);
+<span class="comment">% Define other gradients and ADC events</span>
+deltak=1/fov/2;
+ro_area=Nx*deltak;
+gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,ro_area,<span class="string">'FlatTime'</span>,ro_duration,<span class="string">'system'</span>,sys);
+adc = mr.makeAdc(Nxo,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'system'</span>,sys);
+
+<span class="comment">% ro-spoiling</span>
+gx.flatTime=gx.flatTime*ro_spoil;
+
+<span class="comment">% Calculate timing</span>
+<span class="comment">%ceil((TE - mr.calcDuration(gxPre) - gz.fallTime - gz.flatTime/2 ...</span>
+<span class="comment">%    - mr.calcDuration(gx)/2)/seq.gradRasterTime)*seq.gradRasterTime;</span>
+<span class="comment">% calculate actual achieved TE</span>
+TE = ceil((minRF_to_ADC_time + adc.dwell*ro_discard)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTR=ceil((TR - mr.calcDuration(gz) <span class="keyword">...</span>
+    - mr.calcDuration(gx) - TE)/seq.gradRasterTime)*seq.gradRasterTime;
+
+fprintf(<span class="string">'TE= %d us\n'</span>, round(TE*1e6));
+
+<span class="comment">% set up timing</span>
+gx.delay=mr.calcDuration(gz)+TE;
+adc.delay=gx.delay-adc.dwell*ro_discard;
+
+rf_phase=0;
+rf_inc=0;
+
+<span class="keyword">for</span> i=(-Ndummy):Nr
+    <span class="keyword">for</span> c=1:2
+        rf.phaseOffset=rf_phase/180*pi;
+        adc.phaseOffset=rf_phase/180*pi;
+        rf_inc=mod(rf_inc+rfSpoilingInc, 360.0);
+        rf_phase=mod(rf_phase+rf_inc, 360.0);
+        <span class="comment">% UTE: alternate GZ</span>
+        gz.amplitude=-gz.amplitude;
+        <span class="comment">%</span>
+        phi=delta*(i-1);
+        grc=gx;      grs=gx;      grc.amplitude=gx.amplitude*cos(phi);      grs.amplitude=gx.amplitude*sin(phi);      grs.channel=<span class="string">'y'</span>;
+        <span class="keyword">if</span> (i&gt;0)
+            seq.addBlock(rf,gz,grc,grs,adc);
+        <span class="keyword">else</span>
+            seq.addBlock(rf,gz,grc,grs);
+        <span class="keyword">end</span>
+        seq.addBlock(mr.makeDelay(delayTR));
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+seq.plot();
+</pre><pre class="codeoutput">TE= 70 us
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_01.png" alt=""> <h2 id="3">plot gradients to check for gaps and optimality of the timing</h2><pre class="codeinput">gw=seq.gradient_waveforms();
+figure; plot(gw'); <span class="comment">% plot the entire gradient shape</span>
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_02.png" alt=""> <h2 id="4">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+
+<span class="comment">% plot k-spaces</span>
+time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
+figure; plot(time_axis, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="comment">% and sampling points on the kx-axis</span>
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
+axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
+hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% plot the sampling points</span>
+
+<span class="comment">%</span>
+seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]*1e3);
+seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'ute_rs'</span>);
+
+seq.write(<span class="string">'ute_rs.seq'</span>);       <span class="comment">% Write to pulseq file</span>
+
+<span class="comment">%seq.install('siemens');</span>
+</pre><pre class="codeoutput">Current plot held
+Current plot held
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_03.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_04.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_05.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_06.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% a basic UTE-like sequence
+% achieves "TE" below 100 us
+
+seq=mr.Sequence();              % Create a new sequence object
+fov=250e-3; Nx=256;             % Define FOV and resolution
+alpha=30;                       % flip angle
+sliceThickness=3e-3;            % slice
+TR=10e-3;                       % TR
+Nr=321;                         % number of radial spokes
+Ndummy=20;                      % number of dummy scans
+delta= 2* pi / Nr;              % angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it
+rf_duration=1.0e-3;             % duration of the excitation pulse
+ro_duration=1.6e-3;             % read-out time: controls RO bandwidth and T2-blurring
+ro_os=2;                        % oversampling
+minRF_to_ADC_time=70e-6;        % the parameter wich defines TE together with ro_discard
+ro_discard=0;                   % dummy ADC samples to discard (due to ADC filter 
+ro_spoil=2;                     % extend RO to achieve spoiling
+
+% more in-depth parameters
+rfSpoilingInc=117;              % RF spoiling increment
+
+% set system limits
+sys = mr.opts('MaxGrad', 28, 'GradUnit', 'mT/m', ...
+    'MaxSlew', 120, 'SlewUnit', 'T/m/s', 'rfRingdownTime', 0e-6, ...
+    'rfDeadTime', 100e-6, 'adcDeadTime', 10e-6);
+
+%% Create alpha-degree slice selection pulse and gradient
+[rf, gz] = mr.makeSincPulse(alpha*pi/180,'Duration',rf_duration,...
+    'SliceThickness',sliceThickness,'apodization',0.5,'timeBwProduct',2,...
+    'centerpos',1,'system',sys);
+
+% resample the RF pulse to the ramp
+gza=[0 1 1 0];
+gzt=cumsum([0 gz.riseTime gz.flatTime gz.fallTime]);
+gzas_0=interp1(gzt+gz.delay,gza,rf.t+rf.delay);
+rft_1=[sys.rfRasterTime:sys.rfRasterTime:rf_duration+0.5*gz.fallTime];
+gzas_1=interp1(gzt+gz.delay,gza,rft_1+rf.delay+gz.fallTime*0.5);
+kzs_0=cumsum(gzas_0);
+kzs_1=cumsum(gzas_1);
+kzs_0=kzs_0-max(kzs_0);
+kzs_1=kzs_1-max(kzs_1);
+rfs_1=interp1(kzs_0,rf.signal,kzs_1);
+%figure; plot(kzs_1, abs(rfs_1),'r.');
+%hold; plot(kzs_0, abs(rf.signal),'b-');
+rf.t=rft_1;
+rf.signal=rfs_1.*gzas_1;
+gz.flatTime=gz.flatTime-gz.fallTime*0.5; % oops, we can get off gradient raster here, FIXME
+
+% Align RO assymmetry to ADC samples
+Nxo=round(ro_os*Nx);
+% Define other gradients and ADC events
+deltak=1/fov/2;
+ro_area=Nx*deltak;
+gx = mr.makeTrapezoid('x','FlatArea',ro_area,'FlatTime',ro_duration,'system',sys);
+adc = mr.makeAdc(Nxo,'Duration',gx.flatTime,'system',sys);
+
+% ro-spoiling
+gx.flatTime=gx.flatTime*ro_spoil;
+
+% Calculate timing
+%ceil((TE - mr.calcDuration(gxPre) - gz.fallTime - gz.flatTime/2 ...
+%    - mr.calcDuration(gx)/2)/seq.gradRasterTime)*seq.gradRasterTime;
+% calculate actual achieved TE
+TE = ceil((minRF_to_ADC_time + adc.dwell*ro_discard)/seq.gradRasterTime)*seq.gradRasterTime;
+delayTR=ceil((TR - mr.calcDuration(gz) ...
+    - mr.calcDuration(gx) - TE)/seq.gradRasterTime)*seq.gradRasterTime;
+
+fprintf('TE= %d us\n', round(TE*1e6));
+
+% set up timing
+gx.delay=mr.calcDuration(gz)+TE;
+adc.delay=gx.delay-adc.dwell*ro_discard;
+
+rf_phase=0;
+rf_inc=0;
+
+for i=(-Ndummy):Nr
+    for c=1:2
+        rf.phaseOffset=rf_phase/180*pi;
+        adc.phaseOffset=rf_phase/180*pi;
+        rf_inc=mod(rf_inc+rfSpoilingInc, 360.0);
+        rf_phase=mod(rf_phase+rf_inc, 360.0);
+        % UTE: alternate GZ
+        gz.amplitude=-gz.amplitude;
+        %
+        phi=delta*(i-1);
+        grc=gx;      grs=gx;      grc.amplitude=gx.amplitude*cos(phi);      grs.amplitude=gx.amplitude*sin(phi);      grs.channel='y';
+        if (i>0)
+            seq.addBlock(rf,gz,grc,grs,adc);
+        else
+            seq.addBlock(rf,gz,grc,grs);
+        end
+        seq.addBlock(mr.makeDelay(delayTR));
+    end
+end
+
+seq.plot();
+
+%% plot gradients to check for gaps and optimality of the timing
+gw=seq.gradient_waveforms();
+figure; plot(gw'); % plot the entire gradient shape
+
+%% trajectory calculation
+[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+
+% plot k-spaces
+time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
+figure; plot(time_axis, ktraj'); % plot the entire k-space trajectory
+hold; plot(t_adc,ktraj_adc(1,:),'.'); % and sampling points on the kx-axis
+figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
+axis('equal'); % enforce aspect ratio for the correct trajectory display
+hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % plot the sampling points
+
+%
+seq.setDefinition('FOV', [fov fov sliceThickness]*1e3);
+seq.setDefinition('Name', 'ute_rs');
+
+seq.write('ute_rs.seq');       % Write to pulseq file
+
+%seq.install('siemens');
+
+##### SOURCE END #####
+--></body></html>

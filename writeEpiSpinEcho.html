@@ -1,0 +1,223 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>writeEpiSpinEcho</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="writeEpiSpinEcho.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">calculate trajectory</a></li><li><a href="#3">plot k-spaces</a></li><li><a href="#4">sanity checks</a></li></ul></div><pre class="codeinput">seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+fov=256e-3; Nx=64; Ny=64;       <span class="comment">% Define FOV and resolution</span>
+
+<span class="comment">% Set system limits</span>
+lims = mr.opts(<span class="string">'MaxGrad'</span>, 32, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>,<span class="keyword">...</span>
+    <span class="string">'MaxSlew'</span>, 130, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="keyword">...</span>
+    <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 20e-6);
+
+<span class="comment">% Create 90 degree slice selection pulse and gradient</span>
+[rf, gz] = mr.makeSincPulse(pi/2,lims,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
+    <span class="string">'SliceThickness'</span>,3e-3,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4);
+
+<span class="comment">% Define other gradients and ADC events</span>
+deltak=1/fov;
+kWidth = Nx*deltak;
+readoutTime = 3.2e-4;
+gx = mr.makeTrapezoid(<span class="string">'x'</span>,lims,<span class="string">'FlatArea'</span>,kWidth,<span class="string">'FlatTime'</span>,readoutTime);
+adc = mr.makeAdc(Nx,lims,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime);
+
+<span class="comment">% Pre-phasing gradients</span>
+preTime=8e-4;
+<span class="comment">%gxPre = mr.makeTrapezoid('x',lims,'Area',-gx.area/2-deltak/2,'Duration',preTime);</span>
+gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'Area'</span>,-gz.area/2,<span class="string">'Duration'</span>,preTime);
+<span class="comment">%gyPre = mr.makeTrapezoid('y',lims,'Area',-Ny/2*deltak,'Duration',preTime);</span>
+<span class="comment">% we need no minus for in-plane prephasers because of the spin-echo (position reflection in k-space)</span>
+gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,lims,<span class="string">'Area'</span>,gx.area/2-deltak/2,<span class="string">'Duration'</span>,preTime);
+gyPre = mr.makeTrapezoid(<span class="string">'y'</span>,lims,<span class="string">'Area'</span>,Ny/2*deltak,<span class="string">'Duration'</span>,preTime);
+
+<span class="comment">% Phase blip in shortest possible time</span>
+dur = ceil(2*sqrt(deltak/lims.maxSlew)/10e-6)*10e-6;
+gy = mr.makeTrapezoid(<span class="string">'y'</span>,lims,<span class="string">'Area'</span>,deltak,<span class="string">'Duration'</span>,dur);
+
+<span class="comment">% Refocusing pulse with spoiling gradients</span>
+rf180 = mr.makeBlockPulse(pi,lims,<span class="string">'Duration'</span>,500e-6,<span class="string">'use'</span>,<span class="string">'refocusing'</span>);
+gzSpoil = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'Area'</span>,gz.area*2,<span class="string">'Duration'</span>,3*preTime);
+
+<span class="comment">% Calculate delay time</span>
+TE=60e-3;
+durationToCenter = (Nx/2+0.5)*mr.calcDuration(gx) + Ny/2*mr.calcDuration(gy);
+rfCenterInclDelay=rf.delay + mr.calcRfCenter(rf);
+rf180centerInclDelay=rf180.delay + mr.calcRfCenter(rf180);
+delayTE1=TE/2 - mr.calcDuration(gz) + rfCenterInclDelay - preTime - mr.calcDuration(gzSpoil) - rf180centerInclDelay;
+delayTE2=TE/2 - mr.calcDuration(rf180) + rf180centerInclDelay - mr.calcDuration(gzSpoil) - durationToCenter;
+
+<span class="comment">% Define sequence blocks</span>
+seq.addBlock(rf,gz);
+seq.addBlock(gxPre,gyPre,gzReph);
+seq.addBlock(mr.makeDelay(delayTE1));
+seq.addBlock(gzSpoil);
+seq.addBlock(rf180);
+seq.addBlock(gzSpoil);
+seq.addBlock(mr.makeDelay(delayTE2));
+<span class="keyword">for</span> i=1:Ny
+    seq.addBlock(gx,adc);           <span class="comment">% Read one line of k-space</span>
+    seq.addBlock(gy);               <span class="comment">% Phase blip</span>
+    gx.amplitude = -gx.amplitude;   <span class="comment">% Reverse polarity of read gradient</span>
+<span class="keyword">end</span>
+seq.addBlock(mr.makeDelay(1e-4));
+
+seq.write(<span class="string">'epi_se.seq'</span>);   <span class="comment">% Output sequence for scanner</span>
+seq.plot();             <span class="comment">% Plot sequence waveforms</span>
+</pre><img vspace="5" hspace="5" src="writeEpiSpinEcho_01.png" alt=""> <h2 id="2">calculate trajectory</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+</pre><h2 id="3">plot k-spaces</h2><pre class="codeinput">time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
+figure; plot(time_axis, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="comment">% and sampling points on the kx-axis</span>
+
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
+             ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
+axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
+</pre><pre class="codeoutput">Current plot held
+</pre><img vspace="5" hspace="5" src="writeEpiSpinEcho_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEcho_03.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEcho_04.png" alt=""> <h2 id="4">sanity checks</h2><pre class="codeinput">TE_check=(t_refocusing(1)-t_excitation(1))*2;
+fprintf(<span class="string">'intended TE=%.03f ms, actual spin echo TE=%.03fms\n'</span>, TE*1e3, TE_check*1e3);
+</pre><pre class="codeoutput">intended TE=60.000 ms, actual spin echo TE=60.000ms
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+seq=mr.Sequence();              % Create a new sequence object
+fov=256e-3; Nx=64; Ny=64;       % Define FOV and resolution
+
+% Set system limits
+lims = mr.opts('MaxGrad', 32, 'GradUnit', 'mT/m',...
+    'MaxSlew', 130, 'SlewUnit', 'T/m/s', 'rfRingdownTime', 30e-6, ...
+    'rfDeadTime', 100e-6, 'adcDeadTime', 20e-6);  
+
+% Create 90 degree slice selection pulse and gradient
+[rf, gz] = mr.makeSincPulse(pi/2,lims,'Duration',3e-3,...
+    'SliceThickness',3e-3,'apodization',0.5,'timeBwProduct',4);
+
+% Define other gradients and ADC events
+deltak=1/fov;
+kWidth = Nx*deltak;
+readoutTime = 3.2e-4;
+gx = mr.makeTrapezoid('x',lims,'FlatArea',kWidth,'FlatTime',readoutTime);
+adc = mr.makeAdc(Nx,lims,'Duration',gx.flatTime,'Delay',gx.riseTime);
+
+% Pre-phasing gradients
+preTime=8e-4;
+%gxPre = mr.makeTrapezoid('x',lims,'Area',-gx.area/2-deltak/2,'Duration',preTime);
+gzReph = mr.makeTrapezoid('z',lims,'Area',-gz.area/2,'Duration',preTime);
+%gyPre = mr.makeTrapezoid('y',lims,'Area',-Ny/2*deltak,'Duration',preTime);
+% we need no minus for in-plane prephasers because of the spin-echo (position reflection in k-space)
+gxPre = mr.makeTrapezoid('x',lims,'Area',gx.area/2-deltak/2,'Duration',preTime);
+gyPre = mr.makeTrapezoid('y',lims,'Area',Ny/2*deltak,'Duration',preTime);
+
+% Phase blip in shortest possible time
+dur = ceil(2*sqrt(deltak/lims.maxSlew)/10e-6)*10e-6;
+gy = mr.makeTrapezoid('y',lims,'Area',deltak,'Duration',dur);
+
+% Refocusing pulse with spoiling gradients
+rf180 = mr.makeBlockPulse(pi,lims,'Duration',500e-6,'use','refocusing');
+gzSpoil = mr.makeTrapezoid('z',lims,'Area',gz.area*2,'Duration',3*preTime);
+
+% Calculate delay time
+TE=60e-3;
+durationToCenter = (Nx/2+0.5)*mr.calcDuration(gx) + Ny/2*mr.calcDuration(gy);
+rfCenterInclDelay=rf.delay + mr.calcRfCenter(rf);
+rf180centerInclDelay=rf180.delay + mr.calcRfCenter(rf180);
+delayTE1=TE/2 - mr.calcDuration(gz) + rfCenterInclDelay - preTime - mr.calcDuration(gzSpoil) - rf180centerInclDelay;
+delayTE2=TE/2 - mr.calcDuration(rf180) + rf180centerInclDelay - mr.calcDuration(gzSpoil) - durationToCenter;
+
+% Define sequence blocks
+seq.addBlock(rf,gz);
+seq.addBlock(gxPre,gyPre,gzReph); 
+seq.addBlock(mr.makeDelay(delayTE1));
+seq.addBlock(gzSpoil);
+seq.addBlock(rf180);
+seq.addBlock(gzSpoil);
+seq.addBlock(mr.makeDelay(delayTE2));
+for i=1:Ny
+    seq.addBlock(gx,adc);           % Read one line of k-space
+    seq.addBlock(gy);               % Phase blip
+    gx.amplitude = -gx.amplitude;   % Reverse polarity of read gradient
+end
+seq.addBlock(mr.makeDelay(1e-4));
+
+seq.write('epi_se.seq');   % Output sequence for scanner
+seq.plot();             % Plot sequence waveforms
+
+%% calculate trajectory 
+[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+
+%% plot k-spaces
+time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
+figure; plot(time_axis, ktraj'); % plot the entire k-space trajectory
+hold; plot(t_adc,ktraj_adc(1,:),'.'); % and sampling points on the kx-axis
+
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+axis('equal'); % enforce aspect ratio for the correct trajectory display
+
+%% sanity checks
+TE_check=(t_refocusing(1)-t_excitation(1))*2;
+fprintf('intended TE=%.03f ms, actual spin echo TE=%.03fms\n', TE*1e3, TE_check*1e3); 
+
+##### SOURCE END #####
+--></body></html>

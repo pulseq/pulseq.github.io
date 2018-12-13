@@ -1,0 +1,386 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>writeTrufi</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-13"><meta name="DC.source" content="writeTrufi.m"><style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table.content th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">check whether the timing of the sequence is correct</a></li><li><a href="#3">prepare export</a></li><li><a href="#4">plots and displays</a></li><li><a href="#5">new single-function call for trajectory calculation -- relatively slow but very helpful</a></li><li><a href="#6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a></li></ul></div><pre class="codeinput"><span class="comment">% we define here a really crude True-FISP a.k.a. bSSFP sequence</span>
+<span class="comment">% there is no user control for TR/TE, you just specify the ADC time and the</span>
+<span class="comment">% RF parameters and the rest is calculated to find the fastest posible</span>
+<span class="comment">% timing. The sequence intensively uses the extended trapezoid</span>
+<span class="comment">% functionality to achieve near-optimal timing. Due to the requirement for</span>
+<span class="comment">% splitting the sequence into blocks the TR is increased by approximately</span>
+<span class="comment">% 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR</span>
+
+seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+fov=220e-3; Nx=256; Ny=256;     <span class="comment">% Define FOV and resolution</span>
+
+<span class="comment">% set system limits</span>
+<span class="comment">% had to slow down ramps and increase adc_duration to avoid stimulation</span>
+sys = mr.opts(<span class="string">'MaxGrad'</span>,36,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
+    <span class="string">'MaxSlew'</span>,140,<span class="string">'SlewUnit'</span>,<span class="string">'T/m/s'</span>,<span class="keyword">...</span>
+    <span class="string">'rfRingdownTime'</span>, 20e-6, <span class="string">'rfDeadTime'</span>, 100e-6, <span class="keyword">...</span>
+    <span class="string">'adcDeadTime'</span>, 20e-6);
+
+<span class="comment">% ADC duration (controls TR/TE)</span>
+adc_dur=2560; <span class="comment">%us</span>
+
+<span class="comment">% RF parameters</span>
+alpha=40; <span class="comment">% deg</span>
+thick=4; <span class="comment">%mm</span>
+rf_dur=600; <span class="comment">% us</span>
+rf_apo=0.5;
+rf_bwt=1.5;
+
+<span class="comment">% Create 'alpha' degree slice selection pulse and gradient</span>
+[rf, gz, gzReph] = mr.makeSincPulse(alpha*pi/180,<span class="string">'Duration'</span>,rf_dur*1e-6,<span class="keyword">...</span>
+    <span class="string">'SliceThickness'</span>,thick*1e-3,<span class="string">'apodization'</span>,rf_apo,<span class="string">'timeBwProduct'</span>,rf_bwt,<span class="string">'system'</span>,sys);
+
+<span class="comment">% Define other gradients and ADC events</span>
+deltak=1/fov;
+gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,Nx*deltak,<span class="string">'FlatTime'</span>,adc_dur*1e-6,<span class="string">'system'</span>,sys);
+adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime,<span class="string">'system'</span>,sys);
+gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'system'</span>,sys);
+phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
+
+<span class="comment">% now we have to reschuffle gradients to achieve a half-way optimal timing</span>
+<span class="comment">% new gz will consist of two parts:</span>
+<span class="comment">% 1: slice refocusing from the previous TR followed by slice selection</span>
+<span class="comment">%    including the plato an a small bit of the ramp-down</span>
+<span class="comment">% 2: the remainder of the ramp-down and the slice refocusing for the next TR</span>
+gz_parts=mr.splitGradientAt(gz,rf.delay+rf.t(end));
+gz_parts(1).delay=mr.calcDuration(gzReph);
+gz_1=mr.addGradients({gzReph,gz_parts(1)},<span class="string">'system'</span>,sys);
+[rf]=mr.align(<span class="string">'right'</span>,rf,gz_1);
+gz_parts(2).delay=0;
+gzReph.delay=mr.calcDuration(gz_parts(2));
+gz_2=mr.addGradients({gz_parts(2),gzReph},<span class="string">'system'</span>,sys);
+
+<span class="comment">% new gr will consist of two parts:</span>
+<span class="comment">% 1: prephaser followed by a part of the read gradient including the</span>
+<span class="comment">%    beginning of the ramp-down</span>
+<span class="comment">% 2: the remainer of the ramp-down and the second "prephaser"</span>
+gx_parts=mr.splitGradientAt(gx,ceil((adc.dwell*adc.numSamples+adc.delay+adc.deadTime)/sys.gradRasterTime)*sys.gradRasterTime);
+gx_parts(1).delay=mr.calcDuration(gxPre);
+gx_1=mr.addGradients({gxPre,gx_parts(1)},<span class="string">'system'</span>,sys);
+adc.delay=adc.delay+mr.calcDuration(gxPre);
+gx_parts(2).delay=0;
+gxPre.delay=mr.calcDuration(gx_parts(2));
+gx_2=mr.addGradients({gx_parts(2),gxPre},<span class="string">'system'</span>,sys);
+
+
+<span class="comment">% Calculate timing</span>
+<span class="comment">%pe_dur=min(max(tp2(end),tpr1(end-2)),max(tp(end-3),tpr2(end)));</span>
+gxPre.delay=0; <span class="comment">% otherwise duration below is misreported</span>
+<span class="comment">%pe_dur=max(mr.calcDuration(gz_2),mr.calcDuration(gxPre)+gx.riseTime);</span>
+pe_dur=mr.calcDuration(gx_2);
+
+<span class="comment">% adjust delays to align objects</span>
+<span class="comment">%if tpr2(end)&gt;tp(end-2)</span>
+<span class="comment">%    delay_add=tpr2(end)-tp(end-2);</span>
+<span class="comment">%    gz_1.delay=delay_add;</span>
+<span class="comment">%    rf.delay=rf.delay+delay_add;</span>
+<span class="comment">%end</span>
+gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);
+rf.delay=rf.delay+gz_1.delay;
+
+<span class="comment">% finish timing calculation</span>
+TR=mr.calcDuration(gz_1)+mr.calcDuration(gx_1);
+TE=TR/2;
+
+<span class="comment">% alpha / 2 preparation: shorter TR and half-angle, no PE, no RO</span>
+<span class="comment">% create 0.5*alpha prep pulse</span>
+rf05=rf;
+rf05.signal=0.5*rf.signal;
+seq.addBlock(rf05,gz_1);
+seq.addBlock(gz_2);
+<span class="comment">% the following delay calculation fails for agressive sequence timing</span>
+prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1)-mr.calcDuration(gz_2))/sys.gradRasterTime)*sys.gradRasterTime); <span class="comment">% I know this round() is not 100% correct</span>
+seq.addBlock(prepDelay);
+
+<span class="comment">% Loop over phase encodes and define sequence blocks</span>
+<span class="keyword">for</span> i=1:Ny
+    gyPre_2 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,phaseAreas(i),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% current PE step</span>
+    <span class="keyword">if</span> i&gt;1
+        gyPre_1 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-phaseAreas(mod(i+Ny-2,Ny)+1),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% previous PE step</span>
+        seq.addBlock(rf,gz_1, gyPre_1, gx_2);
+    <span class="keyword">else</span>
+        seq.addBlock(rf,gz_1);
+    <span class="keyword">end</span>
+    <span class="comment">%seq.addBlock(gxPre,gyPre,gzReph);</span>
+    <span class="comment">%seq.addBlock(mr.makeDelay(delayTE));</span>
+    seq.addBlock(gx_1,gyPre_2, gz_2,adc);
+    <span class="comment">%seq.addBlock(mr.makeDelay(delayTR))</span>
+<span class="keyword">end</span>
+<span class="comment">% finish the x-grad shape</span>
+seq.addBlock(gx_2);
+
+<span class="comment">% check that the calculated TR was reached</span>
+<span class="comment">% alpha / 2 prep takes 3 blocks</span>
+assert(TR==(mr.calcDuration(seq.getBlock(4))+mr.calcDuration(seq.getBlock(5))));
+
+fprintf(<span class="string">'Sequence ready\n'</span>);
+fprintf(<span class="string">'TR=%f ms  TE=%f ms\n'</span>, TR*1e3, TE*1e3);
+</pre><pre class="codeoutput">Sequence ready
+TR=4.660000 ms  TE=2.330000 ms
+</pre><h2 id="2">check whether the timing of the sequence is correct</h2><pre class="codeinput">[ok, error_report]=seq.checkTiming;
+
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Timing check passed successfully
+</pre><h2 id="3">prepare export</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov*1e3 fov*1e3 thick]);
+seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'trufi'</span>);
+
+seq.write(<span class="string">'trufi.seq'</span>)       <span class="comment">% Write to pulseq file</span>
+
+<span class="comment">%seq.install('siemens');</span>
+<span class="keyword">return</span>
+</pre><h2 id="4">plots and displays</h2><pre class="codeinput">seq.plot();
+
+<span class="comment">% plot entire interpolated wave forms -- good for debugging of gaps, jumps,</span>
+<span class="comment">% etc, but is relatively slow</span>
+gw=seq.gradient_waveforms();
+figure; plot(gw'); <span class="comment">% plot the entire k-space trajectory</span>
+</pre><h2 id="5">new single-function call for trajectory calculation -- relatively slow but very helpful</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+
+<span class="comment">% plot k-spaces</span>
+
+figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
+             ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
+</pre><h2 id="6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
+fprintf([rep{:}]);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% we define here a really crude True-FISP a.k.a. bSSFP sequence
+% there is no user control for TR/TE, you just specify the ADC time and the
+% RF parameters and the rest is calculated to find the fastest posible
+% timing. The sequence intensively uses the extended trapezoid
+% functionality to achieve near-optimal timing. Due to the requirement for
+% splitting the sequence into blocks the TR is increased by approximately
+% 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR
+
+seq=mr.Sequence();              % Create a new sequence object
+fov=220e-3; Nx=256; Ny=256;     % Define FOV and resolution
+
+% set system limits
+% had to slow down ramps and increase adc_duration to avoid stimulation
+sys = mr.opts('MaxGrad',36,'GradUnit','mT/m',...
+    'MaxSlew',140,'SlewUnit','T/m/s',...
+    'rfRingdownTime', 20e-6, 'rfDeadTime', 100e-6, ...
+    'adcDeadTime', 20e-6);
+
+% ADC duration (controls TR/TE)
+adc_dur=2560; %us
+
+% RF parameters 
+alpha=40; % deg
+thick=4; %mm
+rf_dur=600; % us
+rf_apo=0.5;
+rf_bwt=1.5;
+
+% Create 'alpha' degree slice selection pulse and gradient
+[rf, gz, gzReph] = mr.makeSincPulse(alpha*pi/180,'Duration',rf_dur*1e-6,...
+    'SliceThickness',thick*1e-3,'apodization',rf_apo,'timeBwProduct',rf_bwt,'system',sys);
+
+% Define other gradients and ADC events
+deltak=1/fov;
+gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',adc_dur*1e-6,'system',sys);
+adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
+gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'system',sys);
+phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
+
+% now we have to reschuffle gradients to achieve a half-way optimal timing
+% new gz will consist of two parts: 
+% 1: slice refocusing from the previous TR followed by slice selection 
+%    including the plato an a small bit of the ramp-down
+% 2: the remainder of the ramp-down and the slice refocusing for the next TR
+gz_parts=mr.splitGradientAt(gz,rf.delay+rf.t(end));
+gz_parts(1).delay=mr.calcDuration(gzReph);
+gz_1=mr.addGradients({gzReph,gz_parts(1)},'system',sys);
+[rf]=mr.align('right',rf,gz_1);
+gz_parts(2).delay=0;
+gzReph.delay=mr.calcDuration(gz_parts(2));
+gz_2=mr.addGradients({gz_parts(2),gzReph},'system',sys);
+
+% new gr will consist of two parts: 
+% 1: prephaser followed by a part of the read gradient including the 
+%    beginning of the ramp-down
+% 2: the remainer of the ramp-down and the second "prephaser"
+gx_parts=mr.splitGradientAt(gx,ceil((adc.dwell*adc.numSamples+adc.delay+adc.deadTime)/sys.gradRasterTime)*sys.gradRasterTime);
+gx_parts(1).delay=mr.calcDuration(gxPre);
+gx_1=mr.addGradients({gxPre,gx_parts(1)},'system',sys);
+adc.delay=adc.delay+mr.calcDuration(gxPre);
+gx_parts(2).delay=0;
+gxPre.delay=mr.calcDuration(gx_parts(2));
+gx_2=mr.addGradients({gx_parts(2),gxPre},'system',sys);
+
+
+% Calculate timing
+%pe_dur=min(max(tp2(end),tpr1(end-2)),max(tp(end-3),tpr2(end))); 
+gxPre.delay=0; % otherwise duration below is misreported
+%pe_dur=max(mr.calcDuration(gz_2),mr.calcDuration(gxPre)+gx.riseTime);
+pe_dur=mr.calcDuration(gx_2);
+
+% adjust delays to align objects
+%if tpr2(end)>tp(end-2)
+%    delay_add=tpr2(end)-tp(end-2);
+%    gz_1.delay=delay_add;
+%    rf.delay=rf.delay+delay_add;
+%end
+gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);
+rf.delay=rf.delay+gz_1.delay;
+
+% finish timing calculation
+TR=mr.calcDuration(gz_1)+mr.calcDuration(gx_1);
+TE=TR/2;
+
+% alpha / 2 preparation: shorter TR and half-angle, no PE, no RO
+% create 0.5*alpha prep pulse
+rf05=rf;
+rf05.signal=0.5*rf.signal;
+seq.addBlock(rf05,gz_1);
+seq.addBlock(gz_2);
+% the following delay calculation fails for agressive sequence timing
+prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1)-mr.calcDuration(gz_2))/sys.gradRasterTime)*sys.gradRasterTime); % I know this round() is not 100% correct
+seq.addBlock(prepDelay);
+
+% Loop over phase encodes and define sequence blocks
+for i=1:Ny
+    gyPre_2 = mr.makeTrapezoid('y','Area',phaseAreas(i),'Duration',pe_dur,'system',sys); % current PE step
+    if i>1
+        gyPre_1 = mr.makeTrapezoid('y','Area',-phaseAreas(mod(i+Ny-2,Ny)+1),'Duration',pe_dur,'system',sys); % previous PE step
+        seq.addBlock(rf,gz_1, gyPre_1, gx_2);
+    else
+        seq.addBlock(rf,gz_1);
+    end
+    %seq.addBlock(gxPre,gyPre,gzReph);
+    %seq.addBlock(mr.makeDelay(delayTE));
+    seq.addBlock(gx_1,gyPre_2, gz_2,adc);
+    %seq.addBlock(mr.makeDelay(delayTR))
+end
+% finish the x-grad shape 
+seq.addBlock(gx_2);
+
+% check that the calculated TR was reached
+% alpha / 2 prep takes 3 blocks
+assert(TR==(mr.calcDuration(seq.getBlock(4))+mr.calcDuration(seq.getBlock(5))));
+
+fprintf('Sequence ready\n');
+fprintf('TR=%f ms  TE=%f ms\n', TR*1e3, TE*1e3);
+
+%% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
+%% prepare export
+
+seq.setDefinition('FOV', [fov*1e3 fov*1e3 thick]);
+seq.setDefinition('Name', 'trufi');
+
+seq.write('trufi.seq')       % Write to pulseq file
+
+%seq.install('siemens');
+return
+
+%% plots and displays
+seq.plot();
+
+% plot entire interpolated wave forms REPLACE_WITH_DASH_DASH good for debugging of gaps, jumps,
+% etc, but is relatively slow
+gw=seq.gradient_waveforms();
+figure; plot(gw'); % plot the entire k-space trajectory
+
+
+%% new single-function call for trajectory calculation REPLACE_WITH_DASH_DASH relatively slow but very helpful
+[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+
+% plot k-spaces
+
+figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(ktraj(1,:),ktraj(2,:),'b',...
+             ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+
+%% very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits  
+
+rep = seq.testReport;
+fprintf([rep{:}]);
+
+
+##### SOURCE END #####
+--></body></html>
