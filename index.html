@@ -121,7 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h2>Scanner implementations</h2>
 <p>Currently, <em>Pulseq</em> sequences can be executed on the following platforms. Please <a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e'; return false;">contact us</a> if you would like to run open and flexible sequences at your institution.</p>
 <ul>
-<li>Siemens</li>
+<li><a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e?s'+'ub'+'jec'+'t='+'Req'+'ue'+'st '+'Si'+'eme'+'ns'+' se'+'qu'+'enc'+'e'; return false;">Siemens</a></li>
 <li><a href="https://toppemri.github.io">GE</a></li>
 <li><a href="https://github.com/pulseq/bruker_interpreter">Bruker</a></li>
 </ul>
@@ -129,30 +129,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
 </pre><p>Run configure to prepare for building. </p><pre class="fragment">cd pulseq
 ./configure
-</pre><p>Now run <code>make</code> to build the executables and/or documentation. </p><pre class="fragment">make
-</pre><h2>Sneak peak</h2>
-<p>The <a href="matlab.html">MATLAB package</a> <code>mr</code> provides extended functionality to create and visualize sequences as well as reading and writing sequence files. </p><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;% Load a sequence and add a new GX gradient to the end before visualizing.</div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;seq = mr.Sequence();</div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;seq.load(&#39;gre.seq&#39;);</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;gx = mr.makeTrapezoid(&#39;x&#39;,&#39;FlatArea&#39;,kWidth,&#39;FlatTime&#39;,readoutTime);</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;seq.addBlock(gx);</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;seq.plot();</div>
-</div><!-- fragment --><p> 
-<table class="directory">
-<tr><td><img src="demoRead_03.png"></td><td><img src="gre.png"></td></tr>
-<tr style="font-weight:bold;text-align:center;height:3em">
-<td>Example design and visualization of an MRI sequence in MATLAB</td>
-<td>Data acquired from the MATLAB sequence</td>
-</tr>
-</table>
-</p>
-<p>The C++ class <code>ExternalSequence</code> provides functionality to read a pulse sequence file and decompress the sequence blocks. This implementation is ideal for running MR sequences on different hardware platforms. The image above was acquired using the this class and vendor-specific interpreter code. </p><div class="fragment"><div class="line"><span class="comment">// Create sequence object and load file</span></div>
-<div class="line">ExternalSequence seq;</div>
-<div class="line">seq.load(path);</div>
-<div class="line"></div>
-<div class="line">SeqBlock* block = seq.GetBlock(1);</div>
-<div class="line"><span class="keywordtype">bool</span> isRF = block-&gt;isRF();</div>
-</div><!-- fragment --> </div></div><!-- contents -->
+</pre><p>Now run <code>make</code> to build the executables and/or documentation. </p><pre class="fragment">make</pre> </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
