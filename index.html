@@ -54,7 +54,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li class="current"><a href="index.html"><span>Home</span></a></li>
-      <li><a href="@ref matlab"><span>MATLAB</span></a></li>
       <li><a href="https://github.com/pulseq/pulseq"><span>Source</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -99,7 +98,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <img src="overview.png" />
 </div>
 <p>A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MRI scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a></p>
-<p>The source code provides example implementations of this format. Code documentation is divided into <a href="matlab.html">MATLAB</a> and <a href="annotated.html">C++</a> sections. Alternatively, sequences can be programming in <a href="http://www.jemris.org/">JEMRIS</a> using a graphical interface and exported to the Pulseq file format for execution.</p>
+<p>The source code provides example implementations of this format. Code is divided into <a href="https://github.com/pulseq/pulseq/tree/master/matlab">MATLAB</a> and <a href="https://github.com/pulseq/pulseq/tree/master/src">C++</a> sections. Alternatively, sequences can be programming in <a href="http://www.jemris.org/">JEMRIS</a> using a graphical interface and exported to the Pulseq file format for execution.</p>
 <h2>Sequence examples</h2>
 <h3>Matlab</h3>
 <ul>
@@ -116,20 +115,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li><a href="writeTSE.html">Turbo spin echo sequence</a></li>
 <li><a href="writeUTE.html">UTE sequence</a></li>
 <li><a href="writeUTE_rs.html">UTE sequence with ramp sampling</a></li>
-<li><a href="demoRead.html">Load a sequence into MATLAB</a></li>
 </ul>
 <h2>Scanner implementations</h2>
 <p>Currently, <em>Pulseq</em> sequences can be executed on the following platforms. Please <a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e'; return false;">contact us</a> if you would like to run open and flexible sequences at your institution.</p>
 <ul>
-<li><a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e?s'+'ub'+'jec'+'t='+'Req'+'ue'+'st '+'Si'+'eme'+'ns'+' se'+'qu'+'enc'+'e'; return false;">Siemens</a></li>
+<li>Siemens</li>
 <li><a href="https://toppemri.github.io">GE</a></li>
 <li><a href="https://github.com/pulseq/bruker_interpreter">Bruker</a></li>
 </ul>
 <h2>Download source code</h2>
-<p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
-</pre><p>Run configure to prepare for building. </p><pre class="fragment">cd pulseq
-./configure
-</pre><p>Now run <code>make</code> to build the executables and/or documentation. </p><pre class="fragment">make</pre> </div></div><!-- contents -->
+<p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git</pre> </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

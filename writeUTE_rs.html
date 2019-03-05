@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeUTE_rs</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-11"><meta name="DC.source" content="writeUTE_rs.m"><style type="text/css">
+      --><title>writeUTE_rs</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeUTE_rs.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -164,7 +164,7 @@ seq.plot();
 </pre><pre class="codeoutput">TE= 70 us
 </pre><img vspace="5" hspace="5" src="writeUTE_rs_01.png" alt=""> <h2 id="3">plot gradients to check for gaps and optimality of the timing</h2><pre class="codeinput">gw=seq.gradient_waveforms();
 figure; plot(gw'); <span class="comment">% plot the entire gradient shape</span>
-</pre><img vspace="5" hspace="5" src="writeUTE_rs_02.png" alt=""> <h2 id="4">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_02.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_03.png" alt=""> <h2 id="4">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
 
 <span class="comment">% plot k-spaces</span>
 time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
@@ -183,7 +183,7 @@ seq.write(<span class="string">'ute_rs.seq'</span>);       <span class="comment"
 <span class="comment">%seq.install('siemens');</span>
 </pre><pre class="codeoutput">Current plot held
 Current plot held
-</pre><img vspace="5" hspace="5" src="writeUTE_rs_03.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_04.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_05.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_06.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_07.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % a basic UTE-like sequence
 % achieves "TE" below 100 us

@@ -1,0 +1,841 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mtree</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="mtree.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">classdef</span> mtree
+<span class="comment">%MTREE  Create and manipulate M parse trees</span>
+<span class="comment">%   This is an experimental program whose behavior and interface is likely</span>
+<span class="comment">%   to change in the future.</span>
+
+
+
+    <span class="keyword">properties</span> (SetAccess=<span class="string">'protected'</span>, GetAccess=<span class="string">'protected'</span>, Hidden)
+        T    <span class="comment">% parse tree array</span>
+                 <span class="comment">% column 1: kind of node</span>
+                 <span class="comment">% column 2: index of left child</span>
+                 <span class="comment">% column 3: index of right child</span>
+                 <span class="comment">% column 4: index of next node</span>
+                 <span class="comment">% column 5: position of node</span>
+                 <span class="comment">% column 6: size of node</span>
+                 <span class="comment">% column 7: symbol table index (V)R/</span>
+                 <span class="comment">% column 8: string table index</span>
+                 <span class="comment">% column 9: index of parent node</span>
+                 <span class="comment">% column 10: setting node</span>
+                 <span class="comment">% column 11: lefttreepos</span>
+                 <span class="comment">% column 12: righttreepos</span>
+                 <span class="comment">% column 13: true parent</span>
+                 <span class="comment">% column 14: righttreeindex</span>
+                 <span class="comment">% column 15: rightfullindex</span>
+        S    <span class="comment">% symbol table</span>
+        C    <span class="comment">% character strings</span>
+        IX   <span class="comment">% index set (default is true for everything)</span>
+        n    <span class="comment">% number of nodes</span>
+        m    <span class="comment">% sum(IX)</span>
+        lnos <span class="comment">% line number translation</span>
+        str  <span class="comment">% input string that created the tree</span>
+    <span class="keyword">end</span>
+    <span class="keyword">properties</span> (SetAccess=<span class="string">'private'</span>, GetAccess=<span class="string">'public'</span>)
+        <span class="comment">% The type of the code file represented by the tree</span>
+        <span class="comment">% This will be one of the values of the mtree.Type</span>
+        <span class="comment">% enum, such as mtree.Type.ScriptFile, etc.</span>
+        FileType
+    <span class="keyword">end</span>
+    <span class="keyword">properties</span> (GetAccess=<span class="string">'public'</span>, Constant, Hidden)
+        N  = mtree_info(1)  <span class="comment">% node names</span>
+        K  = mtree_info(2)  <span class="comment">% node key</span>
+        KK = mtree_info(3)  <span class="comment">% the internal names (for debugging)</span>
+        Uop = mtree_info(4) <span class="comment">% true if node is a unary op</span>
+        Bop = mtree_info(5) <span class="comment">% true if node is a binary op</span>
+        Stmt = mtree_info(6) <span class="comment">% true if node is a statement</span>
+        Linkno = mtree_info(7) <span class="comment">% maps link to index</span>
+        Lmap = mtree_info(8) <span class="comment">% link map</span>
+        Linkok = mtree_info(9) <span class="comment">% is link OK for a given node</span>
+        PTval = mtree_info(10) <span class="comment">% array of nodes whose V is a position value</span>
+        V  = { <span class="string">'2.50'</span>, <span class="string">'2.50'</span> };   <span class="comment">% version array</span>
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>
+        [v1,v2] = version(o)
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> (Access=<span class="string">'protected'</span>)
+        <span class="comment">% housekeeping methods</span>
+        L = linelookup( o, P )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>
+        <span class="comment">% CONSTRUCTOR</span>
+        <span class="keyword">function</span> o = mtree( text, varargin )
+        <span class="comment">%MTREE  o = MTREE( text, options ) constructs an mtree object</span>
+        <span class="comment">%</span>
+        <span class="comment">% Options include:</span>
+        <span class="comment">%     -file:  the text argument is treated as a filename</span>
+        <span class="comment">%     -comments:   comments are included in the tree</span>
+        <span class="comment">%     -cell:  cell markers are included in the tree</span>
+            <span class="keyword">if</span> nargin == 0 || ~ischar( text )
+                error(message(<span class="string">'MATLAB:mtree:usage'</span>));
+            <span class="keyword">end</span>
+            opts = {};
+            <span class="keyword">for</span> i=1:nargin-1
+                <span class="keyword">if</span> strcmp( varargin{i}, <span class="string">'-file'</span> )
+                    <span class="keyword">try</span>
+                        fname = text;
+                        text = matlab.internal.getCode(text);
+                    <span class="keyword">catch</span> x
+                        error(message(<span class="string">'MATLAB:mtree:input'</span>, fname));
+                    <span class="keyword">end</span>
+
+                <span class="keyword">else</span>
+                    <span class="keyword">switch</span> varargin{i}
+                        <span class="keyword">case</span> <span class="string">'-comments'</span>
+                            opts{end+1} = <span class="string">'-com'</span>; <span class="comment">%#ok&lt;AGROW&gt;</span>
+                        <span class="keyword">otherwise</span>
+                            opts{end+1} = varargin{i}; <span class="comment">%#ok&lt;AGROW&gt;</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            o.str = text;
+            [o.T,o.S,o.C, o.FileType] = mtreemex( text, opts{:} );
+            <span class="comment">% this code needs to be clever about old MAC files</span>
+            L1 = text==char(10);
+            <span class="keyword">if</span> sum(L1)==0  <span class="comment">% there are no newlines in the file</span>
+                L1 = text==char(13);
+            <span class="keyword">end</span>
+            o.lnos = [ 0 find(L1) length(text) ]';
+            o = wholetree( o );
+        <span class="keyword">end</span>
+        o = wholetree( o )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> (Hidden)
+        b = eq( o, oo )
+        b = ne( o, oo )
+        b = le( o, oo )
+        o = subtree(o) <span class="comment">% Deprecated.</span>
+        o = fullsubtree( o ) <span class="comment">% Deprecated.</span>
+
+        <span class="keyword">function</span> o = list(o)
+        <span class="comment">%LIST  list is deprecated -- use List</span>
+            o = List(o);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = full(o)
+        <span class="comment">%full  full is deprecated -- use wholetree</span>
+            o = wholetree(o);
+        <span class="keyword">end</span>
+
+        b = isfull(o) <span class="comment">% Deprecated.</span>
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>
+        m = count( o )
+        oo = root( o )
+        oo = null( o )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> (Access=<span class="string">'protected'</span>,Hidden)
+        oo = makeAttrib( o, I )
+        [I,ipath,flag,rest] = pathit( o, I, ipath )
+        a = restrict( o, ipath, s )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>
+        a = path(o, pth ) <span class="comment">% Deprecated since it interferes with the builtin.</span>
+        a = mtpath(o, pth )
+
+        c = strings( o )
+        c = stringvals( o )
+        s = string( o )
+        s = stringval( o )
+        a = find( o, varargin ) <span class="comment">% Deprecated.</span>
+        a = mtfind( o, varargin )
+        o = sets( o )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>   <span class="comment">% methods for following paths...</span>
+        o = Left(o)
+        o = Arg(o)
+        o = Try(o)
+        o = Attr(o)
+        o = Right(o)
+        o = Body(o)
+        o = Catch(o)
+        o = CatchID(o)
+        o = Next(o)
+        o = Parent(o)
+        o = Outs(o)
+        o = Index(o)
+        o = Cattr(o)
+        o = Vector(o)
+        o = Cexpr(o)
+        o = Ins(o)
+        o = Fname(o)
+        o = lhs( o )
+        o = previous( o )
+        oo = first( o )
+        o = last( o )
+    <span class="keyword">end</span>
+
+    <span class="keyword">properties</span>(Dependent)
+        VarName;
+        VarType;
+        VarDimensions;
+        VarValidators;
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+        <span class="keyword">function</span> name = get.VarName(o)
+            name = varName(o);
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> type = get.VarType(o)
+            type = varType(o);
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> dims = get.VarDimensions(o)
+            dims = varDimensions(o);
+        <span class="keyword">end</span>
+        <span class="keyword">function</span> vals = get.VarValidators(o)
+            vals = varValidators(o);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>(Access=private, Hidden)
+        <span class="keyword">function</span> o = varName(o)
+        <span class="comment">%VARNAME returns the Name node of a typed variable.</span>
+
+        <span class="comment">% fast for single nodes...</span>
+            lix = o.Linkno.VarName;
+            J = o.T( o.IX, 2 ); <span class="comment">% go to name node</span>
+            KKK = o.Linkok( lix, o.T( o.IX, 1 ) ) &amp; (J~=0)';
+            J = J(KKK);
+            o.IX(o.IX) = false;   <span class="comment">% reset</span>
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = varType(o)
+        <span class="comment">%VARTYPE returns the Type node of a typed variable.</span>
+
+        <span class="comment">% fast for single nodes...</span>
+            lix = o.Linkno.VarType;
+            J = o.T( o.IX, 3 ); <span class="comment">% go to ETC node</span>
+            KKK = o.Linkok( lix, o.T( o.IX, 1 ) ) &amp; (J~=0)';
+            J = J(KKK);
+            J = o.T( J, 2 );  <span class="comment">% go to type node</span>
+            J = J(J~=0);
+            o.IX(o.IX) = false;   <span class="comment">% reset</span>
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = varDimensions(o)
+        <span class="comment">%VARDIMENSIONS returns the Size node of a typed variable.</span>
+
+        <span class="comment">% fast for single nodes...</span>
+            lix = o.Linkno.VarDimensions;
+            J = o.T(o.IX, 3); <span class="comment">% go to first ETC</span>
+            KKK = o.Linkok(lix, o.T(o.IX, 1)) &amp; (J ~= 0)';
+            J = J(KKK);
+            <span class="keyword">for</span> next = [3 2] <span class="comment">% then ETC -&gt; Size</span>
+                J = o.T(J, next);
+                J = J(J ~= 0);
+            <span class="keyword">end</span>
+            o.IX(o.IX) = false;   <span class="comment">% reset</span>
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = varValidators(o)
+        <span class="comment">%VARVALIDATOR returns the Validators node of a typed variable.</span>
+
+        <span class="comment">% fast for single nodes...</span>
+            lix = o.Linkno.VarDimensions;
+            J = o.T(o.IX, 3); <span class="comment">% go to ETC</span>
+            KKK = o.Linkok(lix, o.T(o.IX, 1)) &amp; (J ~= 0)';
+            J = J(KKK);
+            <span class="keyword">for</span> next = [3 3 2] <span class="comment">% then ETC -&gt; ETC -&gt; Validators</span>
+                J = o.T(J, next);
+                J = J(J ~= 0);
+            <span class="keyword">end</span>
+            o.IX(o.IX) = false;   <span class="comment">% reset</span>
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+        oo = setter( o )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> (Hidden)
+        <span class="comment">% Low-level methods that are used for testing or special purposes</span>
+        <span class="comment">% and will not be documented.</span>
+        b = sametree( o, oo )
+        oo = rawset( o )
+        T = newtree( o, varargin )
+        s = getpath( o, r )
+
+        <span class="keyword">function</span> o = L(o)
+        <span class="comment">%L  o = L(o)  Raw Left operation</span>
+
+        <span class="comment">% fast for single nodes...</span>
+            J = o.T( o.IX, 2 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = R(o)
+        <span class="comment">%R  o = R(o)  Raw Right operation</span>
+            J = o.T( o.IX, 3 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = P(o)
+        <span class="comment">%P  o = P(o)  Raw Parent operation</span>
+            J = o.T( o.IX, 9 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> o = X(o)
+        <span class="comment">%X  o = X(o)  Raw Next operation</span>
+            J = o.T( o.IX, 4 );
+            o.m = o.m - sum( J==0 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+        <span class="keyword">end</span>
+
+
+        o = or( o, o2 )
+        o = and( o, o2 )
+        o = not( o )
+        o = minus( o, o2 )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span>
+        oo = allsetter( o, o2 ) <span class="comment">% Deprecated.</span>
+        oo = anysetter( o, o2 ) <span class="comment">% Deprecated.</span>
+        disp(o)
+        show(o)
+        dump(o)  <span class="comment">% Deprecated.</span>
+        dumptree(o)
+        rawdump(o)
+
+        o = List( o )
+        o = Full( o )
+        o = Tree( o )
+        oo = asgvars( o )
+        oo = geteq( o )
+        oo = dominator( o )
+        ooo = dominates( oo, o )
+        b = isbop( o )
+        b = isuop( o )
+        b = isop( o )
+        b = isstmt( o )
+        o = ops( o )
+        o = bops( o )
+        o = uops( o )
+        o = stmts( o )
+        o = operands( o )
+        oo = depends( o )
+        o = setdepends( o )
+        o = growset( o, fh )
+        o = fixedpoint( o, fh )
+        L = lineno( o )
+        C = charno( o )
+        P = position( o )
+        [l,c] = pos2lc( o, pos )
+        pos = lc2pos( o, l, c )
+        EP = endposition( o )
+        LP = leftposition(o)
+        RP = rightposition(o)
+        RP = righttreepos(o)
+        LP = lefttreepos(o)
+        RP = righttreeindex(o)
+        RP = rightfullindex(o)
+        oo = trueparent(o)
+        b = isempty( o )
+        b = isnull( o )
+        a = kinds( o )
+        a = kind( o )
+        b = iskind( o, kind )
+        b = anykind( o, kind )
+        b = allkind( o, kind )
+        b = isstring( o, strs )
+        b = allstring( o, strs )
+        b = anystring( o, strs )
+        b = ismember( o, a )
+        b = allmember( o, a )
+        b = anymember( o, a )
+        o = select( o, ix )
+        ln = getlastexecutableline( o )
+        [ln,ch] = lastone( o )
+        n = nodesize( o )
+        I = indices(o)
+        b = iswhole( o )
+        s = tree2str( S, varargin )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> <span class="comment">% (Hidden)</span>
+        <span class="comment">% these methods are only for the very well informed...</span>
+        <span class="comment">% I wanted to make them protected and Hidden, but the Simulink</span>
+        <span class="comment">% dependency analysis test explicitly tests for this method</span>
+        <span class="comment">% being visible.  TODO: track down why this is so....</span>
+
+        o = setIX( o, I )
+        I = getIX( o )
+    <span class="keyword">end</span>
+    <span class="keyword">methods</span> (Access=protected,Hidden)
+        chk( o )
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Error using evalin
+Undefined function or variable 'R'.
+</pre><p class="footer">Copyright 2006-2016 The MathWorks, Inc.<br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+classdef mtree
+%MTREE  Create and manipulate M parse trees
+%   This is an experimental program whose behavior and interface is likely
+%   to change in the future.
+
+% Copyright 2006-2016 The MathWorks, Inc.
+
+    properties (SetAccess='protected', GetAccess='protected', Hidden)
+        T    % parse tree array
+                 % column 1: kind of node
+                 % column 2: index of left child
+                 % column 3: index of right child
+                 % column 4: index of next node
+                 % column 5: position of node
+                 % column 6: size of node
+                 % column 7: symbol table index (V)R/
+                 % column 8: string table index
+                 % column 9: index of parent node
+                 % column 10: setting node
+                 % column 11: lefttreepos
+                 % column 12: righttreepos
+                 % column 13: true parent
+                 % column 14: righttreeindex
+                 % column 15: rightfullindex
+        S    % symbol table
+        C    % character strings
+        IX   % index set (default is true for everything)
+        n    % number of nodes
+        m    % sum(IX)
+        lnos % line number translation
+        str  % input string that created the tree
+    end
+    properties (SetAccess='private', GetAccess='public')
+        % The type of the code file represented by the tree
+        % This will be one of the values of the mtree.Type
+        % enum, such as mtree.Type.ScriptFile, etc.
+        FileType
+    end
+    properties (GetAccess='public', Constant, Hidden)
+        N  = mtree_info(1)  % node names
+        K  = mtree_info(2)  % node key
+        KK = mtree_info(3)  % the internal names (for debugging)
+        Uop = mtree_info(4) % true if node is a unary op
+        Bop = mtree_info(5) % true if node is a binary op
+        Stmt = mtree_info(6) % true if node is a statement
+        Linkno = mtree_info(7) % maps link to index
+        Lmap = mtree_info(8) % link map
+        Linkok = mtree_info(9) % is link OK for a given node
+        PTval = mtree_info(10) % array of nodes whose V is a position value
+        V  = { '2.50', '2.50' };   % version array
+    end
+    methods
+        [v1,v2] = version(o)
+    end
+    methods (Access='protected')
+        % housekeeping methods
+        L = linelookup( o, P )
+    end
+    methods
+        % CONSTRUCTOR
+        function o = mtree( text, varargin )
+        %MTREE  o = MTREE( text, options ) constructs an mtree object
+        %
+        % Options include:
+        %     -file:  the text argument is treated as a filename
+        %     -comments:   comments are included in the tree
+        %     -cell:  cell markers are included in the tree
+            if nargin == 0 || ~ischar( text )
+                error(message('MATLAB:mtree:usage'));
+            end
+            opts = {};
+            for i=1:nargin-1
+                if strcmp( varargin{i}, '-file' )
+                    try
+                        fname = text;
+                        text = matlab.internal.getCode(text);
+                    catch x 
+                        error(message('MATLAB:mtree:input', fname));
+                    end
+
+                else
+                    switch varargin{i}
+                        case '-comments'
+                            opts{end+1} = '-com'; %#ok<AGROW>
+                        otherwise
+                            opts{end+1} = varargin{i}; %#ok<AGROW>
+                    end
+                end
+            end
+            o.str = text;
+            [o.T,o.S,o.C, o.FileType] = mtreemex( text, opts{:} );
+            % this code needs to be clever about old MAC files
+            L1 = text==char(10);
+            if sum(L1)==0  % there are no newlines in the file
+                L1 = text==char(13);
+            end
+            o.lnos = [ 0 find(L1) length(text) ]';
+            o = wholetree( o );
+        end
+        o = wholetree( o )
+    end
+    methods (Hidden)
+        b = eq( o, oo )
+        b = ne( o, oo )
+        b = le( o, oo )
+        o = subtree(o) % Deprecated.
+        o = fullsubtree( o ) % Deprecated.
+
+        function o = list(o)
+        %LIST  list is deprecated REPLACE_WITH_DASH_DASH use List
+            o = List(o);
+        end
+
+        function o = full(o)
+        %full  full is deprecated REPLACE_WITH_DASH_DASH use wholetree
+            o = wholetree(o);
+        end
+
+        b = isfull(o) % Deprecated.
+    end
+    methods
+        m = count( o )
+        oo = root( o )
+        oo = null( o )
+    end
+    methods (Access='protected',Hidden)
+        oo = makeAttrib( o, I )
+        [I,ipath,flag,rest] = pathit( o, I, ipath )
+        a = restrict( o, ipath, s )
+    end
+    methods
+        a = path(o, pth ) % Deprecated since it interferes with the builtin.
+        a = mtpath(o, pth )
+   
+        c = strings( o )
+        c = stringvals( o )
+        s = string( o )
+        s = stringval( o )
+        a = find( o, varargin ) % Deprecated.
+        a = mtfind( o, varargin )
+        o = sets( o )
+    end
+    methods   % methods for following paths...
+        o = Left(o)
+        o = Arg(o)
+        o = Try(o)
+        o = Attr(o)
+        o = Right(o)
+        o = Body(o)
+        o = Catch(o)
+        o = CatchID(o)
+        o = Next(o)
+        o = Parent(o)
+        o = Outs(o)
+        o = Index(o)
+        o = Cattr(o)
+        o = Vector(o)
+        o = Cexpr(o)
+        o = Ins(o)
+        o = Fname(o)
+        o = lhs( o )
+        o = previous( o )
+        oo = first( o )
+        o = last( o )
+    end
+
+    properties(Dependent)
+        VarName;
+        VarType;
+        VarDimensions;
+        VarValidators;
+    end
+
+    methods
+        function name = get.VarName(o)
+            name = varName(o);
+        end
+        function type = get.VarType(o)
+            type = varType(o);
+        end
+        function dims = get.VarDimensions(o)
+            dims = varDimensions(o);
+        end
+        function vals = get.VarValidators(o)
+            vals = varValidators(o);
+        end
+    end
+
+    methods(Access=private, Hidden)
+        function o = varName(o)
+        %VARNAME returns the Name node of a typed variable.
+
+        % fast for single nodes...
+            lix = o.Linkno.VarName;
+            J = o.T( o.IX, 2 ); % go to name node
+            KKK = o.Linkok( lix, o.T( o.IX, 1 ) ) & (J~=0)';
+            J = J(KKK);
+            o.IX(o.IX) = false;   % reset
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+
+        function o = varType(o)
+        %VARTYPE returns the Type node of a typed variable.
+
+        % fast for single nodes...
+            lix = o.Linkno.VarType;
+            J = o.T( o.IX, 3 ); % go to ETC node
+            KKK = o.Linkok( lix, o.T( o.IX, 1 ) ) & (J~=0)';
+            J = J(KKK);
+            J = o.T( J, 2 );  % go to type node
+            J = J(J~=0);
+            o.IX(o.IX) = false;   % reset
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+        
+        function o = varDimensions(o)
+        %VARDIMENSIONS returns the Size node of a typed variable.
+
+        % fast for single nodes...
+            lix = o.Linkno.VarDimensions;
+            J = o.T(o.IX, 3); % go to first ETC
+            KKK = o.Linkok(lix, o.T(o.IX, 1)) & (J ~= 0)';
+            J = J(KKK);
+            for next = [3 2] % then ETC -> Size
+                J = o.T(J, next);
+                J = J(J ~= 0);
+            end
+            o.IX(o.IX) = false;   % reset
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+        
+        function o = varValidators(o)
+        %VARVALIDATOR returns the Validators node of a typed variable.
+
+        % fast for single nodes...
+            lix = o.Linkno.VarDimensions;
+            J = o.T(o.IX, 3); % go to ETC
+            KKK = o.Linkok(lix, o.T(o.IX, 1)) & (J ~= 0)';
+            J = J(KKK);
+            for next = [3 3 2] % then ETC -> ETC -> Validators
+                J = o.T(J, next);
+                J = J(J ~= 0);
+            end
+            o.IX(o.IX) = false;   % reset
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+    end
+
+    methods
+        oo = setter( o )
+    end
+    methods (Hidden)
+        % Low-level methods that are used for testing or special purposes
+        % and will not be documented.
+        b = sametree( o, oo )
+        oo = rawset( o )
+        T = newtree( o, varargin )
+        s = getpath( o, r )
+
+        function o = L(o)
+        %L  o = L(o)  Raw Left operation
+            
+        % fast for single nodes...
+            J = o.T( o.IX, 2 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+
+        function o = R(o)
+        %R  o = R(o)  Raw Right operation
+            J = o.T( o.IX, 3 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+
+        function o = P(o)
+        %P  o = P(o)  Raw Parent operation
+            J = o.T( o.IX, 9 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+            o.m = length(J);
+        end
+
+        function o = X(o)
+        %X  o = X(o)  Raw Next operation
+            J = o.T( o.IX, 4 );
+            o.m = o.m - sum( J==0 );
+            J = J(J~=0);
+            o.IX(o.IX) = false;
+            o.IX(J)= true;
+        end
+
+
+        o = or( o, o2 )
+        o = and( o, o2 )
+        o = not( o )
+        o = minus( o, o2 )
+    end
+    methods
+        oo = allsetter( o, o2 ) % Deprecated.
+        oo = anysetter( o, o2 ) % Deprecated.
+        disp(o)
+        show(o)
+        dump(o)  % Deprecated.
+        dumptree(o)
+        rawdump(o)
+
+        o = List( o )
+        o = Full( o )
+        o = Tree( o )
+        oo = asgvars( o )
+        oo = geteq( o )
+        oo = dominator( o )
+        ooo = dominates( oo, o )
+        b = isbop( o )
+        b = isuop( o )
+        b = isop( o )
+        b = isstmt( o )
+        o = ops( o )
+        o = bops( o )
+        o = uops( o )
+        o = stmts( o )
+        o = operands( o )
+        oo = depends( o )
+        o = setdepends( o )
+        o = growset( o, fh )
+        o = fixedpoint( o, fh )
+        L = lineno( o )
+        C = charno( o )
+        P = position( o )
+        [l,c] = pos2lc( o, pos )
+        pos = lc2pos( o, l, c )
+        EP = endposition( o )
+        LP = leftposition(o)
+        RP = rightposition(o)
+        RP = righttreepos(o)
+        LP = lefttreepos(o)
+        RP = righttreeindex(o)
+        RP = rightfullindex(o)
+        oo = trueparent(o)
+        b = isempty( o )
+        b = isnull( o )
+        a = kinds( o )
+        a = kind( o )
+        b = iskind( o, kind )
+        b = anykind( o, kind )
+        b = allkind( o, kind )
+        b = isstring( o, strs )
+        b = allstring( o, strs )
+        b = anystring( o, strs )
+        b = ismember( o, a )
+        b = allmember( o, a )
+        b = anymember( o, a )
+        o = select( o, ix )
+        ln = getlastexecutableline( o )
+        [ln,ch] = lastone( o )
+        n = nodesize( o )
+        I = indices(o)
+        b = iswhole( o )
+        s = tree2str( S, varargin )
+    end
+    methods % (Hidden)
+        % these methods are only for the very well informed...
+        % I wanted to make them protected and Hidden, but the Simulink
+        % dependency analysis test explicitly tests for this method
+        % being visible.  TODO: track down why this is so....
+
+        o = setIX( o, I )
+        I = getIX( o )
+    end
+    methods (Access=protected,Hidden)
+        chk( o )
+    end
+end
+
+##### SOURCE END #####
+--></body></html>

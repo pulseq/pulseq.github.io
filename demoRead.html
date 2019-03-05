@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-11"><meta name="DC.source" content="demoRead.m"><style type="text/css">
+      --><title>Read a sequence into MATLAB</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="demoRead.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -81,12 +81,13 @@ b1 =
 
   struct with fields:
 
-       rf: [1&times;1 struct]
-       gx: []
-       gy: []
-       gz: [1&times;1 struct]
-      adc: []
-    delay: []
+           rf: [1&times;1 struct]
+           gx: []
+           gy: []
+           gz: [1&times;1 struct]
+          adc: []
+        delay: []
+    gexternal: [1&times;1 struct]
 
 </pre><p>Further information about each event can be obtained by accessing the appropriate fields of the block struct. In particular, the complex RF signal is stored in the field <tt>signal</tt>.</p><pre class="codeinput">rf=b1.rf
 
@@ -154,7 +155,7 @@ ans =
            type: 'adc'
 
 </pre><h2 id="7">Plot the sequence</h2><p>Visualise the sequence using the <tt>plot</tt> method of the class. This creates a new figure and shows ADC, RF and gradient events. The axes are linked so zooming is consistent. In this example, a simple gradient echo sequence for MRI is displayed.</p><pre class="codeinput">seq.plot()
-</pre><img vspace="5" hspace="5" src="demoRead_02.png" alt=""> <p>The details of individual pulses are not well-represented when the entire sequence is visualised. Interactive zooming is helpful here. Alternatively, a time range can be specified.  An additional parameter also allows the display units to be changed for easy reading. Further, the handle of the created figure can be returned if required.</p><pre class="codeinput">fig=seq.plot(<span class="string">'TimeRange'</span>,[0 16e-3],<span class="string">'timeDisp'</span>,<span class="string">'ms'</span>)
+</pre><img vspace="5" hspace="5" src="demoRead_02.png" alt=""> <img vspace="5" hspace="5" src="demoRead_03.png" alt=""> <p>The details of individual pulses are not well-represented when the entire sequence is visualised. Interactive zooming is helpful here. Alternatively, a time range can be specified.  An additional parameter also allows the display units to be changed for easy reading. Further, the handle of the created figure can be returned if required.</p><pre class="codeinput">fig=seq.plot(<span class="string">'TimeRange'</span>,[0 16e-3],<span class="string">'timeDisp'</span>,<span class="string">'ms'</span>)
 </pre><pre class="codeoutput">
 fig = 
 
@@ -163,12 +164,12 @@ fig =
       Number: 3
         Name: ''
        Color: [0.9400 0.9400 0.9400]
-    Position: [519 497 568 424]
+    Position: [507 445 560 420]
        Units: 'pixels'
 
   Use GET to show all properties
 
-</pre><img vspace="5" hspace="5" src="demoRead_03.png" alt=""> <h2 id="9">Modifying sequence blocks</h2><p>In addition to loading a sequence and accessing sequence blocks, blocks can be modified. In this example, a Hamming window is applied to the first RF pulse of the sequence and the flip angle is changed to 45 degrees. The remaining RF pulses are unchanged.</p><pre class="codeinput">rf2=rf;
+</pre><img vspace="5" hspace="5" src="demoRead_04.png" alt=""> <img vspace="5" hspace="5" src="demoRead_05.png" alt=""> <img vspace="5" hspace="5" src="demoRead_06.png" alt=""> <h2 id="9">Modifying sequence blocks</h2><p>In addition to loading a sequence and accessing sequence blocks, blocks can be modified. In this example, a Hamming window is applied to the first RF pulse of the sequence and the flip angle is changed to 45 degrees. The remaining RF pulses are unchanged.</p><pre class="codeinput">rf2=rf;
 duration=rf2.t(end);
 t=rf2.t-duration/2;                                 <span class="comment">% Centre time about 0</span>
 alpha=0.5;
