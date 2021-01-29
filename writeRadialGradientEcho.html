@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeRadialGradientEcho</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeRadialGradientEcho.m"><style type="text/css">
+      --><title>writeRadialGradientEcho</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeRadialGradientEcho.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -92,6 +93,7 @@ sys = mr.opts(<span class="string">'MaxGrad'</span>, 28, <span class="string">'G
 deltak=1/fov;
 gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,Nx*deltak,<span class="string">'FlatTime'</span>,6.4e-3,<span class="string">'system'</span>,sys);
 adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime,<span class="string">'system'</span>,sys);
+adc.delay = adc.delay - 0.5*adc.dwell; <span class="comment">% compensate for the 0.5 samples shift</span>
 gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'Duration'</span>,2e-3,<span class="string">'system'</span>,sys);
 gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,-gz.area/2,<span class="string">'Duration'</span>,2e-3,<span class="string">'system'</span>,sys);
 
@@ -118,21 +120,28 @@ rf_inc=0;
         <span class="comment">%</span>
         seq.addBlock(rf,gz);
         phi=delta*(i-1);
-        gpc=gxPre;   gps=gxPre;   gpc.amplitude=gxPre.amplitude*cos(phi);   gps.amplitude=gxPre.amplitude*sin(phi);   gps.channel=<span class="string">'y'</span>;
-        grc=gx;      grs=gx;      grc.amplitude=gx.amplitude*cos(phi);      grs.amplitude=gx.amplitude*sin(phi);      grs.channel=<span class="string">'y'</span>;
-        gsc=gxSpoil; gss=gxSpoil; gsc.amplitude=gxSpoil.amplitude*cos(phi); gss.amplitude=gxSpoil.amplitude*sin(phi); gss.channel=<span class="string">'y'</span>;
-        seq.addBlock(gpc,gps,gzReph);
+        seq.addBlock(mr.rotate(<span class="string">'z'</span>,phi,gxPre,gzReph));
         seq.addBlock(mr.makeDelay(delayTE(c)));
         <span class="keyword">if</span> (i&gt;0)
-            seq.addBlock(grc,grs,adc);
+            seq.addBlock(mr.rotate(<span class="string">'z'</span>,phi,gx,adc));
         <span class="keyword">else</span>
-            seq.addBlock(grc,grs);
+            seq.addBlock(mr.rotate(<span class="string">'z'</span>,phi,gx));
         <span class="keyword">end</span>
-        seq.addBlock(gsc,gss,gzSpoil,mr.makeDelay(delayTR));
+        seq.addBlock(mr.rotate(<span class="string">'z'</span>,phi,gxSpoil,gzSpoil,mr.makeDelay(delayTR)));
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 
 seq.plot();
+
+<span class="comment">%</span>
+seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]);
+seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'gre_rad'</span>);
+
+seq.write(<span class="string">'gre_rad.seq'</span>)       <span class="comment">% Write to pulseq file</span>
+
+<span class="comment">%seq.install('siemens');</span>
+
+<span class="keyword">return</span>;
 </pre><img vspace="5" hspace="5" src="writeRadialGradientEcho_01.png" alt=""> <h2 id="2">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
 
 <span class="comment">% plot k-spaces</span>
@@ -142,17 +151,7 @@ hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="c
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
 hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% plot the sampling points</span>
-
-<span class="comment">%</span>
-seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]*1e3);
-seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'gre_rad'</span>);
-
-seq.write(<span class="string">'gre_rad.seq'</span>)       <span class="comment">% Write to pulseq file</span>
-
-<span class="comment">%seq.install('siemens');</span>
-</pre><pre class="codeoutput">Current plot held
-Current plot held
-</pre><img vspace="5" hspace="5" src="writeRadialGradientEcho_02.png" alt=""> <img vspace="5" hspace="5" src="writeRadialGradientEcho_03.png" alt=""> <img vspace="5" hspace="5" src="writeRadialGradientEcho_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 seq=mr.Sequence();              % Create a new sequence object
 fov=250e-3; Nx=256;             % Define FOV and resolution
@@ -180,6 +179,7 @@ sys = mr.opts('MaxGrad', 28, 'GradUnit', 'mT/m', ...
 deltak=1/fov;
 gx = mr.makeTrapezoid('x','FlatArea',Nx*deltak,'FlatTime',6.4e-3,'system',sys);
 adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
+adc.delay = adc.delay - 0.5*adc.dwell; % compensate for the 0.5 samples shift
 gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'Duration',2e-3,'system',sys);
 gzReph = mr.makeTrapezoid('z','Area',-gz.area/2,'Duration',2e-3,'system',sys);
 
@@ -206,22 +206,28 @@ for i=(-Ndummy):Nr
         %
         seq.addBlock(rf,gz);
         phi=delta*(i-1);
-        gpc=gxPre;   gps=gxPre;   gpc.amplitude=gxPre.amplitude*cos(phi);   gps.amplitude=gxPre.amplitude*sin(phi);   gps.channel='y';
-        grc=gx;      grs=gx;      grc.amplitude=gx.amplitude*cos(phi);      grs.amplitude=gx.amplitude*sin(phi);      grs.channel='y';
-        gsc=gxSpoil; gss=gxSpoil; gsc.amplitude=gxSpoil.amplitude*cos(phi); gss.amplitude=gxSpoil.amplitude*sin(phi); gss.channel='y';
-        seq.addBlock(gpc,gps,gzReph);
+        seq.addBlock(mr.rotate('z',phi,gxPre,gzReph));
         seq.addBlock(mr.makeDelay(delayTE(c)));
         if (i>0)
-            seq.addBlock(grc,grs,adc);
+            seq.addBlock(mr.rotate('z',phi,gx,adc));
         else
-            seq.addBlock(grc,grs);
+            seq.addBlock(mr.rotate('z',phi,gx));
         end
-        seq.addBlock(gsc,gss,gzSpoil,mr.makeDelay(delayTR));
+        seq.addBlock(mr.rotate('z',phi,gxSpoil,gzSpoil,mr.makeDelay(delayTR)));
     end
 end
 
 seq.plot();
 
+%
+seq.setDefinition('FOV', [fov fov sliceThickness]);
+seq.setDefinition('Name', 'gre_rad');
+
+seq.write('gre_rad.seq')       % Write to pulseq file
+
+%seq.install('siemens');
+
+return;
 %% trajectory calculation
 [ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
 
@@ -233,13 +239,6 @@ figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
 axis('equal'); % enforce aspect ratio for the correct trajectory display
 hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % plot the sampling points
 
-%
-seq.setDefinition('FOV', [fov fov sliceThickness]*1e3);
-seq.setDefinition('Name', 'gre_rad');
-
-seq.write('gre_rad.seq')       % Write to pulseq file
-
-%seq.install('siemens');
 
 ##### SOURCE END #####
 --></body></html>

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeGradientEcho3D</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeGradientEcho3D.m"><style type="text/css">
+      --><title>writeGradientEcho3D</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeGradientEcho3D.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -141,8 +142,20 @@ delayTR = ceil((TR - mr.calcDuration(rf) - mr.calcDuration(gxPre) <span class="k
 
 <span class="comment">% Visualise sequence and output for execution</span>
 seq.plot(<span class="string">'TimeRange'</span>,[Ndummy+1 Ndummy+3]*TR)
-seq.write(<span class="string">'external.seq'</span>);
-</pre><img vspace="5" hspace="5" src="writeGradientEcho3D_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+
+seq.setDefinition(<span class="string">'FOV'</span>, fov);
+seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'gre3d'</span>);
+seq.write(<span class="string">'gre3d.seq'</span>);
+
+<span class="comment">% visualize the 3D k-space (only makes sense for low-res, otherwise one sees nothing)</span>
+<span class="keyword">if</span> Nx&lt;=32
+    tic;
+    [kfa,ta,kf]=seq.calculateKspacePP();
+    toc
+    figure;plot3(kf(1,:),kf(2,:),kf(3,:));
+    hold <span class="string">on</span>;plot3(kfa(1,:),kfa(2,:),kfa(3,:),<span class="string">'r.'</span>);
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="writeGradientEcho3D_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 seq=mr.Sequence();              % Create a new sequence object
 fov=[190e-3 190e-3 190e-3];     % Define FOV
@@ -219,7 +232,19 @@ end
 
 % Visualise sequence and output for execution
 seq.plot('TimeRange',[Ndummy+1 Ndummy+3]*TR)
-seq.write('external.seq');
+
+seq.setDefinition('FOV', fov);
+seq.setDefinition('Name', 'gre3d');
+seq.write('gre3d.seq');
+
+% visualize the 3D k-space (only makes sense for low-res, otherwise one sees nothing)
+if Nx<=32
+    tic;
+    [kfa,ta,kf]=seq.calculateKspacePP();
+    toc
+    figure;plot3(kf(1,:),kf(2,:),kf(3,:));
+    hold on;plot3(kfa(1,:),kfa(2,:),kfa(3,:),'r.');
+end
 
 ##### SOURCE END #####
 --></body></html>

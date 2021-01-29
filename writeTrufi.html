@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeTrufi</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeTrufi.m"><style type="text/css">
+      --><title>writeTrufi</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeTrufi.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -75,7 +76,9 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 <span class="comment">% 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR</span>
 
 seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
-fov=220e-3; Nx=256; Ny=256;     <span class="comment">% Define FOV and resolution</span>
+fov=220e-3; Nx=128; Ny=128;     <span class="comment">% Define FOV and resolution</span>
+                                <span class="comment">% 256x256 matrix works with the same</span>
+                                <span class="comment">% parameters but the figures look better so</span>
 
 <span class="comment">% set system limits</span>
 <span class="comment">% had to slow down ramps and increase adc_duration to avoid stimulation</span>
@@ -162,6 +165,9 @@ seq.addBlock(prepDelay);
 
 <span class="comment">% Loop over phase encodes and define sequence blocks</span>
 <span class="keyword">for</span> i=1:Ny
+    rf.phaseOffset=pi*mod(i,2);
+    adc.phaseOffset=pi*mod(i,2);
+
     gyPre_2 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,phaseAreas(i),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% current PE step</span>
     <span class="keyword">if</span> i&gt;1
         gyPre_1 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-phaseAreas(mod(i+Ny-2,Ny)+1),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% previous PE step</span>
@@ -184,7 +190,7 @@ assert(TR==(mr.calcDuration(seq.getBlock(4))+mr.calcDuration(seq.getBlock(5))));
 fprintf(<span class="string">'Sequence ready\n'</span>);
 fprintf(<span class="string">'TR=%f ms  TE=%f ms\n'</span>, TR*1e3, TE*1e3);
 </pre><pre class="codeoutput">Sequence ready
-TR=4.660000 ms  TE=2.330000 ms
+TR=4.210000 ms  TE=2.105000 ms
 </pre><h2 id="2">check whether the timing of the sequence is correct</h2><pre class="codeinput">[ok, error_report]=seq.checkTiming;
 
 <span class="keyword">if</span> (ok)
@@ -195,29 +201,57 @@ TR=4.660000 ms  TE=2.330000 ms
     fprintf(<span class="string">'\n'</span>);
 <span class="keyword">end</span>
 </pre><pre class="codeoutput">Timing check passed successfully
-</pre><h2 id="3">prepare export</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov*1e3 fov*1e3 thick]);
+</pre><h2 id="3">prepare export</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov thick*1e-3]);
 seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'trufi'</span>);
 
 seq.write(<span class="string">'trufi.seq'</span>)       <span class="comment">% Write to pulseq file</span>
 
 <span class="comment">%seq.install('siemens');</span>
-<span class="keyword">return</span>
 </pre><h2 id="4">plots and displays</h2><pre class="codeinput">seq.plot();
 
 <span class="comment">% plot entire interpolated wave forms -- good for debugging of gaps, jumps,</span>
 <span class="comment">% etc, but is relatively slow</span>
 gw=seq.gradient_waveforms();
 figure; plot(gw'); <span class="comment">% plot the entire k-space trajectory</span>
-</pre><h2 id="5">new single-function call for trajectory calculation -- relatively slow but very helpful</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+</pre><img vspace="5" hspace="5" src="writeTrufi_01.png" alt=""> <img vspace="5" hspace="5" src="writeTrufi_02.png" alt=""> <h2 id="5">new single-function call for trajectory calculation -- relatively slow but very helpful</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
 
 <span class="comment">% plot k-spaces</span>
 
 figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
              ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
-</pre><h2 id="6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
+</pre><img vspace="5" hspace="5" src="writeTrufi_03.png" alt=""> <img vspace="5" hspace="5" src="writeTrufi_04.png" alt=""> <h2 id="6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
 fprintf([rep{:}]);
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><pre class="codeoutput">Number of blocks: 260
+Number of events:
+   RF:      129
+   Gx:      256
+   Gy:      255
+   Gz:      258
+   ADC:     128
+   Delay:     1
+Sequence duration: 0.541460s
+TE: 0.002110s
+TR: 0.004210s
+Flip angle: 20.00&deg;
+Flip angle: 40.00&deg;
+Unique k-space positions (a.k.a. columns, rows, etc): 128
+Unique k-space positions (a.k.a. columns, rows, etc): 128
+Dimensions: 2
+   Spatial resolution: 1.73 mm
+   Spatial resolution: 1.72 mm
+Repetitions/slices/contrasts: 1  range: [1 1]
+Cartesian encoding trajectory detected
+Block timing check passed successfully
+Max. Gradient: 1256659 Hz/m == 29.52 mT/m
+Max. Gradient: 881543 Hz/m == 20.71 mT/m
+Max. Gradient: 1081641 Hz/m == 25.40 mT/m
+Max. Slew Rate: 5.68182e+09 Hz/m/s == 133.45 T/m/s
+Max. Slew Rate: 5.95701e+09 Hz/m/s == 139.91 T/m/s
+Max. Slew Rate: 5.68183e+09 Hz/m/s == 133.45 T/m/s
+Max. Absolute Gradient: 1759405 Hz/m == 41.32 mT/m
+Max. Absolute Slew Rate: 9.94802e+09 Hz/m/s == 233.65 T/m/s
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % we define here a really crude True-FISP a.k.a. bSSFP sequence
 % there is no user control for TR/TE, you just specify the ADC time and the
@@ -228,7 +262,9 @@ fprintf([rep{:}]);
 % 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR
 
 seq=mr.Sequence();              % Create a new sequence object
-fov=220e-3; Nx=256; Ny=256;     % Define FOV and resolution
+fov=220e-3; Nx=128; Ny=128;     % Define FOV and resolution
+                                % 256x256 matrix works with the same
+                                % parameters but the figures look better so
 
 % set system limits
 % had to slow down ramps and increase adc_duration to avoid stimulation
@@ -315,6 +351,9 @@ seq.addBlock(prepDelay);
 
 % Loop over phase encodes and define sequence blocks
 for i=1:Ny
+    rf.phaseOffset=pi*mod(i,2);
+    adc.phaseOffset=pi*mod(i,2);
+        
     gyPre_2 = mr.makeTrapezoid('y','Area',phaseAreas(i),'Duration',pe_dur,'system',sys); % current PE step
     if i>1
         gyPre_1 = mr.makeTrapezoid('y','Area',-phaseAreas(mod(i+Ny-2,Ny)+1),'Duration',pe_dur,'system',sys); % previous PE step
@@ -350,13 +389,12 @@ end
 
 %% prepare export
 
-seq.setDefinition('FOV', [fov*1e3 fov*1e3 thick]);
+seq.setDefinition('FOV', [fov fov thick*1e-3]);
 seq.setDefinition('Name', 'trufi');
 
 seq.write('trufi.seq')       % Write to pulseq file
 
 %seq.install('siemens');
-return
 
 %% plots and displays
 seq.plot();

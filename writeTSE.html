@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Create a TSE sequence and export for execution</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeTSE.m"><style type="text/css">
+      --><title>Create a TSE sequence and export for execution</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeTSE.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -68,7 +69,7 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
   </style></head><body><div class="content"><h1>Create a TSE sequence and export for execution</h1><!--introduction--><p>The <tt>Sequence</tt> class provides functionality to create magnetic resonance sequences (MRI or NMR) from basic building blocks.</p><p>This provides an implementation of the open file format for MR sequences described here: <a href="http://pulseq.github.io/specification.pdf">http://pulseq.github.io/specification.pdf</a></p><p>This example performs the following steps:</p><div><ol><li>Create slice selective RF pulse for imaging.</li><li>Create readout gradient and phase encode strategy.</li><li>Loop through phase encoding and generate sequence blocks.</li><li>Write the sequence to an open file format suitable for execution on a scanner.</li></ol></div><pre class="language-matlab">Juergen <span class="string">Hennig</span> <span class="string">&lt;juergen.hennig@uniklinik-freiburg.de&gt;</span>
 Maxim <span class="string">Zaitsev</span>  <span class="string">&lt;maxim.zaitsev@uniklinik-freiburg.de&gt;</span>
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Instantiation and gradient limits</a></li><li><a href="#3">Sequence events</a></li><li><a href="#5">Base gradients</a></li><li><a href="#6">Slice selection</a></li><li><a href="#8">Readout gradient</a></li><li><a href="#10">Phase encoding</a></li><li><a href="#11">split gradients and recombine into blocks</a></li><li><a href="#12">Define sequence blocks</a></li><li><a href="#13">new single-function call for trajectory calculation</a></li><li><a href="#14">plot k-spaces</a></li><li><a href="#15">Write to file</a></li></ul></div><h2 id="1">Instantiation and gradient limits</h2><p>The system gradient limits can be specified in various units <i>mT/m</i>, <i>Hz/cm</i>, or <i>Hz/m</i>. However the limits will be stored internally in units of <i>Hz/m</i> for amplitude and <i>Hz/m/s</i> for slew. Unspecificied hardware parameters will be assigned default values.</p><pre class="codeinput">dG=250e-6;
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Instantiation and gradient limits</a></li><li><a href="#3">Sequence events</a></li><li><a href="#5">Base gradients</a></li><li><a href="#6">Slice selection</a></li><li><a href="#8">Readout gradient</a></li><li><a href="#10">Phase encoding</a></li><li><a href="#11">split gradients and recombine into blocks</a></li><li><a href="#12">Define sequence blocks</a></li><li><a href="#13">new single-function call for trajectory calculation</a></li><li><a href="#14">Write to file</a></li></ul></div><h2 id="1">Instantiation and gradient limits</h2><p>The system gradient limits can be specified in various units <i>mT/m</i>, <i>Hz/cm</i>, or <i>Hz/m</i>. However the limits will be stored internally in units of <i>Hz/m</i> for amplitude and <i>Hz/m/s</i> for slew. Unspecificied hardware parameters will be assigned default values.</p><pre class="codeinput">dG=250e-6;
 system = mr.opts(<span class="string">'MaxGrad'</span>, 30, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>, <span class="keyword">...</span>
     <span class="string">'MaxSlew'</span>, 170, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 100e-6, <span class="keyword">...</span>
     <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
@@ -222,17 +223,20 @@ delayTR = mr.makeDelay(TRfill);
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 </pre><h2 id="13">new single-function call for trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
-</pre><h2 id="14">plot k-spaces</h2><pre class="codeinput">figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+
+<span class="comment">% plot k-spaces</span>
+
+figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
              ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
-</pre><img vspace="5" hspace="5" src="writeTSE_01.png" alt=""> <img vspace="5" hspace="5" src="writeTSE_02.png" alt=""> <h2 id="15">Write to file</h2><pre class="codeinput"><span class="comment">% The sequence is written to file in compressed form according to the file</span>
+</pre><img vspace="5" hspace="5" src="writeTSE_01.png" alt=""> <img vspace="5" hspace="5" src="writeTSE_02.png" alt=""> <h2 id="14">Write to file</h2><pre class="codeinput"><span class="comment">% The sequence is written to file in compressed form according to the file</span>
 <span class="comment">% format specification using the |write| method.</span>
 seq.write(<span class="string">'tse.seq'</span>)
 </pre><p>Display the first few lines of the output file s=fileread('myTSE.seq'); disp(s(1:300))</p><pre class="codeinput">seq.plot();
 
 <span class="comment">% seq.install('siemens');</span>
-</pre><img vspace="5" hspace="5" src="writeTSE_03.png" alt=""> <img vspace="5" hspace="5" src="writeTSE_04.png" alt=""> <img vspace="5" hspace="5" src="writeTSE_05.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="writeTSE_03.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Create a TSE sequence and export for execution
 % 
@@ -464,7 +468,7 @@ end
 %% new single-function call for trajectory calculation
 [ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
 
-%% plot k-spaces
+% plot k-spaces
 
 figure; plot(ktraj'); % plot the entire k-space trajectory
 figure; plot(ktraj(1,:),ktraj(2,:),'b',...

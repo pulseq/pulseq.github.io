@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeUTE_rs</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeUTE_rs.m"><style type="text/css">
+      --><title>writeUTE_rs</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeUTE_rs.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -66,23 +67,23 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Create alpha-degree slice selection pulse and gradient</a></li><li><a href="#3">plot gradients to check for gaps and optimality of the timing</a></li><li><a href="#4">trajectory calculation</a></li></ul></div><pre class="codeinput"><span class="comment">% a basic UTE-like sequence</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Create alpha-degree slice selection pulse and gradient</a></li><li><a href="#3">check whether the timing of the sequence is correct</a></li><li><a href="#4">export</a></li><li><a href="#5">plot gradients to check for gaps and optimality of the timing</a></li><li><a href="#6">trajectory calculation</a></li><li><a href="#7">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a></li></ul></div><pre class="codeinput"><span class="comment">% a basic UTE-like sequence</span>
 <span class="comment">% achieves "TE" below 100 us</span>
 
 seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
-fov=250e-3; Nx=256;             <span class="comment">% Define FOV and resolution</span>
-alpha=30;                       <span class="comment">% flip angle</span>
-sliceThickness=3e-3;            <span class="comment">% slice</span>
-TR=10e-3;                       <span class="comment">% TR</span>
-Nr=321;                         <span class="comment">% number of radial spokes</span>
+fov=256e-3; Nx=256;             <span class="comment">% Define FOV and resolution</span>
+alpha=10;                       <span class="comment">% flip angle</span>
+sliceThickness=5e-3;            <span class="comment">% slice</span>
+TR=20e-3;                      <span class="comment">% TR</span>
+Nr=round(Nx*pi/2);                         <span class="comment">% number of radial spokes</span>
 Ndummy=20;                      <span class="comment">% number of dummy scans</span>
 delta= 2* pi / Nr;              <span class="comment">% angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it</span>
-rf_duration=1.0e-3;             <span class="comment">% duration of the excitation pulse</span>
-ro_duration=1.6e-3;             <span class="comment">% read-out time: controls RO bandwidth and T2-blurring</span>
+rf_duration=0.5e-3;             <span class="comment">% duration of the excitation pulse</span>
+ro_duration=0.520e-3;           <span class="comment">% read-out time: controls RO bandwidth and T2-blurring</span>
 ro_os=2;                        <span class="comment">% oversampling</span>
 minRF_to_ADC_time=70e-6;        <span class="comment">% the parameter wich defines TE together with ro_discard</span>
 ro_discard=0;                   <span class="comment">% dummy ADC samples to discard (due to ADC filter</span>
-ro_spoil=2;                     <span class="comment">% extend RO to achieve spoiling</span>
+ro_spoil=1;                     <span class="comment">% extend RO to achieve spoiling</span>
 
 <span class="comment">% more in-depth parameters</span>
 rfSpoilingInc=117;              <span class="comment">% RF spoiling increment</span>
@@ -101,6 +102,7 @@ gzt=cumsum([0 gz.riseTime gz.flatTime gz.fallTime]);
 gzas_0=interp1(gzt+gz.delay,gza,rf.t+rf.delay);
 rft_1=[sys.rfRasterTime:sys.rfRasterTime:rf_duration+0.5*gz.fallTime];
 gzas_1=interp1(gzt+gz.delay,gza,rft_1+rf.delay+gz.fallTime*0.5);
+gzas_1(~isfinite(gzas_1))=0; <span class="comment">% we are getting a NaN sometimes</span>
 kzs_0=cumsum(gzas_0);
 kzs_1=cumsum(gzas_1);
 kzs_0=kzs_0-max(kzs_0);
@@ -118,7 +120,8 @@ Nxo=round(ro_os*Nx);
 deltak=1/fov/2;
 ro_area=Nx*deltak;
 gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,ro_area,<span class="string">'FlatTime'</span>,ro_duration,<span class="string">'system'</span>,sys);
-adc = mr.makeAdc(Nxo,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'system'</span>,sys);
+adc_dur=floor(gx.flatTime/Nxo*1e7)*1e-7*Nxo; <span class="comment">% round down dwell time to 100ns (Siemens ADC raster)</span>
+adc = mr.makeAdc(Nxo,<span class="string">'Duration'</span>,adc_dur,<span class="string">'system'</span>,sys);
 
 <span class="comment">% ro-spoiling</span>
 gx.flatTime=gx.flatTime*ro_spoil;
@@ -131,11 +134,11 @@ TE = ceil((minRF_to_ADC_time + adc.dwell*ro_discard)/seq.gradRasterTime)*seq.gra
 delayTR=ceil((TR - mr.calcDuration(gz) <span class="keyword">...</span>
     - mr.calcDuration(gx) - TE)/seq.gradRasterTime)*seq.gradRasterTime;
 
-fprintf(<span class="string">'TE= %d us\n'</span>, round(TE*1e6));
+fprintf(<span class="string">'TE= %d us; delay in TR:= %d us\n'</span>, round(TE*1e6), floor(delayTR*1e6));
 
 <span class="comment">% set up timing</span>
 gx.delay=mr.calcDuration(gz)+TE;
-adc.delay=gx.delay-adc.dwell*ro_discard;
+adc.delay=floor((gx.delay-adc.dwell*0.5-adc.dwell*ro_discard)/sys.gradRasterTime)*sys.gradRasterTime; <span class="comment">% take into accout 0.5 samples ADC shift</span>
 
 rf_phase=0;
 rf_inc=0;
@@ -161,10 +164,27 @@ rf_inc=0;
 <span class="keyword">end</span>
 
 seq.plot();
-</pre><pre class="codeoutput">TE= 70 us
-</pre><img vspace="5" hspace="5" src="writeUTE_rs_01.png" alt=""> <h2 id="3">plot gradients to check for gaps and optimality of the timing</h2><pre class="codeinput">gw=seq.gradient_waveforms();
+</pre><pre class="codeoutput">TE= 70 us; delay in TR:= 18290 us
+</pre><img vspace="5" hspace="5" src="writeUTE_rs_01.png" alt=""> <h2 id="3">check whether the timing of the sequence is correct</h2><pre class="codeinput">[ok, error_report]=seq.checkTiming;
+
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Timing check passed successfully
+</pre><h2 id="4">export</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]);
+seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'ute_rs'</span>);
+
+seq.write(<span class="string">'ute_rs.seq'</span>);       <span class="comment">% Write to pulseq file</span>
+
+<span class="comment">%seq.install('siemens');</span>
+<span class="keyword">return</span>
+</pre><h2 id="5">plot gradients to check for gaps and optimality of the timing</h2><pre class="codeinput">gw=seq.gradient_waveforms();
 figure; plot(gw'); <span class="comment">% plot the entire gradient shape</span>
-</pre><img vspace="5" hspace="5" src="writeUTE_rs_02.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_03.png" alt=""> <h2 id="4">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+</pre><h2 id="6">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
 
 <span class="comment">% plot k-spaces</span>
 time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
@@ -173,35 +193,27 @@ hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="c
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
 hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% plot the sampling points</span>
-
-<span class="comment">%</span>
-seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]*1e3);
-seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'ute_rs'</span>);
-
-seq.write(<span class="string">'ute_rs.seq'</span>);       <span class="comment">% Write to pulseq file</span>
-
-<span class="comment">%seq.install('siemens');</span>
-</pre><pre class="codeoutput">Current plot held
-Current plot held
-</pre><img vspace="5" hspace="5" src="writeUTE_rs_04.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_05.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_06.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_rs_07.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><h2 id="7">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
+fprintf([rep{:}]);
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % a basic UTE-like sequence
 % achieves "TE" below 100 us
 
 seq=mr.Sequence();              % Create a new sequence object
-fov=250e-3; Nx=256;             % Define FOV and resolution
-alpha=30;                       % flip angle
-sliceThickness=3e-3;            % slice
-TR=10e-3;                       % TR
-Nr=321;                         % number of radial spokes
+fov=256e-3; Nx=256;             % Define FOV and resolution
+alpha=10;                       % flip angle
+sliceThickness=5e-3;            % slice
+TR=20e-3;                      % TR
+Nr=round(Nx*pi/2);                         % number of radial spokes
 Ndummy=20;                      % number of dummy scans
 delta= 2* pi / Nr;              % angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it
-rf_duration=1.0e-3;             % duration of the excitation pulse
-ro_duration=1.6e-3;             % read-out time: controls RO bandwidth and T2-blurring
+rf_duration=0.5e-3;             % duration of the excitation pulse
+ro_duration=0.520e-3;           % read-out time: controls RO bandwidth and T2-blurring
 ro_os=2;                        % oversampling
 minRF_to_ADC_time=70e-6;        % the parameter wich defines TE together with ro_discard
 ro_discard=0;                   % dummy ADC samples to discard (due to ADC filter 
-ro_spoil=2;                     % extend RO to achieve spoiling
+ro_spoil=1;                     % extend RO to achieve spoiling
 
 % more in-depth parameters
 rfSpoilingInc=117;              % RF spoiling increment
@@ -222,6 +234,7 @@ gzt=cumsum([0 gz.riseTime gz.flatTime gz.fallTime]);
 gzas_0=interp1(gzt+gz.delay,gza,rf.t+rf.delay);
 rft_1=[sys.rfRasterTime:sys.rfRasterTime:rf_duration+0.5*gz.fallTime];
 gzas_1=interp1(gzt+gz.delay,gza,rft_1+rf.delay+gz.fallTime*0.5);
+gzas_1(~isfinite(gzas_1))=0; % we are getting a NaN sometimes
 kzs_0=cumsum(gzas_0);
 kzs_1=cumsum(gzas_1);
 kzs_0=kzs_0-max(kzs_0);
@@ -239,7 +252,8 @@ Nxo=round(ro_os*Nx);
 deltak=1/fov/2;
 ro_area=Nx*deltak;
 gx = mr.makeTrapezoid('x','FlatArea',ro_area,'FlatTime',ro_duration,'system',sys);
-adc = mr.makeAdc(Nxo,'Duration',gx.flatTime,'system',sys);
+adc_dur=floor(gx.flatTime/Nxo*1e7)*1e-7*Nxo; % round down dwell time to 100ns (Siemens ADC raster)
+adc = mr.makeAdc(Nxo,'Duration',adc_dur,'system',sys);
 
 % ro-spoiling
 gx.flatTime=gx.flatTime*ro_spoil;
@@ -252,11 +266,11 @@ TE = ceil((minRF_to_ADC_time + adc.dwell*ro_discard)/seq.gradRasterTime)*seq.gra
 delayTR=ceil((TR - mr.calcDuration(gz) ...
     - mr.calcDuration(gx) - TE)/seq.gradRasterTime)*seq.gradRasterTime;
 
-fprintf('TE= %d us\n', round(TE*1e6));
+fprintf('TE= %d us; delay in TR:= %d us\n', round(TE*1e6), floor(delayTR*1e6));
 
 % set up timing
 gx.delay=mr.calcDuration(gz)+TE;
-adc.delay=gx.delay-adc.dwell*ro_discard;
+adc.delay=floor((gx.delay-adc.dwell*0.5-adc.dwell*ro_discard)/sys.gradRasterTime)*sys.gradRasterTime; % take into accout 0.5 samples ADC shift
 
 rf_phase=0;
 rf_inc=0;
@@ -283,6 +297,26 @@ end
 
 seq.plot();
 
+%% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
+%% export
+seq.setDefinition('FOV', [fov fov sliceThickness]);
+seq.setDefinition('Name', 'ute_rs');
+
+seq.write('ute_rs.seq');       % Write to pulseq file
+
+%seq.install('siemens');
+return
+
 %% plot gradients to check for gaps and optimality of the timing
 gw=seq.gradient_waveforms();
 figure; plot(gw'); % plot the entire gradient shape
@@ -298,13 +332,13 @@ figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
 axis('equal'); % enforce aspect ratio for the correct trajectory display
 hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % plot the sampling points
 
-%
-seq.setDefinition('FOV', [fov fov sliceThickness]*1e3);
-seq.setDefinition('Name', 'ute_rs');
 
-seq.write('ute_rs.seq');       % Write to pulseq file
+%% very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits  
 
-%seq.install('siemens');
+rep = seq.testReport;
+fprintf([rep{:}]);
+
+
 
 ##### SOURCE END #####
 --></body></html>

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeEpiSpinEcho</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-12"><meta name="DC.source" content="writeEpiSpinEcho.m"><style type="text/css">
+      --><title>writeEpiSpinEcho</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeEpiSpinEcho.m"><style type="text/css">
 html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -23,7 +23,7 @@ a:visited { color:#004aa0; text-decoration:none; }
 
 p { padding:0px; margin:0px 0px 20px; }
 img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
 
 ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
 ul li { padding:0px; margin:0px 0px 7px 0px; }
@@ -52,6 +52,7 @@ span.comment { color:#228B22 }
 span.string { color:#A020F0 }
 span.untermstring { color:#B20000 }
 span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
 
 .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
 .footer p { margin:0px; }
@@ -102,7 +103,7 @@ gy = mr.makeTrapezoid(<span class="string">'y'</span>,lims,<span class="string">
 rf180 = mr.makeBlockPulse(pi,lims,<span class="string">'Duration'</span>,500e-6,<span class="string">'use'</span>,<span class="string">'refocusing'</span>);
 gzSpoil = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'Area'</span>,gz.area*2,<span class="string">'Duration'</span>,3*preTime);
 
-<span class="comment">% Calculate delay time</span>
+<span class="comment">% Calculate delay time %% MZ: I thisk this is very wrong!</span>
 TE=60e-3;
 durationToCenter = (Nx/2+0.5)*mr.calcDuration(gx) + Ny/2*mr.calcDuration(gy);
 rfCenterInclDelay=rf.delay + mr.calcRfCenter(rf);
@@ -136,10 +137,10 @@ figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="
              ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
 </pre><pre class="codeoutput">Current plot held
-</pre><img vspace="5" hspace="5" src="writeEpiSpinEcho_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEcho_03.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEcho_04.png" alt=""> <h2 id="4">sanity checks</h2><pre class="codeinput">TE_check=(t_refocusing(1)-t_excitation(1))*2;
+</pre><img vspace="5" hspace="5" src="writeEpiSpinEcho_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEcho_03.png" alt=""> <h2 id="4">sanity checks</h2><pre class="codeinput">TE_check=(t_refocusing(1)-t_excitation(1))*2;
 fprintf(<span class="string">'intended TE=%.03f ms, actual spin echo TE=%.03fms\n'</span>, TE*1e3, TE_check*1e3);
 </pre><pre class="codeoutput">intended TE=60.000 ms, actual spin echo TE=60.000ms
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 seq=mr.Sequence();              % Create a new sequence object
 fov=256e-3; Nx=64; Ny=64;       % Define FOV and resolution
@@ -177,7 +178,7 @@ gy = mr.makeTrapezoid('y',lims,'Area',deltak,'Duration',dur);
 rf180 = mr.makeBlockPulse(pi,lims,'Duration',500e-6,'use','refocusing');
 gzSpoil = mr.makeTrapezoid('z',lims,'Area',gz.area*2,'Duration',3*preTime);
 
-% Calculate delay time
+% Calculate delay time %% MZ: I thisk this is very wrong!
 TE=60e-3;
 durationToCenter = (Nx/2+0.5)*mr.calcDuration(gx) + Ny/2*mr.calcDuration(gy);
 rfCenterInclDelay=rf.delay + mr.calcRfCenter(rf);
