@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeEpiSpinEchoRS</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeEpiSpinEchoRS.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeEpiSpinEchoRS</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeEpiSpinEchoRS.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,7 +72,29 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">check whether the timing of the sequence is correct</a></li><li><a href="#3">do some visualizations</a></li><li><a href="#4">new higher-performabce trajectory calculation</a></li><li><a href="#5">prepare the sequence output for the scanner</a></li><li><a href="#6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a></li></ul></div><pre class="codeinput"><span class="comment">% this is an experimentaal high-performance EPI sequence</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">check whether the timing of the sequence is correct</a>
+</li>
+<li>
+<a href="#3">do some visualizations</a>
+</li>
+<li>
+<a href="#4">prepare the sequence output for the scanner</a>
+</li>
+<li>
+<a href="#5">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="comment">% this is an experimentaal high-performance EPI sequence</span>
 <span class="comment">% which uses split gradients to overlap blips with the readout</span>
 <span class="comment">% gradients combined with ramp-samping</span>
 
@@ -89,7 +116,7 @@ spoilFactor=1.5;             <span class="comment">% spoiling gradient around th
 <span class="comment">% Set system limits</span>
 lims = mr.opts(<span class="string">'MaxGrad'</span>,32,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
     <span class="string">'MaxSlew'</span>,130,<span class="string">'SlewUnit'</span>,<span class="string">'T/m/s'</span>,<span class="keyword">...</span>
-    <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadtime'</span>, 100e-6);
+    <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadtime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
 
 <span class="comment">% Create fat-sat pulse</span>
 B0=2.89; <span class="comment">% 1.5 2.89 3.0</span>
@@ -97,6 +124,7 @@ sat_ppm=-3.45;
 sat_freq=sat_ppm*1e-6*B0*lims.gamma;
 rf_fs = mr.makeGaussPulse(110*pi/180,<span class="string">'system'</span>,lims,<span class="string">'Duration'</span>,8e-3,<span class="keyword">...</span>
     <span class="string">'bandwidth'</span>,abs(sat_freq),<span class="string">'freqOffset'</span>,sat_freq);
+rf_fs.phaseOffset=-2*pi*rf_fs.freqOffset*mr.calcRfCenter(rf_fs); <span class="comment">% compensate for the frequency-offset induced phase</span>
 gz_fs = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'delay'</span>,mr.calcDuration(rf_fs),<span class="string">'Area'</span>,1/1e-4); <span class="comment">% spoil up to 0.1mm</span>
 
 <span class="comment">% Create 90 degree slice selection pulse and gradient</span>
@@ -165,11 +193,7 @@ adc.delay=round((gx.riseTime+gx.flatTime/2-time_to_center)*1e6)*1e-6; <span clas
 
 <span class="comment">% split the blip into two halves and produnce a combined synthetic gradient</span>
 gy_parts = mr.splitGradientAt(gy, blip_dur/2, lims);
-<span class="comment">%gy_blipup=gy_parts(1);</span>
-<span class="comment">%gy_blipdown=gy_parts(2);</span>
-<span class="comment">%gy_blipup.delay=gx.riseTime+gx.flatTime+gx.fallTime-blip_dur/2;</span>
-<span class="comment">%gy_blipdown.delay=0;</span>
-[gy_blipup, gy_blipdown]=mr.align(<span class="string">'right'</span>,gy_parts(1),<span class="string">'left'</span>,gy_parts(2),gx);
+[gy_blipup, gy_blipdown, ~]=mr.align(<span class="string">'right'</span>,gy_parts(1),<span class="string">'left'</span>,gy_parts(2),gx);
 gy_blipdownup=mr.addGradients({gy_blipdown, gy_blipup}, lims);
 
 <span class="comment">% pe_enable support</span>
@@ -209,10 +233,16 @@ gyPre.delay=mr.calcDuration(rf180);
 assert(mr.calcDuration(gyPre)&lt;=mr.calcDuration(gxPre)); <span class="comment">% gyPre may not shift the timing</span>
 
 <span class="comment">% Define sequence blocks</span>
+
+<span class="comment">%seq.addBlock(mr.makeDelay(1)); % older scanners like Trio may need this</span>
+                                <span class="comment">% dummy delay to keep up with timing</span>
+
 <span class="keyword">for</span> s=1:Nslices
     seq.addBlock(rf_fs,gz_fs);
     rf.freqOffset=gz.amplitude*thickness*(s-1-(Nslices-1)/2);
+    rf.phaseOffset=-2*pi*rf.freqOffset*mr.calcRfCenter(rf); <span class="comment">% compensate for the slice-offset induced phase</span>
     rf180.freqOffset=gz180.amplitude*thickness*(s-1-(Nslices-1)/2);
+    rf180.phaseOffset=pi/2-2*pi*rf180.freqOffset*mr.calcRfCenter(rf180); <span class="comment">% compensate for the slice-offset induced phase</span>
     seq.addBlock(rf,gz,trig);
     seq.addBlock(mr.makeDelay(delayTE1));
     seq.addBlock(rf180,gz180n,mr.makeDelay(delayTE2),gxPre,gyPre);
@@ -227,7 +257,11 @@ assert(mr.calcDuration(gyPre)&lt;=mr.calcDuration(gxPre)); <span class="comment"
         gx.amplitude = -gx.amplitude;   <span class="comment">% Reverse polarity of read gradient</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
-</pre><h2 id="2">check whether the timing of the sequence is correct</h2><pre class="codeinput">[ok, error_report]=seq.checkTiming;
+</pre>
+<pre class="codeoutput">Warning: WARNING: system maximum RF amplitude exceeded (116.0%) 
+</pre>
+<h2 id="2">check whether the timing of the sequence is correct</h2>
+<pre class="codeinput">[ok, error_report]=seq.checkTiming;
 
 <span class="keyword">if</span> (ok)
     fprintf(<span class="string">'Timing check passed successfully\n'</span>);
@@ -236,20 +270,14 @@ assert(mr.calcDuration(gyPre)&lt;=mr.calcDuration(gxPre)); <span class="comment"
     fprintf([error_report{:}]);
     fprintf(<span class="string">'\n'</span>);
 <span class="keyword">end</span>
-</pre><pre class="codeoutput">Timing check passed successfully
-</pre><h2 id="3">do some visualizations</h2><pre class="codeinput">seq.plot();             <span class="comment">% Plot sequence waveforms</span>
+</pre>
+<pre class="codeoutput">Timing check passed successfully
+</pre>
+<h2 id="3">do some visualizations</h2>
+<pre class="codeinput">seq.plot();             <span class="comment">% Plot sequence waveforms</span>
 
 <span class="comment">% trajectory calculation</span>
-[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
-
-<span class="comment">% plot k-spaces</span>
-time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
-figure; plot(time_axis, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
-hold <span class="string">on</span>; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="comment">% and sampling points on the kx-axis</span>
-figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
-axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
-hold <span class="string">on</span>;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% plot the sampling points</span>
-</pre><img vspace="5" hspace="5" src="writeEpiSpinEchoRS_01.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEchoRS_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEchoRS_03.png" alt=""> <h2 id="4">new higher-performabce trajectory calculation</h2><pre class="codeinput">[ktraj_adc1, t_adc1, ktraj1, t_ktraj1, t_excitation1, t_refocusing1] = seq.calculateKspacePP();
+[ktraj_adc1, t_adc1, ktraj1, t_ktraj1, t_excitation1, t_refocusing1] = seq.calculateKspacePP();
 
 <span class="comment">% plot k-spaces</span>
 figure; plot(t_ktraj1, ktraj1'); <span class="comment">% plot the entire k-space trajectory</span>
@@ -257,8 +285,11 @@ hold <span class="string">on</span>; plot(t_adc1,ktraj_adc1(1,:),<span class="st
 figure; plot(ktraj1(1,:),ktraj1(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
 hold;plot(ktraj_adc1(1,:),ktraj_adc1(2,:),<span class="string">'r.'</span>); <span class="comment">% plot the sampling points</span>
-</pre><pre class="codeoutput">Current plot held
-</pre><img vspace="5" hspace="5" src="writeEpiSpinEchoRS_04.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEchoRS_05.png" alt=""> <h2 id="5">prepare the sequence output for the scanner</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov thickness]);
+</pre>
+<pre class="codeoutput">Current plot held
+</pre>
+<img vspace="5" hspace="5" src="writeEpiSpinEchoRS_01.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEchoRS_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpiSpinEchoRS_03.png" alt=""> <h2 id="4">prepare the sequence output for the scanner</h2>
+<pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov thickness]);
 seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'epi'</span>);
 
 seq.write(<span class="string">'epise_rs.seq'</span>);
@@ -266,18 +297,20 @@ seq.write(<span class="string">'epise_rs.seq'</span>);
 <span class="comment">% seq.install('siemens');</span>
 
 <span class="comment">% seq.sound(); % simulate the seq's tone</span>
-</pre><h2 id="6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
+</pre>
+<h2 id="5">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2>
+<pre class="codeinput">rep = seq.testReport;
 fprintf([rep{:}]); <span class="comment">% as for January 2019 TR calculation fails for fat-sat</span>
-</pre><pre class="codeoutput">Number of blocks: 180
+</pre>
+<pre class="codeoutput">Number of blocks: 180
 Number of events:
    RF:        9
    Gx:      171
    Gy:      171
    Gz:        9
    ADC:     168
-   Delay:     6
 Sequence duration: 0.217350s
-TE: 0.039997s
+TE: 0.040000s
 TR: 0.012750s
 Flip angle: 90.00&deg;
 Flip angle: 110.00&deg;
@@ -288,17 +321,25 @@ Dimensions: 2
    Spatial resolution: 3.93 mm
    Spatial resolution: 3.91 mm
 Repetitions/slices/contrasts: 3  range: [3 3]
+   4480 k-space position(s) repeated 3 times
 Cartesian encoding trajectory detected
 Block timing check passed successfully
-Max. Gradient: 789936 Hz/m == 18.55 mT/m
+Max. Gradient: 815418 Hz/m == 19.15 mT/m
 Max. Gradient: 368000 Hz/m == 8.64 mT/m
 Max. Gradient: 1362398 Hz/m == 32.00 mT/m
 Max. Slew Rate: 5.4818e+09 Hz/m/s == 128.75 T/m/s
 Max. Slew Rate: 5.25714e+09 Hz/m/s == 123.48 T/m/s
 Max. Slew Rate: 5.44959e+09 Hz/m/s == 128.00 T/m/s
 Max. Absolute Gradient: 1406597 Hz/m == 33.04 mT/m
-Max. Absolute Slew Rate: 7.47569e+09 Hz/m/s == 175.58 T/m/s
-</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+Max. Absolute Slew Rate: 7.47568e+09 Hz/m/s == 175.58 T/m/s
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 % this is an experimentaal high-performance EPI sequence
 % which uses split gradients to overlap blips with the readout
@@ -322,7 +363,7 @@ spoilFactor=1.5;             % spoiling gradient around the pi-pulse
 % Set system limits
 lims = mr.opts('MaxGrad',32,'GradUnit','mT/m',...
     'MaxSlew',130,'SlewUnit','T/m/s',...
-    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6);  
+    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6, 'adcDeadTime', 10e-6);  
 
 % Create fat-sat pulse 
 B0=2.89; % 1.5 2.89 3.0
@@ -330,6 +371,7 @@ sat_ppm=-3.45;
 sat_freq=sat_ppm*1e-6*B0*lims.gamma;
 rf_fs = mr.makeGaussPulse(110*pi/180,'system',lims,'Duration',8e-3,...
     'bandwidth',abs(sat_freq),'freqOffset',sat_freq);
+rf_fs.phaseOffset=-2*pi*rf_fs.freqOffset*mr.calcRfCenter(rf_fs); % compensate for the frequency-offset induced phase    
 gz_fs = mr.makeTrapezoid('z',lims,'delay',mr.calcDuration(rf_fs),'Area',1/1e-4); % spoil up to 0.1mm
 
 % Create 90 degree slice selection pulse and gradient
@@ -398,11 +440,7 @@ adc.delay=round((gx.riseTime+gx.flatTime/2-time_to_center)*1e6)*1e-6; % we adjus
 
 % split the blip into two halves and produnce a combined synthetic gradient
 gy_parts = mr.splitGradientAt(gy, blip_dur/2, lims);
-%gy_blipup=gy_parts(1);
-%gy_blipdown=gy_parts(2);
-%gy_blipup.delay=gx.riseTime+gx.flatTime+gx.fallTime-blip_dur/2;
-%gy_blipdown.delay=0;
-[gy_blipup, gy_blipdown]=mr.align('right',gy_parts(1),'left',gy_parts(2),gx);
+[gy_blipup, gy_blipdown, ~]=mr.align('right',gy_parts(1),'left',gy_parts(2),gx);
 gy_blipdownup=mr.addGradients({gy_blipdown, gy_blipup}, lims);
 
 % pe_enable support
@@ -442,10 +480,16 @@ gyPre.delay=mr.calcDuration(rf180);
 assert(mr.calcDuration(gyPre)<=mr.calcDuration(gxPre)); % gyPre may not shift the timing
 
 % Define sequence blocks
+
+%seq.addBlock(mr.makeDelay(1)); % older scanners like Trio may need this
+                                % dummy delay to keep up with timing
+
 for s=1:Nslices
     seq.addBlock(rf_fs,gz_fs);
     rf.freqOffset=gz.amplitude*thickness*(s-1-(Nslices-1)/2);
+    rf.phaseOffset=-2*pi*rf.freqOffset*mr.calcRfCenter(rf); % compensate for the slice-offset induced phase
     rf180.freqOffset=gz180.amplitude*thickness*(s-1-(Nslices-1)/2);
+    rf180.phaseOffset=pi/2-2*pi*rf180.freqOffset*mr.calcRfCenter(rf180); % compensate for the slice-offset induced phase
     seq.addBlock(rf,gz,trig);
     seq.addBlock(mr.makeDelay(delayTE1));
     seq.addBlock(rf180,gz180n,mr.makeDelay(delayTE2),gxPre,gyPre);
@@ -477,17 +521,6 @@ end
 seq.plot();             % Plot sequence waveforms
 
 % trajectory calculation
-[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
-
-% plot k-spaces
-time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
-figure; plot(time_axis, ktraj'); % plot the entire k-space trajectory
-hold on; plot(t_adc,ktraj_adc(1,:),'.'); % and sampling points on the kx-axis
-figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
-axis('equal'); % enforce aspect ratio for the correct trajectory display
-hold on;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % plot the sampling points
-
-%% new higher-performabce trajectory calculation
 [ktraj_adc1, t_adc1, ktraj1, t_ktraj1, t_excitation1, t_refocusing1] = seq.calculateKspacePP();
 
 % plot k-spaces
@@ -512,5 +545,8 @@ seq.write('epise_rs.seq');
 rep = seq.testReport; 
 fprintf([rep{:}]); % as for January 2019 TR calculation fails for fat-sat
 
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

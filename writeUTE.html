@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeUTE</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeUTE.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeUTE</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-04">
+<meta name="DC.source" content="writeUTE.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,28 +72,47 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">plot gradients to check for gaps and optimality of the timing</a></li><li><a href="#3">trajectory calculation</a></li></ul></div><pre class="codeinput"><span class="comment">% a very basic UTE-like sequence, without ramp-sampling, ramp-RF and other</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">check whether the timing of the sequence is correct</a>
+</li>
+<li>
+<a href="#4">plot gradients to check for gaps and optimality of the timing</a>
+</li>
+<li>
+<a href="#5">k-space trajectory calculation</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="comment">% a very basic UTE-like sequence, without ramp-sampling, ramp-RF and other</span>
 <span class="comment">% tricks yet. Achieves TE in the range of 300-400 us</span>
 
-seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
+<span class="comment">% set system limits</span>
+sys = mr.opts(<span class="string">'MaxGrad'</span>, 28, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>, <span class="keyword">...</span>
+    <span class="string">'MaxSlew'</span>, 100, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 20e-6, <span class="keyword">...</span>
+    <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
+
+seq=mr.Sequence(sys);           <span class="comment">% Create a new sequence object</span>
 fov=250e-3; Nx=256;             <span class="comment">% Define FOV and resolution</span>
 alpha=10;                       <span class="comment">% flip angle</span>
 sliceThickness=3e-3;            <span class="comment">% slice</span>
 TR=10e-3;                       <span class="comment">% TR</span>
 Nr=128;                         <span class="comment">% number of radial spokes</span>
 delta= 2* pi / Nr;              <span class="comment">% angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it</span>
-ro_duration=2.4e-3;             <span class="comment">% read-out time: controls RO bandwidth and T2-blurring</span>
+ro_duration=2.56e-3;            <span class="comment">% read-out time: controls RO bandwidth and T2-blurring</span>
 ro_os=2;                        <span class="comment">% oversampling</span>
-ro_asymmetry=0.97;              <span class="comment">% 0: fully symmetric 1: half-echo</span>
+ro_asymmetry=1;                 <span class="comment">% 0: fully symmetric 1: half-echo</span>
 minRF_to_ADC_time=50e-6;        <span class="comment">% the parameter wich defines TE (together with the RO asymmetyry)</span>
 
 <span class="comment">% more in-depth parameters</span>
 rfSpoilingInc=117;              <span class="comment">% RF spoiling increment</span>
-
-<span class="comment">% set system limits</span>
-sys = mr.opts(<span class="string">'MaxGrad'</span>, 28, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>, <span class="keyword">...</span>
-    <span class="string">'MaxSlew'</span>, 100, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 20e-6, <span class="keyword">...</span>
-    <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
 
 <span class="comment">% Create alpha-degree slice selection pulse and gradient</span>
 [rf, gz, gzReph] = mr.makeSincPulse(alpha*pi/180,<span class="string">'Duration'</span>,1e-3,<span class="keyword">...</span>
@@ -103,8 +127,7 @@ deltak=1/fov/(1+ro_asymmetry);
 ro_area=Nx*deltak;
 gx = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'FlatArea'</span>,ro_area,<span class="string">'FlatTime'</span>,ro_duration,<span class="string">'system'</span>,sys);
 adc = mr.makeAdc(Nxo,<span class="string">'Duration'</span>,gx.flatTime,<span class="string">'Delay'</span>,gx.riseTime,<span class="string">'system'</span>,sys);
-adc.delay = adc.delay - 0.5*adc.dwell; <span class="comment">% compensate for the 0.5 samples shift</span>
-gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-(gx.area-ro_area)/2 - ro_area/2*(1-ro_asymmetry),<span class="string">'system'</span>,sys);
+gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-(gx.area-ro_area)/2 -gx.amplitude*adc.dwell/2 - ro_area/2*(1-ro_asymmetry),<span class="string">'system'</span>,sys);
 
 <span class="comment">% gradient spoiling</span>
 gxSpoil=mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,0.2*Nx*deltak,<span class="string">'system'</span>,sys);
@@ -147,16 +170,33 @@ rf_inc=0;
         seq.addBlock(gsc,gss,mr.makeDelay(delayTR));
     <span class="keyword">end</span>
 <span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">TE= 450 us
+</pre>
+<h2 id="2">check whether the timing of the sequence is correct</h2>
+<pre class="codeinput">[ok, error_report]=seq.checkTiming;
 
-seq.plot();
-</pre><pre class="codeoutput">TE= 498 us
-</pre><img vspace="5" hspace="5" src="writeUTE_01.png" alt=""> <h2 id="2">plot gradients to check for gaps and optimality of the timing</h2><pre class="codeinput">gw=seq.gradient_waveforms();
-figure; plot(gw'); <span class="comment">% plot the entire gradient shape</span>
-</pre><img vspace="5" hspace="5" src="writeUTE_02.png" alt=""> <h2 id="3">trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Timing check passed successfully
+</pre>
+<pre class="codeinput">seq.plot();
+</pre>
+<img vspace="5" hspace="5" src="writeUTE_01.png" alt=""> <h2 id="4">plot gradients to check for gaps and optimality of the timing</h2>
+<pre class="codeinput">gw=seq.waveforms_and_times();
+figure; plot(gw{1}(1,:),gw{1}(2,:),gw{2}(1,:),gw{2}(2,:),gw{3}(1,:),gw{3}(2,:)); <span class="comment">% plot the entire gradient shape</span>
+</pre>
+<img vspace="5" hspace="5" src="writeUTE_02.png" alt=""> <h2 id="5">k-space trajectory calculation</h2>
+<pre class="codeinput">[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 <span class="comment">% plot k-spaces</span>
-time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
-figure; plot(time_axis, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+figure; plot(t_ktraj, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
 hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="comment">% and sampling points on the kx-axis</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
@@ -169,32 +209,40 @@ seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'ute'
 seq.write(<span class="string">'ute.seq'</span>);       <span class="comment">% Write to pulseq file</span>
 
 <span class="comment">%seq.install('siemens');</span>
-</pre><pre class="codeoutput">Current plot held
+</pre>
+<pre class="codeoutput">Current plot held
 Current plot held
-</pre><img vspace="5" hspace="5" src="writeUTE_03.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_04.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="writeUTE_03.png" alt=""> <img vspace="5" hspace="5" src="writeUTE_04.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 % a very basic UTE-like sequence, without ramp-sampling, ramp-RF and other
 % tricks yet. Achieves TE in the range of 300-400 us
 
-seq=mr.Sequence();              % Create a new sequence object
+% set system limits
+sys = mr.opts('MaxGrad', 28, 'GradUnit', 'mT/m', ...
+    'MaxSlew', 100, 'SlewUnit', 'T/m/s', 'rfRingdownTime', 20e-6, ...
+    'rfDeadTime', 100e-6, 'adcDeadTime', 10e-6);
+
+seq=mr.Sequence(sys);           % Create a new sequence object
 fov=250e-3; Nx=256;             % Define FOV and resolution
 alpha=10;                       % flip angle
 sliceThickness=3e-3;            % slice
 TR=10e-3;                       % TR
 Nr=128;                         % number of radial spokes
 delta= 2* pi / Nr;              % angular increment; try golden angle pi*(3-5^0.5) or 0.5 of it
-ro_duration=2.4e-3;             % read-out time: controls RO bandwidth and T2-blurring
+ro_duration=2.56e-3;            % read-out time: controls RO bandwidth and T2-blurring
 ro_os=2;                        % oversampling
-ro_asymmetry=0.97;              % 0: fully symmetric 1: half-echo
+ro_asymmetry=1;                 % 0: fully symmetric 1: half-echo
 minRF_to_ADC_time=50e-6;        % the parameter wich defines TE (together with the RO asymmetyry)
 
 % more in-depth parameters
 rfSpoilingInc=117;              % RF spoiling increment
-
-% set system limits
-sys = mr.opts('MaxGrad', 28, 'GradUnit', 'mT/m', ...
-    'MaxSlew', 100, 'SlewUnit', 'T/m/s', 'rfRingdownTime', 20e-6, ...
-    'rfDeadTime', 100e-6, 'adcDeadTime', 10e-6);
 
 % Create alpha-degree slice selection pulse and gradient
 [rf, gz, gzReph] = mr.makeSincPulse(alpha*pi/180,'Duration',1e-3,...
@@ -209,8 +257,7 @@ deltak=1/fov/(1+ro_asymmetry);
 ro_area=Nx*deltak;
 gx = mr.makeTrapezoid('x','FlatArea',ro_area,'FlatTime',ro_duration,'system',sys);
 adc = mr.makeAdc(Nxo,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
-adc.delay = adc.delay - 0.5*adc.dwell; % compensate for the 0.5 samples shift
-gxPre = mr.makeTrapezoid('x','Area',-(gx.area-ro_area)/2 - ro_area/2*(1-ro_asymmetry),'system',sys);
+gxPre = mr.makeTrapezoid('x','Area',-(gx.area-ro_area)/2 -gx.amplitude*adc.dwell/2 - ro_area/2*(1-ro_asymmetry),'system',sys);
 
 % gradient spoiling
 gxSpoil=mr.makeTrapezoid('x','Area',0.2*Nx*deltak,'system',sys);
@@ -254,18 +301,29 @@ for i=1:Nr
     end
 end
 
+%% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
+%%
 seq.plot();
 
 %% plot gradients to check for gaps and optimality of the timing
-gw=seq.gradient_waveforms();
-figure; plot(gw'); % plot the entire gradient shape
+gw=seq.waveforms_and_times();
+figure; plot(gw{1}(1,:),gw{1}(2,:),gw{2}(1,:),gw{2}(2,:),gw{3}(1,:),gw{3}(2,:)); % plot the entire gradient shape
 
-%% trajectory calculation
-[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+%% k-space trajectory calculation
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 % plot k-spaces
-time_axis=(1:(size(ktraj,2)))*sys.gradRasterTime;
-figure; plot(time_axis, ktraj'); % plot the entire k-space trajectory
+figure; plot(t_ktraj, ktraj'); % plot the entire k-space trajectory
 hold; plot(t_adc,ktraj_adc(1,:),'.'); % and sampling points on the kx-axis
 figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
 axis('equal'); % enforce aspect ratio for the correct trajectory display
@@ -280,4 +338,6 @@ seq.write('ute.seq');       % Write to pulseq file
 %seq.install('siemens');
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

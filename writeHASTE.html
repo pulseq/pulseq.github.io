@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Create a TSE sequence and export for execution</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeHASTE.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>Create a TSE sequence and export for execution</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeHASTE.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,14 +72,82 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h1>Create a TSE sequence and export for execution</h1><!--introduction--><p>The <tt>Sequence</tt> class provides functionality to create magnetic resonance sequences (MRI or NMR) from basic building blocks.</p><p>This provides an implementation of the open file format for MR sequences described here: <a href="http://pulseq.github.io/specification.pdf">http://pulseq.github.io/specification.pdf</a></p><p>This example performs the following steps:</p><div><ol><li>Create slice selective RF pulse for imaging.</li><li>Create readout gradient and phase encode strategy.</li><li>Loop through phase encoding and generate sequence blocks.</li><li>Write the sequence to an open file format suitable for execution on a scanner.</li></ol></div><pre class="language-matlab">Juergen <span class="string">Hennig</span> <span class="string">&lt;juergen.hennig@uniklinik-freiburg.de&gt;</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Create a TSE sequence and export for execution</h1>
+<!--introduction-->
+<p>The <tt>Sequence</tt> class provides functionality to create magnetic resonance sequences (MRI or NMR) from basic building blocks.</p>
+<p>This provides an implementation of the open file format for MR sequences described here: <a href="http://pulseq.github.io/specification.pdf">http://pulseq.github.io/specification.pdf</a>
+</p>
+<p>This example performs the following steps:</p>
+<div>
+<ol>
+<li>Create slice selective RF pulse for imaging.</li>
+<li>Create readout gradient and phase encode strategy.</li>
+<li>Loop through phase encoding and generate sequence blocks.</li>
+<li>Write the sequence to an open file format suitable for execution on a scanner.</li>
+</ol>
+</div>
+<pre class="language-matlab">Juergen <span class="string">Hennig</span> <span class="string">&lt;juergen.hennig@uniklinik-freiburg.de&gt;</span>
 Maxim <span class="string">Zaitsev</span>  <span class="string">&lt;maxim.zaitsev@uniklinik-freiburg.de&gt;</span>
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Instantiation and gradient limits</a></li><li><a href="#3">Sequence events</a></li><li><a href="#5">Base gradients</a></li><li><a href="#6">Slice selection</a></li><li><a href="#8">Readout gradient</a></li><li><a href="#10">Phase encoding</a></li><li><a href="#11">split gradients and recombine into blocks</a></li><li><a href="#12">Define sequence blocks</a></li><li><a href="#13">new single-function call for trajectory calculation</a></li><li><a href="#14">plot k-spaces</a></li><li><a href="#15">Write to file</a></li></ul></div><h2 id="1">Instantiation and gradient limits</h2><p>The system gradient limits can be specified in various units <i>mT/m</i>, <i>Hz/cm</i>, or <i>Hz/m</i>. However the limits will be stored internally in units of <i>Hz/m</i> for amplitude and <i>Hz/m/s</i> for slew. Unspecificied hardware parameters will be assigned default values.</p><pre class="codeinput">dG=250e-6;
+</pre>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Instantiation and gradient limits</a>
+</li>
+<li>
+<a href="#3">Sequence events</a>
+</li>
+<li>
+<a href="#5">Base gradients</a>
+</li>
+<li>
+<a href="#6">Slice selection</a>
+</li>
+<li>
+<a href="#8">Readout gradient</a>
+</li>
+<li>
+<a href="#10">Phase encoding</a>
+</li>
+<li>
+<a href="#11">split gradients and recombine into blocks</a>
+</li>
+<li>
+<a href="#12">Define sequence blocks</a>
+</li>
+<li>
+<a href="#13">check whether the timing of the sequence is correct</a>
+</li>
+<li>
+<a href="#14">k-space trajectory calculation</a>
+</li>
+<li>
+<a href="#15">plot k-spaces</a>
+</li>
+<li>
+<a href="#16">Write to file</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Instantiation and gradient limits</h2>
+<p>The system gradient limits can be specified in various units <i>mT/m</i>, <i>Hz/cm</i>, or <i>Hz/m</i>. However the limits will be stored internally in units of <i>Hz/m</i> for amplitude and <i>Hz/m/s</i> for slew. Unspecificied hardware parameters will be assigned default values.</p>
+<pre class="codeinput">dG=250e-6;
 system = mr.opts(<span class="string">'MaxGrad'</span>, 30, <span class="string">'GradUnit'</span>, <span class="string">'mT/m'</span>, <span class="keyword">...</span>
     <span class="string">'MaxSlew'</span>, 170, <span class="string">'SlewUnit'</span>, <span class="string">'T/m/s'</span>, <span class="string">'rfRingdownTime'</span>, 100e-6, <span class="keyword">...</span>
     <span class="string">'rfDeadTime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
-</pre><p>A new sequence object is created by calling the class constructor.</p><pre class="codeinput">seq=mr.Sequence(system);
-</pre><h2 id="3">Sequence events</h2><p>Some sequence parameters are defined using standard MATLAB variables</p><pre class="codeinput">fov=256e-3;
+</pre>
+<p>A new sequence object is created by calling the class constructor.</p>
+<pre class="codeinput">seq=mr.Sequence(system);
+</pre>
+<h2 id="3">Sequence events</h2>
+<p>Some sequence parameters are defined using standard MATLAB variables</p>
+<pre class="codeinput">fov=256e-3;
 Ny_pre=8;
 Nx=128; Ny=128; necho=Ny/2+Ny_pre; Nslices=1;
 rflip=180;
@@ -85,7 +158,8 @@ TEeff=60e-3;
 k0=round(TEeff/TE);
 PEtype=<span class="string">'linear'</span>;
 
-readoutTime = 6.4e-3 + 2*system.adcDeadTime;
+samplingTime= 6.4e-3;
+readoutTime = samplingTime + 2*system.adcDeadTime;
 tEx=2.5e-3;
 tExwd=tEx+system.rfRingdownTime+system.rfDeadTime;
 tRef=2e-3;
@@ -97,7 +171,12 @@ fspS=0.5;
 
 rfex_phase=pi/2; <span class="comment">% MZ: we need to maintain these as variables because we will overwrtite phase offsets for multiple slice positions</span>
 rfref_phase=0;
-</pre><h2 id="5">Base gradients</h2><h2 id="6">Slice selection</h2><p>Key concepts in the sequence description are <b>blocks</b> and <b>events</b>. Blocks describe a group of events that are executed simultaneously. This hierarchical structure means that one event can be used in multiple blocks, a common occurrence in MR sequences, particularly in imaging sequences.</p><p>First, the slice selective RF pulses (and corresponding slice gradient) are generated using the <tt>makeSincPulse</tt> function. Gradients are recalculated such that their flattime covers the pulse plus the rfdead- and rfringdown- times.</p><pre class="codeinput">flipex=90*pi/180;
+</pre>
+<h2 id="5">Base gradients</h2>
+<h2 id="6">Slice selection</h2>
+<p>Key concepts in the sequence description are <b>blocks</b> and <b>events</b>. Blocks describe a group of events that are executed simultaneously. This hierarchical structure means that one event can be used in multiple blocks, a common occurrence in MR sequences, particularly in imaging sequences.</p>
+<p>First, the slice selective RF pulses (and corresponding slice gradient) are generated using the <tt>makeSincPulse</tt> function. Gradients are recalculated such that their flattime covers the pulse plus the rfdead- and rfringdown- times.</p>
+<pre class="codeinput">flipex=90*pi/180;
 [rfex, gz] = mr.makeSincPulse(flipex,system,<span class="string">'Duration'</span>,tEx,<span class="keyword">...</span>
     <span class="string">'SliceThickness'</span>,sliceThickness,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4,<span class="string">'PhaseOffset'</span>,rfex_phase);
 GSex = mr.makeTrapezoid(<span class="string">'z'</span>,system,<span class="string">'amplitude'</span>,gz.amplitude,<span class="string">'FlatTime'</span>,tExwd,<span class="string">'riseTime'</span>,dG);
@@ -112,11 +191,19 @@ GSref = mr.makeTrapezoid(<span class="string">'z'</span>,system,<span class="str
 AGSex=GSex.area/2;
 GSspr = mr.makeTrapezoid(<span class="string">'z'</span>,system,<span class="string">'area'</span>,AGSex*(1+fspS),<span class="string">'duration'</span>,tSp,<span class="string">'riseTime'</span>,dG);
 GSspex = mr.makeTrapezoid(<span class="string">'z'</span>,system,<span class="string">'area'</span>,AGSex*fspS,<span class="string">'duration'</span>,tSpex,<span class="string">'riseTime'</span>,dG);
-</pre><h2 id="8">Readout gradient</h2><p>To define the remaining encoding gradients we need to calculate the <img src="writeHASTE_eq15636846968047188835.png" alt="$k$">-space sampling. The Fourier relationship</p><p><img src="writeHASTE_eq09991720815298279205.png" alt="$$\Delta k = \frac{1}{FOV}$$"></p><p>Therefore the area of the readout gradient is <img src="writeHASTE_eq06551878854635137080.png" alt="$n\Delta k$">.</p><pre class="codeinput">deltak=1/fov;
+</pre>
+<pre class="codeoutput">Warning: WARNING: system maximum RF amplitude exceeded (116.0%) 
+</pre>
+<h2 id="8">Readout gradient</h2>
+<p>To define the remaining encoding gradients we need to calculate the <img src="writeHASTE_eq12829740475467572519.png" alt="$k$">-space sampling. The Fourier relationship</p>
+<p>
+<img src="writeHASTE_eq18056496156672112994.png" alt="$$\Delta k = \frac{1}{FOV}$$"></p>
+<p>Therefore the area of the readout gradient is <img src="writeHASTE_eq16128757142347586625.png" alt="$n\Delta k$">.</p>
+<pre class="codeinput">deltak=1/fov;
 kWidth = Nx*deltak;
 
 GRacq = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="string">'FlatArea'</span>,kWidth,<span class="string">'FlatTime'</span>,readoutTime,<span class="string">'riseTime'</span>,dG);
-adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,GRacq.flatTime-40e-6, <span class="string">'Delay'</span>, 20e-6);<span class="comment">%,'Delay',GRacq.riseTime);</span>
+adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,samplingTime, <span class="string">'Delay'</span>, system.adcDeadTime);<span class="comment">%,'Delay',GRacq.riseTime);</span>
 GRspr = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="string">'area'</span>,GRacq.area*fspR,<span class="string">'duration'</span>,tSp,<span class="string">'riseTime'</span>,dG);
 GRspex = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="string">'area'</span>,GRacq.area*(1+fspR),<span class="string">'duration'</span>,tSpex,<span class="string">'riseTime'</span>,dG);
 
@@ -124,7 +211,11 @@ GRspex = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="st
 AGRspr=GRspr.area;<span class="comment">%GRacq.area/2*fspR;</span>
 AGRpreph = GRacq.area/2+AGRspr;<span class="comment">%GRacq.area*(1+fspR)/2;</span>
 GRpreph = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="string">'Area'</span>,AGRpreph,<span class="string">'duration'</span>,tSpex,<span class="string">'riseTime'</span>,dG);
-</pre><h2 id="10">Phase encoding</h2><p>To move the <img src="writeHASTE_eq15636846968047188835.png" alt="$k$">-space trajectory away from 0 prior to the readout a prephasing gradient must be used. Furthermore rephasing of the slice select gradient is required.</p><pre class="codeinput"><span class="comment">%[PEorder,Ny] = myTSE_PEorder(Ny,necho,k0,PEtype);</span>
+</pre>
+<h2 id="10">Phase encoding</h2>
+<p>To move the <img src="writeHASTE_eq12829740475467572519.png" alt="$k$">-space trajectory away from 0 prior to the readout a prephasing gradient must be used. Furthermore rephasing of the slice select gradient is required.</p>
+<pre class="codeinput">
+<span class="comment">%[PEorder,Ny] = myTSE_PEorder(Ny,necho,k0,PEtype);</span>
 <span class="comment">%nex=floor(Ny/necho);</span>
 <span class="comment">%pe_steps=(1:(necho*nex))-0.5*necho*nex-1;</span>
 <span class="comment">%if 0==mod(necho,2)</span>
@@ -134,7 +225,10 @@ GRpreph = mr.makeTrapezoid(<span class="string">'x'</span>,system,<span class="s
 nex=1;
 PEorder=((-Ny_pre):Ny)';
 phaseAreas = PEorder*deltak;
-</pre><h2 id="11">split gradients and recombine into blocks</h2><p>lets start with slice selection....</p><pre class="codeinput">GS1times=[0 GSex.riseTime];
+</pre>
+<h2 id="11">split gradients and recombine into blocks</h2>
+<p>lets start with slice selection....</p>
+<pre class="codeinput">GS1times=[0 GSex.riseTime];
 GS1amp=[0 GSex.amplitude];
 GS1 = mr.makeExtendedTrapezoid(<span class="string">'z'</span>,<span class="string">'times'</span>,GS1times,<span class="string">'amplitudes'</span>,GS1amp);
 
@@ -176,9 +270,9 @@ GR7 = mr.makeExtendedTrapezoid(<span class="string">'x'</span>,<span class="stri
 
 
 <span class="comment">% and filltimes</span>
-tex=GS1.t(end)+GS2.t(end)+GS3.t(end);
-tref=GS4.t(end)+GS5.t(end)+GS7.t(end)+readoutTime;
-tend=GS4.t(end)+GS5.t(end);
+tex=GS1.shape_dur+GS2.shape_dur+GS3.shape_dur;
+tref=GS4.shape_dur+GS5.shape_dur+GS7.shape_dur+readoutTime;
+tend=GS4.shape_dur+GS5.shape_dur;
 tETrain=tex+necho*tref+tend;
 TRfill=(TR-Nslices*tETrain)/Nslices;
 <span class="comment">% round to gradient raster</span>
@@ -190,8 +284,13 @@ TRfill=system.gradRasterTime * round(TRfill / system.gradRasterTime);
 <span class="keyword">end</span>
 delayTR = mr.makeDelay(TRfill);
 delayEnd = mr.makeDelay(5);
-</pre><pre class="codeoutput">TRfill :1127.82 ms
-</pre><h2 id="12">Define sequence blocks</h2><p>Next, the blocks are put together to form the sequence</p><pre class="codeinput"><span class="keyword">for</span> kex=1:nex <span class="comment">% MZ: we start at 0 to have one dummy</span>
+</pre>
+<pre class="codeoutput">TRfill :1125.61 ms
+</pre>
+<h2 id="12">Define sequence blocks</h2>
+<p>Next, the blocks are put together to form the sequence</p>
+<pre class="codeinput">
+<span class="keyword">for</span> kex=1:nex <span class="comment">% MZ: we start at 0 to have one dummy</span>
     <span class="keyword">for</span> s=1:Nslices
         rfex.freqOffset=GSex.amplitude*sliceThickness*(s-1-(Nslices-1)/2);
         rfref.freqOffset=GSref.amplitude*sliceThickness*(s-1-(Nslices-1)/2);
@@ -228,17 +327,46 @@ delayEnd = mr.makeDelay(5);
 <span class="keyword">end</span>
 
 seq.addBlock(delayEnd);
-</pre><h2 id="13">new single-function call for trajectory calculation</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
-</pre><h2 id="14">plot k-spaces</h2><pre class="codeinput">figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+</pre>
+<h2 id="13">check whether the timing of the sequence is correct</h2>
+<pre class="codeinput">[ok, error_report]=seq.checkTiming;
+
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Timing check passed successfully
+</pre>
+<h2 id="14">k-space trajectory calculation</h2>
+<pre class="codeinput">[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
+</pre>
+<h2 id="15">plot k-spaces</h2>
+<pre class="codeinput">figure; plot(t_ktraj, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
              ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
-</pre><img vspace="5" hspace="5" src="writeHASTE_01.png" alt=""> <img vspace="5" hspace="5" src="writeHASTE_02.png" alt=""> <h2 id="15">Write to file</h2><pre class="codeinput"><span class="comment">% The sequence is written to file in compressed form according to the file</span>
+</pre>
+<img vspace="5" hspace="5" src="writeHASTE_01.png" alt=""> <img vspace="5" hspace="5" src="writeHASTE_02.png" alt=""> <h2 id="16">Write to file</h2>
+<pre class="codeinput">
+<span class="comment">% The sequence is written to file in compressed form according to the file</span>
 <span class="comment">% format specification using the |write| method.</span>
 seq.write(<span class="string">'haste.seq'</span>)
-</pre><p>Display the first few lines of the output file s=fileread('myTSE.seq'); disp(s(1:300))</p><pre class="codeinput">seq.plot();
+</pre>
+<p>Display the first few lines of the output file s=fileread('myTSE.seq'); disp(s(1:300))</p>
+<pre class="codeinput">seq.plot();
 
 <span class="comment">% seq.install('siemens');</span>
-</pre><img vspace="5" hspace="5" src="writeHASTE_03.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="writeHASTE_03.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 %% Create a TSE sequence and export for execution
 % 
@@ -289,7 +417,8 @@ TEeff=60e-3;
 k0=round(TEeff/TE);
 PEtype='linear';
 
-readoutTime = 6.4e-3 + 2*system.adcDeadTime;
+samplingTime= 6.4e-3;
+readoutTime = samplingTime + 2*system.adcDeadTime;
 tEx=2.5e-3; 
 tExwd=tEx+system.rfRingdownTime+system.rfDeadTime;
 tRef=2e-3; 
@@ -344,7 +473,7 @@ deltak=1/fov;
 kWidth = Nx*deltak;
 
 GRacq = mr.makeTrapezoid('x',system,'FlatArea',kWidth,'FlatTime',readoutTime,'riseTime',dG);
-adc = mr.makeAdc(Nx,'Duration',GRacq.flatTime-40e-6, 'Delay', 20e-6);%,'Delay',GRacq.riseTime);
+adc = mr.makeAdc(Nx,'Duration',samplingTime, 'Delay', system.adcDeadTime);%,'Delay',GRacq.riseTime);
 GRspr = mr.makeTrapezoid('x',system,'area',GRacq.area*fspR,'duration',tSp,'riseTime',dG);
 GRspex = mr.makeTrapezoid('x',system,'area',GRacq.area*(1+fspR),'duration',tSpex,'riseTime',dG);
 
@@ -418,9 +547,9 @@ GR7 = mr.makeExtendedTrapezoid('x','times',GR7times,'amplitudes',GR7amp);
 
 
 % and filltimes
-tex=GS1.t(end)+GS2.t(end)+GS3.t(end);
-tref=GS4.t(end)+GS5.t(end)+GS7.t(end)+readoutTime;
-tend=GS4.t(end)+GS5.t(end);
+tex=GS1.shape_dur+GS2.shape_dur+GS3.shape_dur;
+tref=GS4.shape_dur+GS5.shape_dur+GS7.shape_dur+readoutTime;
+tend=GS4.shape_dur+GS5.shape_dur;
 tETrain=tex+necho*tref+tend;
 TRfill=(TR-Nslices*tETrain)/Nslices;
 % round to gradient raster
@@ -473,12 +602,22 @@ end
 
 seq.addBlock(delayEnd);
 
-%% new single-function call for trajectory calculation
-[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+%% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
+%% k-space trajectory calculation
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 %% plot k-spaces
-
-figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(t_ktraj, ktraj'); % plot the entire k-space trajectory
 figure; plot(ktraj(1,:),ktraj(2,:),'b',...
              ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
 
@@ -498,4 +637,6 @@ seq.plot();
 
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

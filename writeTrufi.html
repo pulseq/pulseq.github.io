@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeTrufi</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeTrufi.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeTrufi</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeTrufi.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,7 +72,35 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">check whether the timing of the sequence is correct</a></li><li><a href="#3">prepare export</a></li><li><a href="#4">plots and displays</a></li><li><a href="#5">new single-function call for trajectory calculation -- relatively slow but very helpful</a></li><li><a href="#6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a></li></ul></div><pre class="codeinput"><span class="comment">% we define here a really crude True-FISP a.k.a. bSSFP sequence</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">check whether the timing of the sequence is correct</a>
+</li>
+<li>
+<a href="#3">prepare export</a>
+</li>
+<li>
+<a href="#4">plots and displays</a>
+</li>
+<li>
+<a href="#5">plot entire interpolated wave forms -- good for debugging of gaps, jumps,</a>
+</li>
+<li>
+<a href="#6">trajectory calculation</a>
+</li>
+<li>
+<a href="#7">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="comment">% we define here a really crude True-FISP a.k.a. bSSFP sequence</span>
 <span class="comment">% there is no user control for TR/TE, you just specify the ADC time and the</span>
 <span class="comment">% RF parameters and the rest is calculated to find the fastest posible</span>
 <span class="comment">% timing. The sequence intensively uses the extended trapezoid</span>
@@ -75,17 +108,16 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 <span class="comment">% splitting the sequence into blocks the TR is increased by approximately</span>
 <span class="comment">% 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR</span>
 
-seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
-fov=220e-3; Nx=128; Ny=128;     <span class="comment">% Define FOV and resolution</span>
-                                <span class="comment">% 256x256 matrix works with the same</span>
-                                <span class="comment">% parameters but the figures look better so</span>
-
 <span class="comment">% set system limits</span>
 <span class="comment">% had to slow down ramps and increase adc_duration to avoid stimulation</span>
-sys = mr.opts(<span class="string">'MaxGrad'</span>,36,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
+sys = mr.opts(<span class="string">'MaxGrad'</span>,30,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
     <span class="string">'MaxSlew'</span>,140,<span class="string">'SlewUnit'</span>,<span class="string">'T/m/s'</span>,<span class="keyword">...</span>
     <span class="string">'rfRingdownTime'</span>, 20e-6, <span class="string">'rfDeadTime'</span>, 100e-6, <span class="keyword">...</span>
     <span class="string">'adcDeadTime'</span>, 20e-6);
+
+seq=mr.Sequence(sys);              <span class="comment">% Create a new sequence object</span>
+fov=220e-3; Nx=256; Ny=256;     <span class="comment">% Define FOV and resolution</span>
+
 
 <span class="comment">% ADC duration (controls TR/TE)</span>
 adc_dur=2560; <span class="comment">%us</span>
@@ -108,15 +140,15 @@ adc = mr.makeAdc(Nx,<span class="string">'Duration'</span>,gx.flatTime,<span cla
 gxPre = mr.makeTrapezoid(<span class="string">'x'</span>,<span class="string">'Area'</span>,-gx.area/2,<span class="string">'system'</span>,sys);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
 
-<span class="comment">% now we have to reschuffle gradients to achieve a half-way optimal timing</span>
+<span class="comment">% now we have to reshuffle gradients to achieve a half-way optimal timing</span>
 <span class="comment">% new gz will consist of two parts:</span>
 <span class="comment">% 1: slice refocusing from the previous TR followed by slice selection</span>
 <span class="comment">%    including the plato an a small bit of the ramp-down</span>
 <span class="comment">% 2: the remainder of the ramp-down and the slice refocusing for the next TR</span>
-gz_parts=mr.splitGradientAt(gz,rf.delay+rf.t(end));
+gz_parts=mr.splitGradientAt(gz,mr.calcDuration(rf));
 gz_parts(1).delay=mr.calcDuration(gzReph);
 gz_1=mr.addGradients({gzReph,gz_parts(1)},<span class="string">'system'</span>,sys);
-[rf]=mr.align(<span class="string">'right'</span>,rf,gz_1);
+[rf,~]=mr.align(<span class="string">'right'</span>,rf,gz_1);
 gz_parts(2).delay=0;
 gzReph.delay=mr.calcDuration(gz_parts(2));
 gz_2=mr.addGradients({gz_parts(2),gzReph},<span class="string">'system'</span>,sys);
@@ -125,14 +157,13 @@ gz_2=mr.addGradients({gz_parts(2),gzReph},<span class="string">'system'</span>,s
 <span class="comment">% 1: prephaser followed by a part of the read gradient including the</span>
 <span class="comment">%    beginning of the ramp-down</span>
 <span class="comment">% 2: the remainer of the ramp-down and the second "prephaser"</span>
-gx_parts=mr.splitGradientAt(gx,ceil((adc.dwell*adc.numSamples+adc.delay+adc.deadTime)/sys.gradRasterTime)*sys.gradRasterTime);
+gx_parts=mr.splitGradientAt(gx,ceil(mr.calcDuration(adc)/sys.gradRasterTime)*sys.gradRasterTime);
 gx_parts(1).delay=mr.calcDuration(gxPre);
 gx_1=mr.addGradients({gxPre,gx_parts(1)},<span class="string">'system'</span>,sys);
-adc.delay=adc.delay+mr.calcDuration(gxPre);
+adc.delay=adc.delay+mr.calcDuration(gxPre); <span class="comment">% we cannot use mr.align here because the adc duration maz be not aligneed to the grad raster</span>
 gx_parts(2).delay=0;
 gxPre.delay=mr.calcDuration(gx_parts(2));
 gx_2=mr.addGradients({gx_parts(2),gxPre},<span class="string">'system'</span>,sys);
-
 
 <span class="comment">% Calculate timing</span>
 <span class="comment">%pe_dur=min(max(tp2(end),tpr1(end-2)),max(tp(end-3),tpr2(end)));</span>
@@ -141,12 +172,9 @@ gxPre.delay=0; <span class="comment">% otherwise duration below is misreported</
 pe_dur=mr.calcDuration(gx_2);
 
 <span class="comment">% adjust delays to align objects</span>
-<span class="comment">%if tpr2(end)&gt;tp(end-2)</span>
-<span class="comment">%    delay_add=tpr2(end)-tp(end-2);</span>
-<span class="comment">%    gz_1.delay=delay_add;</span>
-<span class="comment">%    rf.delay=rf.delay+delay_add;</span>
-<span class="comment">%end</span>
-gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);
+<span class="comment">%gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);</span>
+gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay+rf.ringdownTime,0); <span class="comment">% this rf.ringdownTime is needed to center the ADC and the gradient echo in the center of RF-RF period</span>
+
 rf.delay=rf.delay+gz_1.delay;
 
 <span class="comment">% finish timing calculation</span>
@@ -157,41 +185,40 @@ TE=TR/2;
 <span class="comment">% create 0.5*alpha prep pulse</span>
 rf05=rf;
 rf05.signal=0.5*rf.signal;
-seq.addBlock(rf05,gz_1);
-seq.addBlock(gz_2);
+seq.addBlock(rf05,gz_1,mr.makeLabel(<span class="string">'SET'</span>,<span class="string">'ONCE'</span>, 1)); <span class="comment">% we also label the few following blocks as preparing to exclude them if the sequence is repeated</span>
 <span class="comment">% the following delay calculation fails for agressive sequence timing</span>
-prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1)-mr.calcDuration(gz_2))/sys.gradRasterTime)*sys.gradRasterTime); <span class="comment">% I know this round() is not 100% correct</span>
-seq.addBlock(prepDelay);
+prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1))/sys.gradRasterTime)*sys.gradRasterTime); <span class="comment">% I know this round() is not 100% correct</span>
+gx_1_1=mr.makeExtendedTrapezoidArea(<span class="string">'x'</span>,0,gx_2.first,-gx_2.area,sys);
+gyPre_2 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,phaseAreas(end),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% last PE step (in case of repetitions)</span>
+seq.addBlock(mr.align(<span class="string">'left'</span>,prepDelay,gz_2,gyPre_2,<span class="string">'right'</span>,gx_1_1));
+seq.addBlock(mr.makeLabel(<span class="string">'SET'</span>,<span class="string">'ONCE'</span>, 0)); <span class="comment">% remove preparing block label</span>
 
 <span class="comment">% Loop over phase encodes and define sequence blocks</span>
 <span class="keyword">for</span> i=1:Ny
     rf.phaseOffset=pi*mod(i,2);
     adc.phaseOffset=pi*mod(i,2);
 
+    gyPre_1 = mr.scaleGrad(gyPre_2,-1); <span class="comment">% undo previous PE step</span>
     gyPre_2 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,phaseAreas(i),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% current PE step</span>
-    <span class="keyword">if</span> i&gt;1
-        gyPre_1 = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-phaseAreas(mod(i+Ny-2,Ny)+1),<span class="string">'Duration'</span>,pe_dur,<span class="string">'system'</span>,sys); <span class="comment">% previous PE step</span>
-        seq.addBlock(rf,gz_1, gyPre_1, gx_2);
-    <span class="keyword">else</span>
-        seq.addBlock(rf,gz_1);
-    <span class="keyword">end</span>
-    <span class="comment">%seq.addBlock(gxPre,gyPre,gzReph);</span>
-    <span class="comment">%seq.addBlock(mr.makeDelay(delayTE));</span>
+
+    seq.addBlock(rf,gz_1, gyPre_1, gx_2);
     seq.addBlock(gx_1,gyPre_2, gz_2,adc);
-    <span class="comment">%seq.addBlock(mr.makeDelay(delayTR))</span>
 <span class="keyword">end</span>
 <span class="comment">% finish the x-grad shape</span>
-seq.addBlock(gx_2);
+seq.addBlock(gx_2,mr.makeLabel(<span class="string">'SET'</span>,<span class="string">'ONCE'</span>, 2)); <span class="comment">% we also label this block as the exit block, which excludes it from all but last repetitions if the sequence is repeated</span>
 
 <span class="comment">% check that the calculated TR was reached</span>
-<span class="comment">% alpha / 2 prep takes 3 blocks</span>
-assert(TR==(mr.calcDuration(seq.getBlock(4))+mr.calcDuration(seq.getBlock(5))));
+<span class="comment">% alpha / 2 prep takes 4 blocks</span>
+assert(TR==(mr.calcDuration(seq.getBlock(5))+mr.calcDuration(seq.getBlock(6))));
 
 fprintf(<span class="string">'Sequence ready\n'</span>);
-fprintf(<span class="string">'TR=%f ms  TE=%f ms\n'</span>, TR*1e3, TE*1e3);
-</pre><pre class="codeoutput">Sequence ready
-TR=4.210000 ms  TE=2.105000 ms
-</pre><h2 id="2">check whether the timing of the sequence is correct</h2><pre class="codeinput">[ok, error_report]=seq.checkTiming;
+fprintf(<span class="string">'TR=%03f ms  TE=%03f ms\n'</span>, TR*1e3, TE*1e3);
+</pre>
+<pre class="codeoutput">Sequence ready
+TR=4.740000 ms  TE=2.370000 ms
+</pre>
+<h2 id="2">check whether the timing of the sequence is correct</h2>
+<pre class="codeinput">[ok, error_report]=seq.checkTiming;
 
 <span class="keyword">if</span> (ok)
     fprintf(<span class="string">'Timing check passed successfully\n'</span>);
@@ -200,58 +227,80 @@ TR=4.210000 ms  TE=2.105000 ms
     fprintf([error_report{:}]);
     fprintf(<span class="string">'\n'</span>);
 <span class="keyword">end</span>
-</pre><pre class="codeoutput">Timing check passed successfully
-</pre><h2 id="3">prepare export</h2><pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov thick*1e-3]);
+</pre>
+<pre class="codeoutput">Timing check passed successfully
+</pre>
+<h2 id="3">prepare export</h2>
+<pre class="codeinput">seq.setDefinition(<span class="string">'FOV'</span>, [fov fov thick*1e-3]);
 seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'trufi'</span>);
 
 seq.write(<span class="string">'trufi.seq'</span>)       <span class="comment">% Write to pulseq file</span>
 
 <span class="comment">%seq.install('siemens');</span>
-</pre><h2 id="4">plots and displays</h2><pre class="codeinput">seq.plot();
-
-<span class="comment">% plot entire interpolated wave forms -- good for debugging of gaps, jumps,</span>
-<span class="comment">% etc, but is relatively slow</span>
-gw=seq.gradient_waveforms();
-figure; plot(gw'); <span class="comment">% plot the entire k-space trajectory</span>
-</pre><img vspace="5" hspace="5" src="writeTrufi_01.png" alt=""> <img vspace="5" hspace="5" src="writeTrufi_02.png" alt=""> <h2 id="5">new single-function call for trajectory calculation -- relatively slow but very helpful</h2><pre class="codeinput">[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+</pre>
+<h2 id="4">plots and displays</h2>
+<pre class="codeinput">seq.plot(<span class="string">'timeDisp'</span>,<span class="string">'us'</span>);
+</pre>
+<img vspace="5" hspace="5" src="writeTrufi_01.png" alt=""> <h2 id="5">plot entire interpolated wave forms -- good for debugging of gaps, jumps,</h2>
+<p>etc, but is relatively slow</p>
+<pre class="codeinput">
+<span class="comment">%gw=seq.gradient_waveforms();</span>
+<span class="comment">%figure; plot(gw'); % plot the entire gradient waveform</span>
+gw_data=seq.waveforms_and_times();
+figure; plot(gw_data{1}(1,:),gw_data{1}(2,:),gw_data{2}(1,:),gw_data{2}(2,:),gw_data{3}(1,:),gw_data{3}(2,:)); <span class="comment">% plot the entire gradient waveform</span>
+title(<span class="string">'gradient waveforms'</span>);
+</pre>
+<img vspace="5" hspace="5" src="writeTrufi_02.png" alt=""> <h2 id="6">trajectory calculation</h2>
+<pre class="codeinput">[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 <span class="comment">% plot k-spaces</span>
 
-figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+figure; plot(t_ktraj,ktraj'); title(<span class="string">'k-space components as functions of time'</span>); <span class="comment">% plot the entire k-space trajectory</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>,<span class="keyword">...</span>
              ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); <span class="comment">% a 2D plot</span>
-</pre><img vspace="5" hspace="5" src="writeTrufi_03.png" alt=""> <img vspace="5" hspace="5" src="writeTrufi_04.png" alt=""> <h2 id="6">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2><pre class="codeinput">rep = seq.testReport;
+title(<span class="string">'2D k-space'</span>);
+</pre>
+<img vspace="5" hspace="5" src="writeTrufi_03.png" alt=""> <img vspace="5" hspace="5" src="writeTrufi_04.png" alt=""> <h2 id="7">very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits</h2>
+<pre class="codeinput">rep = seq.testReport;
 fprintf([rep{:}]);
-</pre><pre class="codeoutput">Number of blocks: 260
+</pre>
+<pre class="codeoutput">Number of blocks: 516
 Number of events:
-   RF:      129
-   Gx:      256
-   Gy:      255
-   Gz:      258
-   ADC:     128
-   Delay:     1
-Sequence duration: 0.541460s
-TE: 0.002110s
-TR: 0.004210s
+   RF:      257
+   Gx:      514
+   Gy:      513
+   Gz:      514
+   ADC:     256
+Sequence duration: 1.216560s
+TE: 0.002370s
+TR: 0.004740s
 Flip angle: 20.00&deg;
 Flip angle: 40.00&deg;
-Unique k-space positions (a.k.a. columns, rows, etc): 128
-Unique k-space positions (a.k.a. columns, rows, etc): 128
+Unique k-space positions (a.k.a. columns, rows, etc): 256
+Unique k-space positions (a.k.a. columns, rows, etc): 256
 Dimensions: 2
-   Spatial resolution: 1.73 mm
-   Spatial resolution: 1.72 mm
+   Spatial resolution: 0.86 mm
+   Spatial resolution: 0.86 mm
 Repetitions/slices/contrasts: 1  range: [1 1]
+   65536 k-space position(s) repeated 1 times
 Cartesian encoding trajectory detected
 Block timing check passed successfully
-Max. Gradient: 1256659 Hz/m == 29.52 mT/m
-Max. Gradient: 881543 Hz/m == 20.71 mT/m
-Max. Gradient: 1081641 Hz/m == 25.40 mT/m
+Max. Gradient: 1276596 Hz/m == 29.98 mT/m
+Max. Gradient: 1003135 Hz/m == 23.56 mT/m
+Max. Gradient: 1109375 Hz/m == 26.06 mT/m
+Max. Slew Rate: 5.80271e+09 Hz/m/s == 136.29 T/m/s
+Max. Slew Rate: 5.9596e+09 Hz/m/s == 139.98 T/m/s
 Max. Slew Rate: 5.68182e+09 Hz/m/s == 133.45 T/m/s
-Max. Slew Rate: 5.95701e+09 Hz/m/s == 139.91 T/m/s
-Max. Slew Rate: 5.68183e+09 Hz/m/s == 133.45 T/m/s
-Max. Absolute Gradient: 1759405 Hz/m == 41.32 mT/m
-Max. Absolute Slew Rate: 9.94802e+09 Hz/m/s == 233.65 T/m/s
-</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+Max. Absolute Gradient: 1966390 Hz/m == 46.19 mT/m
+Max. Absolute Slew Rate: 1.00733e+10 Hz/m/s == 236.60 T/m/s
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
 % we define here a really crude True-FISP a.k.a. bSSFP sequence
 % there is no user control for TR/TE, you just specify the ADC time and the
@@ -261,17 +310,16 @@ Max. Absolute Slew Rate: 9.94802e+09 Hz/m/s == 233.65 T/m/s
 % splitting the sequence into blocks the TR is increased by approximately
 % 40-60 us (rfDeadTime+adcDeadTime) in comparison to the true minimum TR
 
-seq=mr.Sequence();              % Create a new sequence object
-fov=220e-3; Nx=128; Ny=128;     % Define FOV and resolution
-                                % 256x256 matrix works with the same
-                                % parameters but the figures look better so
-
 % set system limits
 % had to slow down ramps and increase adc_duration to avoid stimulation
-sys = mr.opts('MaxGrad',36,'GradUnit','mT/m',...
+sys = mr.opts('MaxGrad',30,'GradUnit','mT/m',...
     'MaxSlew',140,'SlewUnit','T/m/s',...
     'rfRingdownTime', 20e-6, 'rfDeadTime', 100e-6, ...
     'adcDeadTime', 20e-6);
+
+seq=mr.Sequence(sys);              % Create a new sequence object
+fov=220e-3; Nx=256; Ny=256;     % Define FOV and resolution
+
 
 % ADC duration (controls TR/TE)
 adc_dur=2560; %us
@@ -294,15 +342,15 @@ adc = mr.makeAdc(Nx,'Duration',gx.flatTime,'Delay',gx.riseTime,'system',sys);
 gxPre = mr.makeTrapezoid('x','Area',-gx.area/2,'system',sys);
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak;
 
-% now we have to reschuffle gradients to achieve a half-way optimal timing
+% now we have to reshuffle gradients to achieve a half-way optimal timing
 % new gz will consist of two parts: 
 % 1: slice refocusing from the previous TR followed by slice selection 
 %    including the plato an a small bit of the ramp-down
 % 2: the remainder of the ramp-down and the slice refocusing for the next TR
-gz_parts=mr.splitGradientAt(gz,rf.delay+rf.t(end));
+gz_parts=mr.splitGradientAt(gz,mr.calcDuration(rf));
 gz_parts(1).delay=mr.calcDuration(gzReph);
 gz_1=mr.addGradients({gzReph,gz_parts(1)},'system',sys);
-[rf]=mr.align('right',rf,gz_1);
+[rf,~]=mr.align('right',rf,gz_1);
 gz_parts(2).delay=0;
 gzReph.delay=mr.calcDuration(gz_parts(2));
 gz_2=mr.addGradients({gz_parts(2),gzReph},'system',sys);
@@ -311,14 +359,13 @@ gz_2=mr.addGradients({gz_parts(2),gzReph},'system',sys);
 % 1: prephaser followed by a part of the read gradient including the 
 %    beginning of the ramp-down
 % 2: the remainer of the ramp-down and the second "prephaser"
-gx_parts=mr.splitGradientAt(gx,ceil((adc.dwell*adc.numSamples+adc.delay+adc.deadTime)/sys.gradRasterTime)*sys.gradRasterTime);
+gx_parts=mr.splitGradientAt(gx,ceil(mr.calcDuration(adc)/sys.gradRasterTime)*sys.gradRasterTime);
 gx_parts(1).delay=mr.calcDuration(gxPre);
 gx_1=mr.addGradients({gxPre,gx_parts(1)},'system',sys);
-adc.delay=adc.delay+mr.calcDuration(gxPre);
+adc.delay=adc.delay+mr.calcDuration(gxPre); % we cannot use mr.align here because the adc duration maz be not aligneed to the grad raster
 gx_parts(2).delay=0;
 gxPre.delay=mr.calcDuration(gx_parts(2));
 gx_2=mr.addGradients({gx_parts(2),gxPre},'system',sys);
-
 
 % Calculate timing
 %pe_dur=min(max(tp2(end),tpr1(end-2)),max(tp(end-3),tpr2(end))); 
@@ -327,12 +374,9 @@ gxPre.delay=0; % otherwise duration below is misreported
 pe_dur=mr.calcDuration(gx_2);
 
 % adjust delays to align objects
-%if tpr2(end)>tp(end-2)
-%    delay_add=tpr2(end)-tp(end-2);
-%    gz_1.delay=delay_add;
-%    rf.delay=rf.delay+delay_add;
-%end
-gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);
+%gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay,0);
+gz_1.delay=max(mr.calcDuration(gx_2)-rf.delay+rf.ringdownTime,0); % this rf.ringdownTime is needed to center the ADC and the gradient echo in the center of RF-RF period
+
 rf.delay=rf.delay+gz_1.delay;
 
 % finish timing calculation
@@ -343,38 +387,34 @@ TE=TR/2;
 % create 0.5*alpha prep pulse
 rf05=rf;
 rf05.signal=0.5*rf.signal;
-seq.addBlock(rf05,gz_1);
-seq.addBlock(gz_2);
+seq.addBlock(rf05,gz_1,mr.makeLabel('SET','ONCE', 1)); % we also label the few following blocks as preparing to exclude them if the sequence is repeated
 % the following delay calculation fails for agressive sequence timing
-prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1)-mr.calcDuration(gz_2))/sys.gradRasterTime)*sys.gradRasterTime); % I know this round() is not 100% correct
-seq.addBlock(prepDelay);
+prepDelay=mr.makeDelay(round((TR/2-mr.calcDuration(gz_1))/sys.gradRasterTime)*sys.gradRasterTime); % I know this round() is not 100% correct
+gx_1_1=mr.makeExtendedTrapezoidArea('x',0,gx_2.first,-gx_2.area,sys);
+gyPre_2 = mr.makeTrapezoid('y','Area',phaseAreas(end),'Duration',pe_dur,'system',sys); % last PE step (in case of repetitions)
+seq.addBlock(mr.align('left',prepDelay,gz_2,gyPre_2,'right',gx_1_1));
+seq.addBlock(mr.makeLabel('SET','ONCE', 0)); % remove preparing block label
 
 % Loop over phase encodes and define sequence blocks
 for i=1:Ny
     rf.phaseOffset=pi*mod(i,2);
     adc.phaseOffset=pi*mod(i,2);
         
+    gyPre_1 = mr.scaleGrad(gyPre_2,-1); % undo previous PE step
     gyPre_2 = mr.makeTrapezoid('y','Area',phaseAreas(i),'Duration',pe_dur,'system',sys); % current PE step
-    if i>1
-        gyPre_1 = mr.makeTrapezoid('y','Area',-phaseAreas(mod(i+Ny-2,Ny)+1),'Duration',pe_dur,'system',sys); % previous PE step
-        seq.addBlock(rf,gz_1, gyPre_1, gx_2);
-    else
-        seq.addBlock(rf,gz_1);
-    end
-    %seq.addBlock(gxPre,gyPre,gzReph);
-    %seq.addBlock(mr.makeDelay(delayTE));
+
+    seq.addBlock(rf,gz_1, gyPre_1, gx_2);
     seq.addBlock(gx_1,gyPre_2, gz_2,adc);
-    %seq.addBlock(mr.makeDelay(delayTR))
 end
 % finish the x-grad shape 
-seq.addBlock(gx_2);
+seq.addBlock(gx_2,mr.makeLabel('SET','ONCE', 2)); % we also label this block as the exit block, which excludes it from all but last repetitions if the sequence is repeated
 
 % check that the calculated TR was reached
-% alpha / 2 prep takes 3 blocks
-assert(TR==(mr.calcDuration(seq.getBlock(4))+mr.calcDuration(seq.getBlock(5))));
+% alpha / 2 prep takes 4 blocks
+assert(TR==(mr.calcDuration(seq.getBlock(5))+mr.calcDuration(seq.getBlock(6))));
 
 fprintf('Sequence ready\n');
-fprintf('TR=%f ms  TE=%f ms\n', TR*1e3, TE*1e3);
+fprintf('TR=%03f ms  TE=%03f ms\n', TR*1e3, TE*1e3);
 
 %% check whether the timing of the sequence is correct
 [ok, error_report]=seq.checkTiming;
@@ -397,22 +437,25 @@ seq.write('trufi.seq')       % Write to pulseq file
 %seq.install('siemens');
 
 %% plots and displays
-seq.plot();
+seq.plot('timeDisp','us');
 
-% plot entire interpolated wave forms REPLACE_WITH_DASH_DASH good for debugging of gaps, jumps,
+%% plot entire interpolated wave forms REPLACE_WITH_DASH_DASH good for debugging of gaps, jumps,
 % etc, but is relatively slow
-gw=seq.gradient_waveforms();
-figure; plot(gw'); % plot the entire k-space trajectory
+%gw=seq.gradient_waveforms();
+%figure; plot(gw'); % plot the entire gradient waveform
+gw_data=seq.waveforms_and_times();
+figure; plot(gw_data{1}(1,:),gw_data{1}(2,:),gw_data{2}(1,:),gw_data{2}(2,:),gw_data{3}(1,:),gw_data{3}(2,:)); % plot the entire gradient waveform
+title('gradient waveforms');
 
-
-%% new single-function call for trajectory calculation REPLACE_WITH_DASH_DASH relatively slow but very helpful
-[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+%% trajectory calculation 
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 % plot k-spaces
 
-figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(t_ktraj,ktraj'); title('k-space components as functions of time'); % plot the entire k-space trajectory
 figure; plot(ktraj(1,:),ktraj(2,:),'b',...
              ktraj_adc(1,:),ktraj_adc(2,:),'r.'); % a 2D plot
+title('2D k-space');
 
 %% very optional slow step, but useful for testing during development e.g. for the real TE, TR or for staying within slewrate limits  
 
@@ -421,4 +464,6 @@ fprintf([rep{:}]);
 
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

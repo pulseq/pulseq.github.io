@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeSpiral</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeSpiral.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeSpiral</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeSpiral.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,9 +72,21 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% this is an experimentaal spiral sequence</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">k-space trajectory calculation</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="comment">% this is an experimental spiral sequence</span>
 
-seq=mr.Sequence();          <span class="comment">% Create a new sequence object</span>
 fov=256e-3; Nx=96; Ny=Nx;  <span class="comment">% Define FOV and resolution</span>
 sliceThickness=3e-3;             <span class="comment">% slice thinckness</span>
 Nslices=1;
@@ -77,21 +94,23 @@ Oversampling=2; <span class="comment">% by looking at the periphery of the spira
 phi=pi/2; <span class="comment">% orientation of the readout e.g. for interleaving</span>
 
 <span class="comment">% Set system limits</span>
-lims = mr.opts(<span class="string">'MaxGrad'</span>,30,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
+sys = mr.opts(<span class="string">'MaxGrad'</span>,30,<span class="string">'GradUnit'</span>,<span class="string">'mT/m'</span>,<span class="keyword">...</span>
     <span class="string">'MaxSlew'</span>,120,<span class="string">'SlewUnit'</span>,<span class="string">'T/m/s'</span>,<span class="keyword">...</span>
-    <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadtime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6);
+    <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadtime'</span>, 100e-6, <span class="string">'adcDeadTime'</span>, 10e-6, <span class="string">'adcSamplesLimit'</span>, 8192);
+seq=mr.Sequence(sys);          <span class="comment">% Create a new sequence object</span>
+warning(<span class="string">'OFF'</span>, <span class="string">'mr:restoreShape'</span>); <span class="comment">% restore shape is not compatible with spirals and will throw a warning from each plot() or calcKspace() call</span>
 
 <span class="comment">% Create fat-sat pulse</span>
 <span class="comment">% (in Siemens interpreter from January 2019 duration is limited to 8.192 ms, and although product EPI uses 10.24 ms, 8 ms seems to be sufficient)</span>
 B0=2.89; <span class="comment">% 1.5 2.89 3.0</span>
 sat_ppm=-3.45;
-sat_freq=sat_ppm*1e-6*B0*lims.gamma;
-rf_fs = mr.makeGaussPulse(110*pi/180,<span class="string">'system'</span>,lims,<span class="string">'Duration'</span>,8e-3,<span class="keyword">...</span>
+sat_freq=sat_ppm*1e-6*B0*sys.gamma;
+rf_fs = mr.makeGaussPulse(110*pi/180,<span class="string">'system'</span>,sys,<span class="string">'Duration'</span>,8e-3,<span class="keyword">...</span>
     <span class="string">'bandwidth'</span>,abs(sat_freq),<span class="string">'freqOffset'</span>,sat_freq);
-gz_fs = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'delay'</span>,mr.calcDuration(rf_fs),<span class="string">'Area'</span>,1/1e-4); <span class="comment">% spoil up to 0.1mm</span>
+gz_fs = mr.makeTrapezoid(<span class="string">'z'</span>,sys,<span class="string">'delay'</span>,mr.calcDuration(rf_fs),<span class="string">'Area'</span>,1/1e-4); <span class="comment">% spoil up to 0.1mm</span>
 
 <span class="comment">% Create 90 degree slice selection pulse and gradient</span>
-[rf, gz] = mr.makeSincPulse(pi/2,<span class="string">'system'</span>,lims,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
+[rf, gz] = mr.makeSincPulse(pi/2,<span class="string">'system'</span>,sys,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
     <span class="string">'SliceThickness'</span>,sliceThickness,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4);
 
 <span class="comment">% define k-space parameters</span>
@@ -114,10 +133,10 @@ ka=[real(ka); imag(ka)];
 
 <span class="comment">% limit analysis</span>
 safety_magrin=0.94; <span class="comment">% we need that  otherwise we just about violate the slew rate due to the rounding errors</span>
-dt_gcomp=abs(ga)/(lims.maxGrad*safety_magrin)*lims.gradRasterTime;
-dt_gabs=abs(ga(1,:)+1i*ga(2,:))/(lims.maxGrad*safety_magrin)*lims.gradRasterTime;
-dt_scomp=sqrt(abs(sa)/(lims.maxSlew*safety_magrin))*lims.gradRasterTime;
-dt_sabs=sqrt(abs(sa(1,:)+1i*sa(2,:))/(lims.maxSlew*safety_magrin))*lims.gradRasterTime;
+dt_gcomp=abs(ga)/(sys.maxGrad*safety_magrin)*sys.gradRasterTime;
+dt_gabs=abs(ga(1,:)+1i*ga(2,:))/(sys.maxGrad*safety_magrin)*sys.gradRasterTime;
+dt_scomp=sqrt(abs(sa)/(sys.maxSlew*safety_magrin))*sys.gradRasterTime;
+dt_sabs=sqrt(abs(sa(1,:)+1i*sa(2,:))/(sys.maxSlew*safety_magrin))*sys.gradRasterTime;
 
 figure;plot([dt_gabs; max(dt_gcomp); dt_sabs; max(dt_scomp)]');title(<span class="string">'time stepping defined by gradient and slew-rate'</span>);
 
@@ -125,7 +144,7 @@ dt_smooth=max([dt_gabs;dt_sabs]);
 dt_rough=max([dt_gcomp;dt_scomp]);
 
 <span class="comment">% apply the lower limit not to lose the trajectory detail</span>
-dt_min=4*lims.gradRasterTime/kSamples; <span class="comment">% we want at least 4 points per revolution</span>
+dt_min=4*sys.gradRasterTime/kSamples; <span class="comment">% we want at least 4 points per revolution</span>
 dt_smooth0=dt_smooth;
 dt_rough0=dt_rough;
 dt_smooth(dt_smooth&lt;dt_min)=dt_min;
@@ -136,13 +155,13 @@ figure;plot([dt_smooth0; dt_smooth; dt_rough0; dt_rough]');title(<span class="st
 t_smooth=[0 cumsum(dt_smooth,2)];
 t_rough=[0 cumsum(dt_rough,2)];
 
-kopt_smooth=interp1(t_smooth, ka', (0:floor(t_smooth(end)/lims.gradRasterTime))*lims.gradRasterTime)';
-kopt_rough=interp1(t_rough, ka', (0:floor(t_rough(end)/lims.gradRasterTime))*lims.gradRasterTime)';
+kopt_smooth=interp1(t_smooth, ka', (0:floor(t_smooth(end)/sys.gradRasterTime))*sys.gradRasterTime)';
+kopt_rough=interp1(t_rough, ka', (0:floor(t_rough(end)/sys.gradRasterTime))*sys.gradRasterTime)';
 
 <span class="comment">% analyze what we've got</span>
-fprintf(<span class="string">'duration orig %d us\n'</span>, round(1e6*lims.gradRasterTime*length(ka)));
-fprintf(<span class="string">'duration smooth %d us\n'</span>, round(1e6*lims.gradRasterTime*length(kopt_smooth)));
-fprintf(<span class="string">'duration rough %d us\n'</span>, round(1e6*lims.gradRasterTime*length(kopt_rough)));
+fprintf(<span class="string">'duration orig %d us\n'</span>, round(1e6*sys.gradRasterTime*length(ka)));
+fprintf(<span class="string">'duration smooth %d us\n'</span>, round(1e6*sys.gradRasterTime*length(kopt_smooth)));
+fprintf(<span class="string">'duration rough %d us\n'</span>, round(1e6*sys.gradRasterTime*length(kopt_rough)));
 
 [gos, sos]=mr.traj2grad(kopt_smooth);
 [gor, sor]=mr.traj2grad(kopt_rough);
@@ -156,28 +175,35 @@ figure;plot([sor;abs(sor(1,:)+1i*sor(2,:))]');title(<span class="string">'slew r
 <span class="comment">% Define gradients and ADC events</span>
 spiral_grad_shape=gos;
 <span class="comment">% Create 90 degree slice selection pulse and gradient</span>
-[rf, gz] = mr.makeSincPulse(pi/2,<span class="string">'system'</span>,lims,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
+[rf, gz] = mr.makeSincPulse(pi/2,<span class="string">'system'</span>,sys,<span class="string">'Duration'</span>,3e-3,<span class="keyword">...</span>
     <span class="string">'SliceThickness'</span>,sliceThickness,<span class="string">'apodization'</span>,0.5,<span class="string">'timeBwProduct'</span>,4);
-gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'Area'</span>,-gz.area/2);
+gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,sys,<span class="string">'Area'</span>,-gz.area/2);
 
 <span class="comment">% calculate ADC</span>
 <span class="comment">% round-down dwell time to 10 ns</span>
-adcTime = lims.gradRasterTime*size(spiral_grad_shape,2);
+adcTime = sys.gradRasterTime*size(spiral_grad_shape,2);
 <span class="comment">% actually it is trickier than that: the (Siemens) interpreter sequence</span>
 <span class="comment">% per default will try to split the trajectory into segments &lt;=1000 samples</span>
 <span class="comment">% and every of these segments will have to have duration aligned to the</span>
 <span class="comment">% gradient raster time</span>
-adcSamplesPerSegment=1000; <span class="comment">% you may need to play with this number to fill the entire trajectory</span>
+
+<span class="comment">% adcSamplesPerSegment=1000; % you may need to play with this number to fill the entire trajectory</span>
+<span class="comment">% adcSamplesDesired=kRadius*kSamples;</span>
+<span class="comment">% adcSegments=round(adcSamplesDesired/adcSamplesPerSegment);</span>
+<span class="comment">% adcSamples=adcSegments*adcSamplesPerSegment;</span>
+<span class="comment">% adcDwell=round(adcTime/adcSamples/100e-9)*100e-9; % on Siemens adcDwell needs to be aligned to 100ns (if my memory serves me right)</span>
+<span class="comment">% adcSegmentDuration=adcSamplesPerSegment*adcDwell; % with the 100 samples above and the 100ns alignment we automatically fullfill the segment alignment requirement</span>
+<span class="comment">% if mod(adcSegmentDuration, sys.gradRasterTime)&gt;eps</span>
+<span class="comment">%     error('ADC segmentation model results in incorrect segment duration');</span>
+<span class="comment">% end</span>
+<span class="comment">% % update segment count</span>
+<span class="comment">% adcSegments=floor(adcTime/adcSegmentDuration);</span>
+
 adcSamplesDesired=kRadius*kSamples;
-adcSegments=round(adcSamplesDesired/adcSamplesPerSegment);
-adcSamples=adcSegments*adcSamplesPerSegment;
-adcDwell=round(adcTime/adcSamples/100e-9)*100e-9; <span class="comment">% on Siemens adcDwell needs to be aligned to 100ns (if my memory serves me right)</span>
-adcSegmentDuration=adcSamplesPerSegment*adcDwell; <span class="comment">% with the 100 samples above and the 100ns alignment we automatically fullfill the segment alignment requirement</span>
-<span class="keyword">if</span> mod(adcSegmentDuration, lims.gradRasterTime)&gt;eps
-    error(<span class="string">'ADC segmentation model results in incorrect segment duration'</span>);
-<span class="keyword">end</span>
-<span class="comment">% update segment count</span>
-adcSegments=floor(adcTime/adcSegmentDuration);
+adcDwell=round(adcTime/adcSamplesDesired/sys.adcRasterTime)*sys.adcRasterTime;
+adcSamplesDesired=ceil(adcTime/adcDwell);
+[adcSegments,adcSamplesPerSegment]=mr.calcAdcSeg(adcSamplesDesired,adcDwell,sys);
+
 adcSamples=adcSegments*adcSamplesPerSegment;
 adc = mr.makeAdc(adcSamples,<span class="string">'Dwell'</span>,adcDwell,<span class="string">'Delay'</span>,mr.calcDuration(gzReph));<span class="comment">%lims.adcDeadTime);</span>
 
@@ -190,7 +216,7 @@ gx = mr.makeArbitraryGrad(<span class="string">'x'</span>,spiral_grad_shape(1,:)
 gy = mr.makeArbitraryGrad(<span class="string">'y'</span>,spiral_grad_shape(2,:),<span class="string">'Delay'</span>,mr.calcDuration(gzReph));
 
 <span class="comment">% spoilers</span>
-gz_spoil=mr.makeTrapezoid(<span class="string">'z'</span>,lims,<span class="string">'Area'</span>,deltak*Nx*4);
+gz_spoil=mr.makeTrapezoid(<span class="string">'z'</span>,sys,<span class="string">'Area'</span>,deltak*Nx*4);
 gx_spoil=mr.makeExtendedTrapezoid(<span class="string">'x'</span>,<span class="string">'times'</span>,[0 mr.calcDuration(gz_spoil)],<span class="string">'amplitudes'</span>,[spiral_grad_shape(1,end),0]); <span class="comment">%todo: make a really good spoiler</span>
 gy_spoil=mr.makeExtendedTrapezoid(<span class="string">'y'</span>,<span class="string">'times'</span>,[0 mr.calcDuration(gz_spoil)],<span class="string">'amplitudes'</span>,[spiral_grad_shape(2,end),0]); <span class="comment">%todo: make a really good spoiler</span>
 
@@ -215,6 +241,18 @@ gy_spoil=mr.makeExtendedTrapezoid(<span class="string">'y'</span>,<span class="s
     seq.addBlock(mr.rotate(<span class="string">'z'</span>,phi,gx_spoil,gy_spoil,gz_spoil));
     <span class="comment">%seq.addBlock(gx_combined,gy_combined,gz_combined,adc);</span>
 <span class="keyword">end</span>
+
+<span class="comment">% check whether the timing of the sequence is correct</span>
+[ok, error_report]=seq.checkTiming;
+
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+
 <span class="comment">%</span>
 seq.setDefinition(<span class="string">'FOV'</span>, [fov fov sliceThickness]);
 seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'spiral'</span>);
@@ -222,35 +260,36 @@ seq.setDefinition(<span class="string">'MaxAdcSegmentLength'</span>, adcSamplesP
 
 seq.write(<span class="string">'spiral.seq'</span>);   <span class="comment">% Output sequence for scanner</span>
 
-<span class="comment">% % write the k-space trajectory (now 3D and wothout reconSize)</span>
-<span class="comment">% save('epi_rs_traj.mat','traj_mat','ktime');%,'reconSize');</span>
-<span class="comment">%</span>
+<span class="comment">% the sequence is ready, so let's see what we got</span>
 seq.plot();             <span class="comment">% Plot sequence waveforms</span>
-<span class="comment">% figure; plot(traj_mat'); % plot k-space trajectory</span>
-<span class="comment">% figure; plot(traj_mat(1,:),traj_mat(2,:),'b'); % a better plot</span>
-<span class="comment">% hold;plot(traj_mat(1,:),traj_mat(2,:),'r.');</span>
-<span class="comment">%</span>
-
-<span class="comment">% new single-function call for trajectory calculation</span>
-[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
-
-<span class="comment">% plot k-spaces</span>
-
-figure; plot(ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
-figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
-hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>);
-
-
-<span class="comment">% % seq.install('siemens');</span>
-</pre><pre class="codeoutput">duration orig 289930 us
+</pre>
+<pre class="codeoutput">duration orig 289930 us
 duration smooth 39760 us
 duration rough 37680 us
-Current plot held
-</pre><img vspace="5" hspace="5" src="writeSpiral_01.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_02.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_03.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_04.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_05.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_06.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_07.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_08.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_09.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
-##### SOURCE BEGIN #####
-% this is an experimentaal spiral sequence
+Timing check passed successfully
+</pre>
+<img vspace="5" hspace="5" src="writeSpiral_01.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_02.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_03.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_04.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_05.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_06.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_07.png" alt=""> <h2 id="2">k-space trajectory calculation</h2>
+<pre class="codeinput">[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
-seq=mr.Sequence();          % Create a new sequence object
+<span class="comment">% plot k-spaces</span>
+figure; plot(t_ktraj, ktraj'); title(<span class="string">'k-space components as functions of time'</span>); <span class="comment">% plot the entire k-space trajectory</span>
+figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
+hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>); title(<span class="string">'2D k-space'</span>);
+
+<span class="comment">% seq.install('siemens');</span>
+</pre>
+<pre class="codeoutput">Current plot held
+</pre>
+<img vspace="5" hspace="5" src="writeSpiral_08.png" alt=""> <img vspace="5" hspace="5" src="writeSpiral_09.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+% this is an experimental spiral sequence
+
 fov=256e-3; Nx=96; Ny=Nx;  % Define FOV and resolution
 sliceThickness=3e-3;             % slice thinckness
 Nslices=1;
@@ -258,21 +297,23 @@ Oversampling=2; % by looking at the periphery of the spiral I would say it needs
 phi=pi/2; % orientation of the readout e.g. for interleaving
 
 % Set system limits
-lims = mr.opts('MaxGrad',30,'GradUnit','mT/m',...
+sys = mr.opts('MaxGrad',30,'GradUnit','mT/m',...
     'MaxSlew',120,'SlewUnit','T/m/s',...
-    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6, 'adcDeadTime', 10e-6);  
+    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6, 'adcDeadTime', 10e-6, 'adcSamplesLimit', 8192);  
+seq=mr.Sequence(sys);          % Create a new sequence object
+warning('OFF', 'mr:restoreShape'); % restore shape is not compatible with spirals and will throw a warning from each plot() or calcKspace() call
 
 % Create fat-sat pulse 
 % (in Siemens interpreter from January 2019 duration is limited to 8.192 ms, and although product EPI uses 10.24 ms, 8 ms seems to be sufficient)
 B0=2.89; % 1.5 2.89 3.0
 sat_ppm=-3.45;
-sat_freq=sat_ppm*1e-6*B0*lims.gamma;
-rf_fs = mr.makeGaussPulse(110*pi/180,'system',lims,'Duration',8e-3,...
+sat_freq=sat_ppm*1e-6*B0*sys.gamma;
+rf_fs = mr.makeGaussPulse(110*pi/180,'system',sys,'Duration',8e-3,...
     'bandwidth',abs(sat_freq),'freqOffset',sat_freq);
-gz_fs = mr.makeTrapezoid('z',lims,'delay',mr.calcDuration(rf_fs),'Area',1/1e-4); % spoil up to 0.1mm
+gz_fs = mr.makeTrapezoid('z',sys,'delay',mr.calcDuration(rf_fs),'Area',1/1e-4); % spoil up to 0.1mm
 
 % Create 90 degree slice selection pulse and gradient
-[rf, gz] = mr.makeSincPulse(pi/2,'system',lims,'Duration',3e-3,...
+[rf, gz] = mr.makeSincPulse(pi/2,'system',sys,'Duration',3e-3,...
     'SliceThickness',sliceThickness,'apodization',0.5,'timeBwProduct',4);
 
 % define k-space parameters
@@ -295,10 +336,10 @@ ka=[real(ka); imag(ka)];
 
 % limit analysis
 safety_magrin=0.94; % we need that  otherwise we just about violate the slew rate due to the rounding errors
-dt_gcomp=abs(ga)/(lims.maxGrad*safety_magrin)*lims.gradRasterTime;
-dt_gabs=abs(ga(1,:)+1i*ga(2,:))/(lims.maxGrad*safety_magrin)*lims.gradRasterTime;
-dt_scomp=sqrt(abs(sa)/(lims.maxSlew*safety_magrin))*lims.gradRasterTime;
-dt_sabs=sqrt(abs(sa(1,:)+1i*sa(2,:))/(lims.maxSlew*safety_magrin))*lims.gradRasterTime;
+dt_gcomp=abs(ga)/(sys.maxGrad*safety_magrin)*sys.gradRasterTime;
+dt_gabs=abs(ga(1,:)+1i*ga(2,:))/(sys.maxGrad*safety_magrin)*sys.gradRasterTime;
+dt_scomp=sqrt(abs(sa)/(sys.maxSlew*safety_magrin))*sys.gradRasterTime;
+dt_sabs=sqrt(abs(sa(1,:)+1i*sa(2,:))/(sys.maxSlew*safety_magrin))*sys.gradRasterTime;
 
 figure;plot([dt_gabs; max(dt_gcomp); dt_sabs; max(dt_scomp)]');title('time stepping defined by gradient and slew-rate');
 
@@ -306,7 +347,7 @@ dt_smooth=max([dt_gabs;dt_sabs]);
 dt_rough=max([dt_gcomp;dt_scomp]);
 
 % apply the lower limit not to lose the trajectory detail
-dt_min=4*lims.gradRasterTime/kSamples; % we want at least 4 points per revolution
+dt_min=4*sys.gradRasterTime/kSamples; % we want at least 4 points per revolution
 dt_smooth0=dt_smooth;
 dt_rough0=dt_rough;
 dt_smooth(dt_smooth<dt_min)=dt_min;
@@ -317,13 +358,13 @@ figure;plot([dt_smooth0; dt_smooth; dt_rough0; dt_rough]');title('combined time 
 t_smooth=[0 cumsum(dt_smooth,2)];
 t_rough=[0 cumsum(dt_rough,2)];
 
-kopt_smooth=interp1(t_smooth, ka', (0:floor(t_smooth(end)/lims.gradRasterTime))*lims.gradRasterTime)';
-kopt_rough=interp1(t_rough, ka', (0:floor(t_rough(end)/lims.gradRasterTime))*lims.gradRasterTime)';
+kopt_smooth=interp1(t_smooth, ka', (0:floor(t_smooth(end)/sys.gradRasterTime))*sys.gradRasterTime)';
+kopt_rough=interp1(t_rough, ka', (0:floor(t_rough(end)/sys.gradRasterTime))*sys.gradRasterTime)';
 
 % analyze what we've got
-fprintf('duration orig %d us\n', round(1e6*lims.gradRasterTime*length(ka)));
-fprintf('duration smooth %d us\n', round(1e6*lims.gradRasterTime*length(kopt_smooth)));
-fprintf('duration rough %d us\n', round(1e6*lims.gradRasterTime*length(kopt_rough)));
+fprintf('duration orig %d us\n', round(1e6*sys.gradRasterTime*length(ka)));
+fprintf('duration smooth %d us\n', round(1e6*sys.gradRasterTime*length(kopt_smooth)));
+fprintf('duration rough %d us\n', round(1e6*sys.gradRasterTime*length(kopt_rough)));
 
 [gos, sos]=mr.traj2grad(kopt_smooth);
 [gor, sor]=mr.traj2grad(kopt_rough);
@@ -337,28 +378,35 @@ figure;plot([sor;abs(sor(1,:)+1i*sor(2,:))]');title('slew rate with rough (compo
 % Define gradients and ADC events
 spiral_grad_shape=gos;
 % Create 90 degree slice selection pulse and gradient
-[rf, gz] = mr.makeSincPulse(pi/2,'system',lims,'Duration',3e-3,...
+[rf, gz] = mr.makeSincPulse(pi/2,'system',sys,'Duration',3e-3,...
     'SliceThickness',sliceThickness,'apodization',0.5,'timeBwProduct',4);
-gzReph = mr.makeTrapezoid('z',lims,'Area',-gz.area/2);
+gzReph = mr.makeTrapezoid('z',sys,'Area',-gz.area/2);
 
 % calculate ADC
 % round-down dwell time to 10 ns
-adcTime = lims.gradRasterTime*size(spiral_grad_shape,2);
+adcTime = sys.gradRasterTime*size(spiral_grad_shape,2);
 % actually it is trickier than that: the (Siemens) interpreter sequence 
 % per default will try to split the trajectory into segments <=1000 samples
 % and every of these segments will have to have duration aligned to the
 % gradient raster time
-adcSamplesPerSegment=1000; % you may need to play with this number to fill the entire trajectory
-adcSamplesDesired=kRadius*kSamples;
-adcSegments=round(adcSamplesDesired/adcSamplesPerSegment);
-adcSamples=adcSegments*adcSamplesPerSegment;
-adcDwell=round(adcTime/adcSamples/100e-9)*100e-9; % on Siemens adcDwell needs to be aligned to 100ns (if my memory serves me right)
-adcSegmentDuration=adcSamplesPerSegment*adcDwell; % with the 100 samples above and the 100ns alignment we automatically fullfill the segment alignment requirement
-if mod(adcSegmentDuration, lims.gradRasterTime)>eps 
-    error('ADC segmentation model results in incorrect segment duration');
-end
-% update segment count
-adcSegments=floor(adcTime/adcSegmentDuration);
+
+% adcSamplesPerSegment=1000; % you may need to play with this number to fill the entire trajectory
+% adcSamplesDesired=kRadius*kSamples;
+% adcSegments=round(adcSamplesDesired/adcSamplesPerSegment);
+% adcSamples=adcSegments*adcSamplesPerSegment;
+% adcDwell=round(adcTime/adcSamples/100e-9)*100e-9; % on Siemens adcDwell needs to be aligned to 100ns (if my memory serves me right)
+% adcSegmentDuration=adcSamplesPerSegment*adcDwell; % with the 100 samples above and the 100ns alignment we automatically fullfill the segment alignment requirement
+% if mod(adcSegmentDuration, sys.gradRasterTime)>eps 
+%     error('ADC segmentation model results in incorrect segment duration');
+% end
+% % update segment count
+% adcSegments=floor(adcTime/adcSegmentDuration);
+
+adcSamplesDesired=kRadius*kSamples; 
+adcDwell=round(adcTime/adcSamplesDesired/sys.adcRasterTime)*sys.adcRasterTime; 
+adcSamplesDesired=ceil(adcTime/adcDwell);
+[adcSegments,adcSamplesPerSegment]=mr.calcAdcSeg(adcSamplesDesired,adcDwell,sys); 
+
 adcSamples=adcSegments*adcSamplesPerSegment;
 adc = mr.makeAdc(adcSamples,'Dwell',adcDwell,'Delay',mr.calcDuration(gzReph));%lims.adcDeadTime);
 
@@ -371,7 +419,7 @@ gx = mr.makeArbitraryGrad('x',spiral_grad_shape(1,:),'Delay',mr.calcDuration(gzR
 gy = mr.makeArbitraryGrad('y',spiral_grad_shape(2,:),'Delay',mr.calcDuration(gzReph));
 
 % spoilers
-gz_spoil=mr.makeTrapezoid('z',lims,'Area',deltak*Nx*4);
+gz_spoil=mr.makeTrapezoid('z',sys,'Area',deltak*Nx*4);
 gx_spoil=mr.makeExtendedTrapezoid('x','times',[0 mr.calcDuration(gz_spoil)],'amplitudes',[spiral_grad_shape(1,end),0]); %todo: make a really good spoiler
 gy_spoil=mr.makeExtendedTrapezoid('y','times',[0 mr.calcDuration(gz_spoil)],'amplitudes',[spiral_grad_shape(2,end),0]); %todo: make a really good spoiler
 
@@ -396,6 +444,18 @@ for s=1:Nslices
     seq.addBlock(mr.rotate('z',phi,gx_spoil,gy_spoil,gz_spoil));
     %seq.addBlock(gx_combined,gy_combined,gz_combined,adc);
 end
+
+% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
 %
 seq.setDefinition('FOV', [fov fov sliceThickness]);
 seq.setDefinition('Name', 'spiral');
@@ -403,26 +463,20 @@ seq.setDefinition('MaxAdcSegmentLength', adcSamplesPerSegment);
 
 seq.write('spiral.seq');   % Output sequence for scanner
 
-% % write the k-space trajectory (now 3D and wothout reconSize)
-% save('epi_rs_traj.mat','traj_mat','ktime');%,'reconSize');
-% 
+% the sequence is ready, so let's see what we got 
 seq.plot();             % Plot sequence waveforms
-% figure; plot(traj_mat'); % plot k-space trajectory
-% figure; plot(traj_mat(1,:),traj_mat(2,:),'b'); % a better plot
-% hold;plot(traj_mat(1,:),traj_mat(2,:),'r.');
-% 
 
-% new single-function call for trajectory calculation
-[ktraj_adc, ktraj, t_excitation, t_refocusing] = seq.calculateKspace();
+%% k-space trajectory calculation
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 % plot k-spaces
-
-figure; plot(ktraj'); % plot the entire k-space trajectory
+figure; plot(t_ktraj, ktraj'); title('k-space components as functions of time'); % plot the entire k-space trajectory
 figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
-hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.');
+hold;plot(ktraj_adc(1,:),ktraj_adc(2,:),'r.'); title('2D k-space');
 
-
-% % seq.install('siemens');
+% seq.install('siemens');
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

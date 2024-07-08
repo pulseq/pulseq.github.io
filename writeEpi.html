@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeEpi</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeEpi.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeEpi</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeEpi.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,9 +72,28 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% this is a demo low-performance EPI sequence</span>
-<span class="comment">% which doesn"t use ramp-samping. It is only good for educational purposes</span>
-
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">check whether the timing of the sequence is correct</a>
+</li>
+<li>
+<a href="#3">Plot sequence waveforms</a>
+</li>
+<li>
+<a href="#4">trajectory calculation</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">
+<span class="comment">% this is a demo low-performance EPI sequence;</span>
+<span class="comment">% it doesn't use ramp-samping and is only good for educational purposes.</span>
+<span class="comment">%</span>
 seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
 fov=220e-3; Nx=64; Ny=64;       <span class="comment">% Define FOV and resolution</span>
 thickness=3e-3;                 <span class="comment">% slice thinckness</span>
@@ -105,6 +129,8 @@ dur = ceil(2*sqrt(deltak/lims.maxSlew)/10e-6)*10e-6;
 gy = mr.makeTrapezoid(<span class="string">'y'</span>,lims,<span class="string">'Area'</span>,deltak,<span class="string">'Duration'</span>,dur);
 
 <span class="comment">% Define sequence blocks</span>
+<span class="comment">% seq.addBlock(mr.makeDelay(1)); % older scanners like Trio may need this</span>
+                                 <span class="comment">% dummy delay to keep up with timing</span>
 <span class="keyword">for</span> s=1:Nslices
     rf.freqOffset=gz.amplitude*thickness*(s-1-(Nslices-1)/2);
     seq.addBlock(rf,gz);
@@ -115,15 +141,28 @@ gy = mr.makeTrapezoid(<span class="string">'y'</span>,lims,<span class="string">
         gx.amplitude = -gx.amplitude;   <span class="comment">% Reverse polarity of read gradient</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
+</pre>
+<h2 id="2">check whether the timing of the sequence is correct</h2>
+<pre class="codeinput">[ok, error_report]=seq.checkTiming;
 
-seq.plot();             <span class="comment">% Plot sequence waveforms</span>
-
-<span class="comment">% new single-function call for trajectory calculation</span>
-[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Timing check passed successfully
+</pre>
+<h2 id="3">Plot sequence waveforms</h2>
+<pre class="codeinput">seq.plot();
+</pre>
+<img vspace="5" hspace="5" src="writeEpi_01.png" alt=""> <h2 id="4">trajectory calculation</h2>
+<pre class="codeinput">[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 <span class="comment">% plot k-spaces</span>
-time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
-figure; plot(time_axis, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
+figure; plot(t_ktraj, ktraj'); <span class="comment">% plot the entire k-space trajectory</span>
 hold; plot(t_adc,ktraj_adc(1,:),<span class="string">'.'</span>); <span class="comment">% and sampling points on the kx-axis</span>
 figure; plot(ktraj(1,:),ktraj(2,:),<span class="string">'b'</span>); <span class="comment">% a 2D plot</span>
 axis(<span class="string">'equal'</span>); <span class="comment">% enforce aspect ratio for the correct trajectory display</span>
@@ -131,13 +170,21 @@ hold; plot(ktraj_adc(1,:),ktraj_adc(2,:),<span class="string">'r.'</span>);
 
 seq.write(<span class="string">'epi.seq'</span>);   <span class="comment">% Output sequence for scanner</span>
 <span class="comment">% seq.sound(); % simulate the seq's tone</span>
-</pre><pre class="codeoutput">Current plot held
+</pre>
+<pre class="codeoutput">Current plot held
 Current plot held
-</pre><img vspace="5" hspace="5" src="writeEpi_01.png" alt=""> <img vspace="5" hspace="5" src="writeEpi_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpi_03.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+</pre>
+<img vspace="5" hspace="5" src="writeEpi_02.png" alt=""> <img vspace="5" hspace="5" src="writeEpi_03.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
-% this is a demo low-performance EPI sequence
-% which doesn"t use ramp-samping. It is only good for educational purposes
-
+% this is a demo low-performance EPI sequence;
+% it doesn't use ramp-samping and is only good for educational purposes.
+%
 seq=mr.Sequence();              % Create a new sequence object
 fov=220e-3; Nx=64; Ny=64;       % Define FOV and resolution
 thickness=3e-3;                 % slice thinckness
@@ -173,6 +220,8 @@ dur = ceil(2*sqrt(deltak/lims.maxSlew)/10e-6)*10e-6;
 gy = mr.makeTrapezoid('y',lims,'Area',deltak,'Duration',dur);
 
 % Define sequence blocks
+% seq.addBlock(mr.makeDelay(1)); % older scanners like Trio may need this
+                                 % dummy delay to keep up with timing
 for s=1:Nslices
     rf.freqOffset=gz.amplitude*thickness*(s-1-(Nslices-1)/2);
     seq.addBlock(rf,gz);
@@ -184,14 +233,25 @@ for s=1:Nslices
     end
 end
 
-seq.plot();             % Plot sequence waveforms
+%% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
 
-% new single-function call for trajectory calculation
-[ktraj_adc, ktraj, t_excitation, t_refocusing, t_adc] = seq.calculateKspace();
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
+end
+
+%% Plot sequence waveforms
+seq.plot();             
+
+%% trajectory calculation
+[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP();
 
 % plot k-spaces
-time_axis=(1:(size(ktraj,2)))*lims.gradRasterTime;
-figure; plot(time_axis, ktraj'); % plot the entire k-space trajectory
+figure; plot(t_ktraj, ktraj'); % plot the entire k-space trajectory
 hold; plot(t_adc,ktraj_adc(1,:),'.'); % and sampling points on the kx-axis
 figure; plot(ktraj(1,:),ktraj(2,:),'b'); % a 2D plot
 axis('equal'); % enforce aspect ratio for the correct trajectory display
@@ -201,4 +261,6 @@ seq.write('epi.seq');   % Output sequence for scanner
 % seq.sound(); % simulate the seq's tone
 
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>

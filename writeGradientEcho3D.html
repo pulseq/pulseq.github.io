@@ -1,13 +1,18 @@
-
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-   <!--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>writeGradientEcho3D</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-29"><meta name="DC.source" content="writeGradientEcho3D.m"><style type="text/css">
-html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      -->
+<title>writeGradientEcho3D</title>
+<meta name="generator" content="MATLAB 24.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2024-07-05">
+<meta name="DC.source" content="writeGradientEcho3D.m">
+<style type="text/css">
+html,body,div.content,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,19 +72,35 @@ table.content td { padding:7px 5px; text-align:left; vertical-align:top; border:
 
 
 
-  </style></head><body><div class="content"><pre class="codeinput">seq=mr.Sequence();              <span class="comment">% Create a new sequence object</span>
-fov=[190e-3 190e-3 190e-3];     <span class="comment">% Define FOV</span>
+  </style>
+</head>
+<body>
+<div class="content">
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#2">create a smoothly rotating plot</a>
+</li>
+<li>
+<a href="#3">create a smoothly rotating plot (rotated to read along z)</a>
+</li>
+</ul>
+</div>
+<pre class="codeinput">fov=[190e-3 190e-3 190e-3];     <span class="comment">% Define FOV</span>
 Nx=64; Ny=Nx; Nz=Nx;            <span class="comment">% Define FOV and resolution</span>
 Tread=3.2e-3;
 Tpre=3e-3;
 riseTime=400e-6;
 Ndummy=50;
+<span class="comment">% define system properties</span>
 sys=mr.opts(<span class="string">'maxGrad'</span>,20,<span class="string">'gradUnit'</span>,<span class="string">'mT/m'</span>,<span class="string">'riseTime'</span>,riseTime,<span class="keyword">...</span>
             <span class="string">'rfRingdownTime'</span>, 30e-6, <span class="string">'rfDeadTime'</span>, 100e-6);
+seq=mr.Sequence(sys);           <span class="comment">% Create a new sequence object</span>
 
 
 <span class="comment">% Create non-selective pulse</span>
-rf = mr.makeBlockPulse(8*pi/180,sys,<span class="string">'Duration'</span>,0.2e-3);
+[rf, rfDelay] = mr.makeBlockPulse(8*pi/180,sys,<span class="string">'Duration'</span>,0.2e-3);
 
 <span class="comment">% Define other gradients and ADC events</span>
 deltak=1./fov;
@@ -98,46 +119,81 @@ delayTE = ceil((TE - mr.calcDuration(rf) + mr.calcRfCenter(rf) + rf.delay - mr.c
 delayTR = ceil((TR - mr.calcDuration(rf) - mr.calcDuration(gxPre) <span class="keyword">...</span>
     - mr.calcDuration(gx) - mr.calcDuration(gxSpoil) - delayTE)/seq.gradRasterTime)*seq.gradRasterTime;
 
-<span class="comment">% Drive magnetization to steady state</span>
-<span class="keyword">for</span> iY=1:Ndummy
-    <span class="comment">% RF</span>
-    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
-    seq.addBlock(rf);
-    <span class="comment">% Gradients</span>
-    gyPre = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,areaY(floor(Ny/2)),<span class="string">'Duration'</span>,Tpre);
-    gyReph = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-areaY(floor(Ny/2)),<span class="string">'Duration'</span>,Tpre);
-    seq.addBlock(gxPre,gyPre);
-    seq.addBlock(mr.makeDelay(delayTE));
-    seq.addBlock(gx);
-    seq.addBlock(gyReph,gxSpoil);
-    seq.addBlock(mr.makeDelay(delayTR))
-<span class="keyword">end</span>
+dTE=mr.makeDelay(delayTE);
+dTR=mr.makeDelay(delayTR);
 
 <span class="comment">% Make trapezoids for inner loop to save computation</span>
+clear <span class="string">gyPre</span> <span class="string">gyReph</span>;
 <span class="keyword">for</span> iY=1:Ny
     gyPre(iY) = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,areaY(iY),<span class="string">'Duration'</span>,Tpre);
     gyReph(iY) = mr.makeTrapezoid(<span class="string">'y'</span>,<span class="string">'Area'</span>,-areaY(iY),<span class="string">'Duration'</span>,Tpre);
+<span class="keyword">end</span>
+
+<span class="comment">% preregister constant objects to accelerate computations</span>
+<span class="comment">% this is not necessary, but accelerates the sequence creation by up to a factor of 2</span>
+<span class="comment">% there is one more place in the second loop</span>
+gxPre.id=seq.registerGradEvent(gxPre);
+gx.id=seq.registerGradEvent(gx);
+gxSpoil.id=seq.registerGradEvent(gxSpoil);
+<span class="comment">%adc.id=seq.registerAdcEvent(adc);</span>
+<span class="comment">%dTE.id=seq.registerDelayEvent(dTE);</span>
+<span class="comment">%dTR.id=seq.registerDelayEvent(dTR);</span>
+<span class="comment">%rfDelay.id=seq.registerDelayEvent(rfDelay);</span>
+[~, rf.shapeIDs]=seq.registerRfEvent(rf); <span class="comment">% the phase of the RF object will change, therefore we only per-register the shapes</span>
+
+<span class="keyword">for</span> iY=1:Ny
+    gyPre(iY).id = seq.registerGradEvent(gyPre(iY));
+    gyReph(iY).id = seq.registerGradEvent(gyReph(iY));
+<span class="keyword">end</span>
+
+<span class="comment">% Drive magnetization to the steady state</span>
+<span class="keyword">for</span> iY=1:Ndummy
+    <span class="comment">% RF</span>
+    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+    seq.addBlock(rf,rfDelay);
+    <span class="comment">% Gradients</span>
+    seq.addBlock(gxPre,gyPre(floor(Ny/2)));
+    seq.addBlock(dTE);
+    seq.addBlock(gx);
+    seq.addBlock(gyReph(floor(Ny/2)),gxSpoil);
+    seq.addBlock(dTR);
 <span class="keyword">end</span>
 
 <span class="comment">% Loop over phase encodes and define sequence blocks</span>
 <span class="keyword">for</span> iZ=1:Nz
     gzPre = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,areaZ(iZ),<span class="string">'Duration'</span>,Tpre);
     gzReph = mr.makeTrapezoid(<span class="string">'z'</span>,<span class="string">'Area'</span>,-areaZ(iZ),<span class="string">'Duration'</span>,Tpre);
+    <span class="comment">% optional pre-registration for acceleration</span>
+    gzPre.id = seq.registerGradEvent(gzPre);
+    gzReph.id = seq.registerGradEvent(gzReph);
     <span class="keyword">for</span> iY=1:Ny
         <span class="comment">% RF spoiling</span>
         rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
         adc.phaseOffset = rf.phaseOffset;
 
         <span class="comment">% Excitation</span>
-        seq.addBlock(rf);
+        seq.addBlock(rf,rfDelay);
 
         <span class="comment">% Encoding</span>
         seq.addBlock(gxPre,gyPre(iY),gzPre);
-        seq.addBlock(mr.makeDelay(delayTE));
+        seq.addBlock(dTE);
         seq.addBlock(gx,adc);
         seq.addBlock(gyReph(iY),gzReph,gxSpoil);
-        seq.addBlock(mr.makeDelay(delayTR))
+        seq.addBlock(dTR)
     <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+fprintf(<span class="string">'Sequence ready\n'</span>);
+
+<span class="comment">% check whether the timing of the sequence is correct</span>
+[ok, error_report]=seq.checkTiming;
+
+<span class="keyword">if</span> (ok)
+    fprintf(<span class="string">'Timing check passed successfully\n'</span>);
+<span class="keyword">else</span>
+    fprintf(<span class="string">'Timing check failed! Error listing follows:\n'</span>);
+    fprintf([error_report{:}]);
+    fprintf(<span class="string">'\n'</span>);
 <span class="keyword">end</span>
 
 <span class="comment">% Visualise sequence and output for execution</span>
@@ -145,7 +201,7 @@ seq.plot(<span class="string">'TimeRange'</span>,[Ndummy+1 Ndummy+3]*TR)
 
 seq.setDefinition(<span class="string">'FOV'</span>, fov);
 seq.setDefinition(<span class="string">'Name'</span>, <span class="string">'gre3d'</span>);
-seq.write(<span class="string">'gre3d.seq'</span>);
+seq.write(<span class="string">'gre3d.seq'</span>,false);
 
 <span class="comment">% visualize the 3D k-space (only makes sense for low-res, otherwise one sees nothing)</span>
 <span class="keyword">if</span> Nx&lt;=32
@@ -155,21 +211,77 @@ seq.write(<span class="string">'gre3d.seq'</span>);
     figure;plot3(kf(1,:),kf(2,:),kf(3,:));
     hold <span class="string">on</span>;plot3(kfa(1,:),kfa(2,:),kfa(3,:),<span class="string">'r.'</span>);
 <span class="keyword">end</span>
-</pre><img vspace="5" hspace="5" src="writeGradientEcho3D_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+
+<span class="keyword">return</span>
+</pre>
+<pre class="codeoutput">Sequence ready
+Timing check passed successfully
+</pre>
+<img vspace="5" hspace="5" src="writeGradientEcho3D_01.png" alt=""> <h2 id="2">create a smoothly rotating plot</h2>
+<pre class="codeinput">
+<span class="keyword">if</span> Nx&lt;=16
+    figure;plot3(kf(1,:),kf(2,:),kf(3,:));
+    hold <span class="string">on</span>;plot3(kfa(1,:),kfa(2,:),kfa(3,:),<span class="string">'r.'</span>);
+    kabsmax=max(abs(kf)')';
+    kxyabsmax=max(kabsmax(1:2));
+    kxyzabsmax=max(kabsmax);
+    <span class="comment">%axis([-kxyabsmax kxyabsmax -kxyabsmax kxyabsmax -kabsmax(3) kabsmax(3)])</span>
+    axis([-kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax])
+    [caz,cel] = view;
+    <span class="keyword">for</span> caz_add=0:1:359
+        view(caz+caz_add,cel);
+        drawnow;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+<h2 id="3">create a smoothly rotating plot (rotated to read along z)</h2>
+<pre class="codeinput">
+<span class="keyword">if</span> Nx&lt;=16
+    figure;plot3(kf(2,:),-kf(3,:),kf(1,:));
+    hold <span class="string">on</span>;plot3(kfa(2,:),-kfa(3,:),kfa(1,:),<span class="string">'r.'</span>);
+    set(gca,<span class="string">'visible'</span>,<span class="string">'off'</span>); <span class="comment">% hide axes</span>
+    set(gca, <span class="string">'CameraViewAngle'</span>,get(gca, <span class="string">'CameraViewAngle'</span>)); <span class="comment">% freeze the view</span>
+    kabsmax=max(abs(kf)')';
+    kxyabsmax=max(kabsmax(1:2));
+    kxyzabsmax=max(kabsmax);
+    <span class="comment">%axis([-kxyabsmax kxyabsmax -kxyabsmax kxyabsmax -kabsmax(3) kabsmax(3)])</span>
+    <span class="comment">%axis([-kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax])</span>
+    s1=1.2;
+    axis([ -kabsmax(2)*s1 kabsmax(2)*s1  -kabsmax(2)*s1 kabsmax(2)*s1 min(kf(1,:)) kabsmax(1)]);
+    [caz,cel] = view;
+    folder=<span class="string">'kspace3d'</span>;
+    mkdir(folder);
+    <span class="keyword">for</span> caz_add=0:1:359
+        view(caz+caz_add,cel);
+        drawnow;
+        print( <span class="string">'-r100'</span>, <span class="string">'-dpng'</span>, [folder <span class="string">'/frame_'</span> num2str(caz_add,<span class="string">'%03d'</span>) <span class="string">'.png'</span>]);
+        <span class="comment">% use convert frame_???.png -gravity center -crop 300x300+0+0 +repage -delay 0.1 -loop 0 kspace_gre3d.gif</span>
+        <span class="comment">% to create a GIF movie</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024a</a>
+<br>
+</p>
+</div>
+<!--
 ##### SOURCE BEGIN #####
-seq=mr.Sequence();              % Create a new sequence object
 fov=[190e-3 190e-3 190e-3];     % Define FOV
 Nx=64; Ny=Nx; Nz=Nx;            % Define FOV and resolution
 Tread=3.2e-3;
 Tpre=3e-3;
 riseTime=400e-6;
 Ndummy=50;
+% define system properties
 sys=mr.opts('maxGrad',20,'gradUnit','mT/m','riseTime',riseTime,...
             'rfRingdownTime', 30e-6, 'rfDeadTime', 100e-6);
+seq=mr.Sequence(sys);           % Create a new sequence object
 
 
 % Create non-selective pulse
-rf = mr.makeBlockPulse(8*pi/180,sys,'Duration',0.2e-3);
+[rf, rfDelay] = mr.makeBlockPulse(8*pi/180,sys,'Duration',0.2e-3);
 
 % Define other gradients and ADC events
 deltak=1./fov;
@@ -188,46 +300,81 @@ delayTE = ceil((TE - mr.calcDuration(rf) + mr.calcRfCenter(rf) + rf.delay - mr.c
 delayTR = ceil((TR - mr.calcDuration(rf) - mr.calcDuration(gxPre) ...
     - mr.calcDuration(gx) - mr.calcDuration(gxSpoil) - delayTE)/seq.gradRasterTime)*seq.gradRasterTime;
 
-% Drive magnetization to steady state
-for iY=1:Ndummy
-    % RF
-    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
-    seq.addBlock(rf);
-    % Gradients
-    gyPre = mr.makeTrapezoid('y','Area',areaY(floor(Ny/2)),'Duration',Tpre);
-    gyReph = mr.makeTrapezoid('y','Area',-areaY(floor(Ny/2)),'Duration',Tpre);
-    seq.addBlock(gxPre,gyPre);
-    seq.addBlock(mr.makeDelay(delayTE));
-    seq.addBlock(gx);
-    seq.addBlock(gyReph,gxSpoil);
-    seq.addBlock(mr.makeDelay(delayTR))
-end
+dTE=mr.makeDelay(delayTE);
+dTR=mr.makeDelay(delayTR);
 
 % Make trapezoids for inner loop to save computation
+clear gyPre gyReph;
 for iY=1:Ny
     gyPre(iY) = mr.makeTrapezoid('y','Area',areaY(iY),'Duration',Tpre);
     gyReph(iY) = mr.makeTrapezoid('y','Area',-areaY(iY),'Duration',Tpre);
+end
+
+% preregister constant objects to accelerate computations
+% this is not necessary, but accelerates the sequence creation by up to a factor of 2
+% there is one more place in the second loop
+gxPre.id=seq.registerGradEvent(gxPre);
+gx.id=seq.registerGradEvent(gx);
+gxSpoil.id=seq.registerGradEvent(gxSpoil);
+%adc.id=seq.registerAdcEvent(adc);
+%dTE.id=seq.registerDelayEvent(dTE);
+%dTR.id=seq.registerDelayEvent(dTR);
+%rfDelay.id=seq.registerDelayEvent(rfDelay);
+[~, rf.shapeIDs]=seq.registerRfEvent(rf); % the phase of the RF object will change, therefore we only per-register the shapes 
+
+for iY=1:Ny
+    gyPre(iY).id = seq.registerGradEvent(gyPre(iY));
+    gyReph(iY).id = seq.registerGradEvent(gyReph(iY));
+end
+
+% Drive magnetization to the steady state
+for iY=1:Ndummy
+    % RF
+    rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
+    seq.addBlock(rf,rfDelay);
+    % Gradients
+    seq.addBlock(gxPre,gyPre(floor(Ny/2)));
+    seq.addBlock(dTE);
+    seq.addBlock(gx);
+    seq.addBlock(gyReph(floor(Ny/2)),gxSpoil);
+    seq.addBlock(dTR);
 end
 
 % Loop over phase encodes and define sequence blocks
 for iZ=1:Nz
     gzPre = mr.makeTrapezoid('z','Area',areaZ(iZ),'Duration',Tpre);
     gzReph = mr.makeTrapezoid('z','Area',-areaZ(iZ),'Duration',Tpre);
+    % optional pre-registration for acceleration
+    gzPre.id = seq.registerGradEvent(gzPre);
+    gzReph.id = seq.registerGradEvent(gzReph);
     for iY=1:Ny
         % RF spoiling
         rf.phaseOffset = mod(117*(iY^2+iY+2)*pi/180,2*pi);
         adc.phaseOffset = rf.phaseOffset;
         
         % Excitation
-        seq.addBlock(rf);
+        seq.addBlock(rf,rfDelay);
         
         % Encoding
         seq.addBlock(gxPre,gyPre(iY),gzPre);
-        seq.addBlock(mr.makeDelay(delayTE));
+        seq.addBlock(dTE);
         seq.addBlock(gx,adc);
         seq.addBlock(gyReph(iY),gzReph,gxSpoil);
-        seq.addBlock(mr.makeDelay(delayTR))
+        seq.addBlock(dTR)
     end
+end
+
+fprintf('Sequence ready\n');
+
+% check whether the timing of the sequence is correct
+[ok, error_report]=seq.checkTiming;
+
+if (ok)
+    fprintf('Timing check passed successfully\n');
+else
+    fprintf('Timing check failed! Error listing follows:\n');
+    fprintf([error_report{:}]);
+    fprintf('\n');
 end
 
 % Visualise sequence and output for execution
@@ -235,7 +382,7 @@ seq.plot('TimeRange',[Ndummy+1 Ndummy+3]*TR)
 
 seq.setDefinition('FOV', fov);
 seq.setDefinition('Name', 'gre3d');
-seq.write('gre3d.seq');
+seq.write('gre3d.seq',false);
 
 % visualize the 3D k-space (only makes sense for low-res, otherwise one sees nothing)
 if Nx<=32
@@ -246,5 +393,50 @@ if Nx<=32
     hold on;plot3(kfa(1,:),kfa(2,:),kfa(3,:),'r.');
 end
 
+return
+
+%% create a smoothly rotating plot
+if Nx<=16
+    figure;plot3(kf(1,:),kf(2,:),kf(3,:));
+    hold on;plot3(kfa(1,:),kfa(2,:),kfa(3,:),'r.');
+    kabsmax=max(abs(kf)')';
+    kxyabsmax=max(kabsmax(1:2));
+    kxyzabsmax=max(kabsmax);
+    %axis([-kxyabsmax kxyabsmax -kxyabsmax kxyabsmax -kabsmax(3) kabsmax(3)])
+    axis([-kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax])
+    [caz,cel] = view;
+    for caz_add=0:1:359 
+        view(caz+caz_add,cel);
+        drawnow;
+    end
+end
+
+%% create a smoothly rotating plot (rotated to read along z)
+if Nx<=16
+    figure;plot3(kf(2,:),-kf(3,:),kf(1,:));
+    hold on;plot3(kfa(2,:),-kfa(3,:),kfa(1,:),'r.');
+    set(gca,'visible','off'); % hide axes
+    set(gca, 'CameraViewAngle',get(gca, 'CameraViewAngle')); % freeze the view
+    kabsmax=max(abs(kf)')';
+    kxyabsmax=max(kabsmax(1:2));
+    kxyzabsmax=max(kabsmax);
+    %axis([-kxyabsmax kxyabsmax -kxyabsmax kxyabsmax -kabsmax(3) kabsmax(3)])
+    %axis([-kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax -kxyzabsmax kxyzabsmax])
+    s1=1.2;    
+    axis([ -kabsmax(2)*s1 kabsmax(2)*s1  -kabsmax(2)*s1 kabsmax(2)*s1 min(kf(1,:)) kabsmax(1)]);
+    [caz,cel] = view;
+    folder='kspace3d';
+    mkdir(folder);
+    for caz_add=0:1:359 
+        view(caz+caz_add,cel);
+        drawnow;
+        print( '-r100', '-dpng', [folder '/frame_' num2str(caz_add,'%03d') '.png']);
+        % use convert frame_???.png -gravity center -crop 300x300+0+0 +repage -delay 0.1 -loop 0 kspace_gre3d.gif
+        % to create a GIF movie
+    end
+end
+
 ##### SOURCE END #####
---></body></html>
+-->
+</body>
+</html>
