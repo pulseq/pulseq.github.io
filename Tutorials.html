@@ -9,7 +9,7 @@
 <meta name="description" content="Open source pulse sequences for NMR and MRI">
 <meta name="author" content="University Medical Center Freiburg">
 <link rel="shortcut icon" href="http://pulseq.github.io/favicon.ico" type="image/x-icon" />
-<title>Open-source pulse sequences: Introduction</title>
+<title>Open-source pulse sequences: $title</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -61,7 +61,6 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
-</div><!-- top -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -76,22 +75,12 @@ $(function() {
 </iframe>
 </div>
 
-<div class="PageDoc"><div class="header">
-  <div class="headertitle">
-<div class="title">Introduction </div>  </div>
-</div><!--header-->
-<div class="contents">
-<div class="textblock"><p>Pulseq project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. In summary, with Pulseq MR sequences can be programmed directly in MATLAB or Python, exported to the Pulseq file format and executed on real hardware.</p>
-<p><img src="overview.png" alt="" class="inline"/></p>
-<p>There are two main flavours of Pulseq: <b>MATLAB Pulseq Toolbox</b>, available under the source part of this repository, and <b>Python Pulseq Toolbox</b>, a.k.a. PyPulseq, which is maintained in a separate repository (see below).</p>
-<h2><a class="anchor" id="autotoc_md0"></a>
-Pulseq file format</h2>
-<p>A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MRI scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a>; see also the Docs tab for further information.</p>
-<h2><a class="anchor" id="autotoc_md1"></a>
-Source code repository</h2>
-<p>The source code in this repository provides the Pulseq toolbox and example implementations of several MR pulse sequences in Pulseq format. The code is divided into <a href="https://github.com/pulseq/pulseq/tree/master/matlab">MATLAB</a> and <a href="https://github.com/pulseq/pulseq/tree/master/src">C++</a> sections. The C++ part is potentially interesting to those seeking to implement their own Pulseq interpreter for a particular scanner.</p>
-<h3><a class="anchor" id="autotoc_md2"></a>
-Matlab sequence examples</h3>
+</div><!-- top -->
+<div class="PageDoc"><div class="contents">
+<div class="textblock"><h2><a class="anchor" id="autotoc_md4"></a>
+Sequence examples</h2>
+<h3><a class="anchor" id="autotoc_md5"></a>
+Matlab</h3>
 <ul>
 <li><a href="writeGradientEcho.html">Gradient echo sequence</a></li>
 <li><a href="writeGradientEcho3D.html">3D Gradient echo sequence</a></li>
@@ -107,27 +96,19 @@ Matlab sequence examples</h3>
 <li><a href="writeUTE.html">UTE sequence</a></li>
 <li><a href="writeUTE_rs.html">UTE sequence with ramp sampling</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md6"></a>
 Scanner implementations</h2>
-<p>Currently, Pulseq sequences can be executed on the following platforms. Please <a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e'; return false;">contact us</a> if you would like to run open and flexible sequences at your institution.</p>
+<p>Currently, <em>Pulseq</em> sequences can be executed on the following platforms. Please <a href="#" onclick="location.href='mai'+'lto:'+'pul'+'se'+'q.m'+'r@'+'uni'+'kl'+'ini'+'k-'+'fre'+'ib'+'urg'+'.d'+'e'; return false;">contact us</a> if you would like to run open and flexible sequences at your institution.</p>
 <ul>
-<li><a href="#" onclick="location.href=&apos;mai&apos;+&apos;lto:&apos;+&apos;pul&apos;+&apos;se&apos;+&apos;q.m&apos;+&apos;r@&apos;+&apos;uni&apos;+&apos;kl&apos;+&apos;ini&apos;+&apos;k-&apos;+&apos;fre&apos;+&apos;ib&apos;+&apos;urg&apos;+&apos;.d&apos;+&apos;e&apos;; return false;">Siemens</a></li>
+<li>Siemens</li>
 <li><a href="https://toppemri.github.io">GE</a></li>
-<li><a href="https://github.com/pulseq/bruker_interpreter">Bruker (out-of-date, discontinued)</a></li>
-<li><a href="https://github.com/lcbMGH/ocra-pulseq">OCRA</a></li>
-<li><a href="https://github.com/lcbMGH/flocra-pulseq">FLOCRA</a></li>
+<li><a href="https://github.com/pulseq/bruker_interpreter">Bruker</a></li>
 </ul>
-<p>Additionally, there are two implementations of the <em>Philips interpreter</em> published in the ISMRM 2024 proceedings: <a href="https://submissions.mirasmart.com/ISMRM2024/Handlers/ViewTeaser.ashx?esbpgm=3115_3243">#3243 </a> and <a href="https://submissions.mirasmart.com/ISMRM2024/Handlers/ViewTeaser.ashx?esbpgm=3558_3251">#3251 </a> . Please contact the authors if ypu are interested in receiving one of these interpreters.</p>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md7"></a>
 Download source code</h2>
-<h3><a class="anchor" id="autotoc_md5"></a>
-Matlab</h3>
-<p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, you may consider cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
-</pre> <h3><a class="anchor" id="autotoc_md6"></a>
-Python</h3>
-<p><a href="https://github.com/imr-framework/pypulseq">PyPulseq</a> is an alternative implementaton of the Pulseq sequence toolbox in Python, with a very similar syntax and functionality, originally implemented by Sairam Geethanath and Keerthi Ravi and maintained by an active developer community. It can be clonned from the GutHub site or installed directly via pip. See <a href="https://github.com/imr-framework/pypulseq">PyPulseq</a> GitHub Repository for more details. </p>
-</div></div><!-- PageDoc -->
-</div><!-- contents -->
+<p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
+</pre> </div></div><!-- contents -->
+</div><!-- PageDoc -->
 <!-- HTML footer for doxygen 1.8.9.1-->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
