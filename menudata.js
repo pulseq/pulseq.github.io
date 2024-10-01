@@ -27,5 +27,6 @@ var menudata={children:[
 {text:"News",url:"news.html"},
 {text:"Discussions",url:"https://github.com/pulseq/pulseq/discussions"},
 {text:"Tutorials",url:"tutorials.html"},
+{text:"Docs",url:"docs.html"},
 {text:"Links",url:"links.html"},
 {text:"Source",url:"https://github.com/pulseq/pulseq"}]}
