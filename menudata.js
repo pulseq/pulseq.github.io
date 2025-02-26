@@ -28,5 +28,6 @@ var menudata={children:[
 {text:"Discussions",url:"https://github.com/pulseq/pulseq/discussions"},
 {text:"Tutorials",url:"tutorials.html"},
 {text:"Docs",url:"docs.html"},
+{text:"Harmonized MRI",url:"https://harmonizedmri.github.io/"},
 {text:"Links",url:"links.html"},
 {text:"Source",url:"https://github.com/pulseq/pulseq"}]}
