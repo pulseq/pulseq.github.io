@@ -81,17 +81,17 @@ $(function() {
 <div class="title">Introduction </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Pulseq project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. In summary, with Pulseq MR sequences can be programmed directly in MATLAB or Python, exported to the Pulseq file format and executed on real hardware.</p>
+<div class="textblock"><p>Pulseq project is an open source framework for the development and execution of magnetic resonance (MR) pulse sequences for imaging and spectroscopy. In summary, with Pulseq MR sequences can be programmed directly in Matlab, Octave or Python, exported to the Pulseq file format and executed on real hardware.</p>
 <p><img src="overview.png" alt="" class="inline"/></p>
-<p>There are two main flavours of Pulseq: <b>MATLAB Pulseq Toolbox</b>, available under the source part of this repository, and <b>Python Pulseq Toolbox</b>, a.k.a. PyPulseq, which is maintained in a separate repository (see below).</p>
+<p>There are two main flavours of Pulseq: <b>Matlab/Octave Pulseq Toolbox</b>, available under the source part of this repository, and <b>Python Pulseq Toolbox</b>, a.k.a. PyPulseq, which is maintained in a separate repository (see below).</p>
 <h2><a class="anchor" id="autotoc_md0"></a>
 Pulseq file format</h2>
 <p>A central contribution of this project is an <b>open file format</b> to compactly describe MR sequences suitable for execution on an MRI scanner. The detailed file specification can be obtained here: <a href="specification.pdf"><code>specification.pdf</code></a> See also Docs tab for further information.</p>
 <h2><a class="anchor" id="autotoc_md1"></a>
 Source code repository</h2>
-<p>The source code in this repository provides the Pulseq toolbox and example implementations of several MR pulse sequences in Pulseq format. The code is divided into <a href="https://github.com/pulseq/pulseq/tree/master/matlab">MATLAB</a> and <a href="https://github.com/pulseq/pulseq/tree/master/src">C++</a> sections. The C++ part is potentially interesting to those seeking to implement their own Pulseq interpreter for a particular scanner.</p>
+<p>The source code in this repository provides the Pulseq toolbox and example implementations of several MR pulse sequences in Pulseq format. The code is divided into <a href="https://github.com/pulseq/pulseq/tree/master/matlab">Matlab/Octave</a> and <a href="https://github.com/pulseq/pulseq/tree/master/src">C++</a> sections. The C++ part contains a standalone programm capable of loading Pulseq files and displaying basic statistics about the nimber of blocks, number of pulses, etc. It is potentially interesting to those seeking to implement their own Pulseq interpreter for a particular scanner.</p>
 <h3><a class="anchor" id="autotoc_md2"></a>
-Matlab sequence examples</h3>
+Matlab/Octave sequence examples</h3>
 <ul>
 <li><a href="writeGradientEcho.html">Gradient echo sequence</a></li>
 <li><a href="writeGradientEcho3D.html">3D Gradient echo sequence</a></li>
@@ -121,8 +121,8 @@ Scanner implementations</h2>
 <h2><a class="anchor" id="autotoc_md4"></a>
 Download source code</h2>
 <h3><a class="anchor" id="autotoc_md5"></a>
-Matlab</h3>
-<p>Both MATLAB and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, you may consider cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
+Matlab/Octave</h3>
+<p>Both Matlab/Octave and C++ source code is available here: <a href="https://github.com/pulseq/pulseq">https://github.com/pulseq/pulseq</a>. Alternatively, you may consider cloning the git repository directly: </p><pre class="fragment">git clone git@github.com:pulseq/pulseq.git
 </pre> <h3><a class="anchor" id="autotoc_md6"></a>
 Python</h3>
 <p><a href="https://github.com/imr-framework/pypulseq">PyPulseq</a> is an alternative implementaton of the Pulseq sequence toolbox in Python, with a very similar syntax and functionality, originally implemented by Sairam Geethanath and Keerthi Ravi and maintained by an active developer community. It can be clonned from the GutHub site or installed directly via pip. See <a href="https://github.com/imr-framework/pypulseq">PyPulseq</a> GitHub Repository for more details.</p>
