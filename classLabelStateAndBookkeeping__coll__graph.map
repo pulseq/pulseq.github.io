@@ -1,0 +1,14 @@
+<map id="LabelStateAndBookkeeping" name="LabelStateAndBookkeeping">
+<area shape="rect" id="Node000001" title=" " alt="" coords="175,269,375,295"/>
+<area shape="rect" id="Node000002" href="$structLabelValueStorage.html" title="List of MDH IDs." alt="" coords="103,181,246,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,220,173,233,178,244,192,257,210,267,207,272,189,262,174,247,168,234,167,220"/>
+<area shape="rect" id="Node000003" href="$structLabelStorage.html" title=" " alt="" coords="5,93,160,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,126,164,179,160,183,103,130"/>
+<area shape="rect" id="Node000004" href="$structLabelStorage.html" title=" " alt="" coords="102,5,247,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="154,42,97,95,94,91,150,38"/>
+<area shape="rect" id="Node000005" href="$structLabelStorage.html" title=" " alt="" coords="184,93,349,119"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="199,38,256,91,252,95,195,42"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="246,130,189,183,186,179,242,126"/>
+<area shape="rect" id="Node000006" href="$structMinMaxLabelStorage.html" title=" " alt="" coords="297,181,455,207"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="368,221,349,247,329,261,309,272,306,267,327,257,345,243,364,218"/>
+</map>

@@ -1,10 +1,24 @@
 <map id="ExternalSequence::decodeBlock" name="ExternalSequence::decodeBlock">
-<area shape="rect" id="node2" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="245,5,439,32"/>
-<area shape="rect" id="node3" href="$classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f" title="Return true if block has RF event. " alt="" coords="285,56,399,83"/>
-<area shape="rect" id="node4" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape. " alt="" coords="239,107,445,149"/>
-<area shape="rect" id="node5" href="$classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8" title="Return true if block has arbitrary event on given channel. " alt="" coords="245,173,439,200"/>
-<area shape="rect" id="node6" href="$classSeqBlock.html#ab8e502746dce1341663a0a1319ab1069" title="Return true if block has ADC readout event. " alt="" coords="281,224,403,251"/>
-<area shape="rect" id="node7" href="$classSeqBlock.html#a2ee51573506eecdf87cb8d629daf95bf" title="Return true if block has delay. " alt="" coords="277,275,407,301"/>
-<area shape="rect" id="node8" href="$classExternalSequence.html#a4a5b59c38694728411d48cebd3ed5d23" title="Check the shapes defining the arbitrary gradient events (if present) " alt="" coords="232,325,452,352"/>
-<area shape="rect" id="node9" href="$classExternalSequence.html#a65962ae575700ed3eb0b6060f9370be9" title="Check the shapes defining the RF event (if present) " alt="" coords="248,376,436,403"/>
+<area shape="rect" id="Node000001" title="Decode a block by looking up indexed events." alt="" coords="5,185,200,225"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a4a5b59c38694728411d48cebd3ed5d23" title="Check the shapes defining the arbitrary gradient events (if present)" alt="" coords="265,5,506,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,183,134,150,164,111,202,72,247,40,260,33,262,38,249,44,206,76,169,115,139,154,118,186"/>
+<area shape="rect" id="Node000003" href="$classExternalSequence.html#a65962ae575700ed3eb0b6060f9370be9" title="Check the shapes defining the RF event (if present)" alt="" coords="284,55,487,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="124,182,177,139,211,116,247,97,292,81,294,86,249,102,214,121,180,143,127,187"/>
+<area shape="rect" id="Node000004" href="$classExternalSequence.html#ad289f7878a8db08a9fde911b9dff0e46" title="Decode only the ext trap part of the block." alt="" coords="288,155,483,195"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,192,274,184,275,189,201,197"/>
+<area shape="rect" id="Node000005" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape." alt="" coords="571,54,797,94"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="143,182,192,160,247,141,383,114,557,88,557,93,384,119,249,146,194,165,145,187"/>
+<area shape="rect" id="Node000006" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message." alt="" coords="845,119,1057,144"/>
+<area shape="poly" id="edge12_Node000001_Node000006" title=" " alt="" coords="201,216,322,228,472,234,552,233,635,228,717,219,797,203,830,193,863,179,918,149,920,154,865,184,832,198,798,209,718,224,635,234,553,238,471,239,321,233,200,221"/>
+<area shape="rect" id="Node000008" href="$classSeqBlock.html#a0fe9e01dfab415c70aef42d92b6a84ea" title="Return true if block has arbitrary gradient event on given channel and it is oversampled by a factor ..." alt="" coords="248,271,523,296"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="163,222,249,249,313,265,311,270,247,254,161,227"/>
+<area shape="rect" id="Node000009" href="$classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8" title="Return true if block has arbitrary gradient event on given channel." alt="" coords="278,320,493,345"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="127,223,180,266,214,288,249,306,270,314,268,319,247,311,211,293,177,270,124,227"/>
+<area shape="rect" id="Node000010" href="$classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f" title="Return true if block has RF event." alt="" coords="326,369,445,395"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="119,223,140,254,170,290,207,326,249,356,280,368,313,375,312,381,279,373,247,360,204,330,166,294,136,257,114,227"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="466,153,522,134,570,110,606,96,608,101,572,115,524,139,467,158"/>
+<area shape="poly" id="edge7_Node000004_Node000006" title=" " alt="" coords="483,162,570,154,831,136,832,141,571,159,483,168"/>
+<area shape="rect" id="Node000007" href="$classSeqBlock.html#a5c03d640318d5c6a753bd7c4d8e6b287" title="Return true if block has extended trapezoid event on given channel." alt="" coords="581,169,787,195"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="483,175,567,177,567,182,483,180"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="778,91,879,113,878,118,777,97"/>
 </map>

@@ -1,9 +1,5 @@
 <map id="ExternalSequence::GetBlock" name="ExternalSequence::GetBlock">
-<area shape="rect" id="node2" href="$classSeqBlock.html#a9a29d1174a4c62819ed780814644dc8f" title="Return true if block has RF event. " alt="" coords="285,5,398,32"/>
-<area shape="rect" id="node3" href="$classSeqBlock.html#aaa4980481a7c0eab1bb5798da3becfef" title="Return the RF event. " alt="" coords="263,56,419,83"/>
-<area shape="rect" id="node4" href="$classSeqBlock.html#ad814c1b12250c3b2711b67c1d6a5fae8" title="Return the gradient event of the given channel. " alt="" coords="258,107,425,133"/>
-<area shape="rect" id="node5" href="$classSeqBlock.html#a3f4d28f5374cb32d3a4940570cdc53e8" title="Return true if block has arbitrary event on given channel. " alt="" coords="244,157,439,184"/>
-<area shape="rect" id="node6" href="$classSeqBlock.html#aeaf3bb4e0650799ff27be883fe43cc9d" title="Return true if block has trapezoid event on given channel. " alt="" coords="256,208,427,235"/>
-<area shape="rect" id="node7" href="$classSeqBlock.html#ab8e502746dce1341663a0a1319ab1069" title="Return true if block has ADC readout event. " alt="" coords="280,259,403,285"/>
-<area shape="rect" id="node8" href="$classSeqBlock.html#a844908d0ba73e17fc47418c611cf3aef" title="Return the ADC event. " alt="" coords="258,309,425,336"/>
+<area shape="rect" id="Node000001" title="Construct a sequence block from the library events." alt="" coords="5,5,212,31"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message." alt="" coords="260,5,472,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,15,246,15,246,21,212,21"/>
 </map>

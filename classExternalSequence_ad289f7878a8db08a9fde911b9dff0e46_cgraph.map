@@ -1,0 +1,10 @@
+<map id="ExternalSequence::decodeExtTrapGradInBlock" name="ExternalSequence::decodeExtTrapGradInBlock">
+<area shape="rect" id="Node000001" title="Decode only the ext trap part of the block." alt="" coords="5,63,200,103"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape." alt="" coords="248,5,475,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,60,257,46,258,51,194,65"/>
+<area shape="rect" id="Node000003" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message." alt="" coords="523,42,735,67"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="200,75,509,58,509,64,201,80"/>
+<area shape="rect" id="Node000004" href="$classSeqBlock.html#a5c03d640318d5c6a753bd7c4d8e6b287" title="Return true if block has extended trapezoid event on given channel." alt="" coords="259,121,464,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,99,283,115,282,121,200,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="475,35,509,39,509,44,475,40"/>
+</map>

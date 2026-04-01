@@ -1,20 +1,6 @@
 var searchData=
 [
-  ['m_5fadclibrary',['m_adcLibrary',['../classExternalSequence.html#a40a4cafa1ce99c9b42380d8b6e09633d',1,'ExternalSequence']]],
-  ['m_5fblocks',['m_blocks',['../classExternalSequence.html#a220e53cda32b28df3c7ff42a639bedbc',1,'ExternalSequence']]],
-  ['m_5fdefinitions',['m_definitions',['../classExternalSequence.html#aaee9af805d27563839ab1156c7e657a3',1,'ExternalSequence']]],
-  ['m_5fdelaylibrary',['m_delayLibrary',['../classExternalSequence.html#aca1a615b3551ff8cf9202774e4bdb3e8',1,'ExternalSequence']]],
-  ['m_5ffileindex',['m_fileIndex',['../classExternalSequence.html#a22b9c94c9935b0f265785d10df16ab5f',1,'ExternalSequence']]],
-  ['m_5fgradlibrary',['m_gradLibrary',['../classExternalSequence.html#afb92c882f3f845e5875c348316c8974e',1,'ExternalSequence']]],
-  ['m_5frflibrary',['m_rfLibrary',['../classExternalSequence.html#a4cbb7ec3a21d2ef2cbad7c743e68bf7e',1,'ExternalSequence']]],
-  ['m_5fshapelibrary',['m_shapeLibrary',['../classExternalSequence.html#a90bc1c3e31d7d59c72ee4af72ecabf38',1,'ExternalSequence']]],
-  ['magshape',['magShape',['../structRFEvent.html#a052b00e1ed1473f2d9eff7c4db28db70',1,'RFEvent']]],
-  ['main',['main',['../parsemr_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97',1,'parsemr.cpp']]],
-  ['matlab_20toolbox',['MATLAB toolbox',['../matlab.html',1,'']]],
-  ['matlab_20example',['MATLAB example',['../matlabRead.html',1,'']]],
-  ['matlab_20example',['MATLAB example',['../matlabWriteGre.html',1,'']]],
-  ['matlab_20example',['MATLAB example',['../matlabWriteRf.html',1,'']]],
-  ['max_5fline_5fsize',['MAX_LINE_SIZE',['../classExternalSequence.html#a5cbbaffbd472d20a541051d9ecc81034',1,'ExternalSequence']]],
-  ['messagetype',['MessageType',['../ExternalSequence_8h.html#ac6606ebe91c8ac66a2c314c79f5ab013',1,'ExternalSequence.h']]],
-  ['matlab_20sequence_20class',['MATLAB sequence class',['../SequenceCode.html',1,'']]]
+  ['harmonizedmri_20user_20group_20meeting_20and_20mailing_20list_0',['November 2025: Monthly Pulseq/HarmonizedMRI user group meeting and mailing list',['../news.html#autotoc_md10',1,'']]],
+  ['hasrfshim_1',['hasRfShim',['../classSeqBlock.html#a1e45e02fc609e86d8b5a84d14055ddba',1,'SeqBlock']]],
+  ['hint_2',['hint',['../structSoftDelayEvent.html#a6bad920b342c09eba0ca1a43a568007a',1,'SoftDelayEvent']]]
 ];

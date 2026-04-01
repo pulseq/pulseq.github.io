@@ -1,5 +1,27 @@
 <map id="ExternalSequence::print_msg" name="ExternalSequence::print_msg">
-<area shape="rect" id="node2" href="$classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c" title="Load the sequence from file. " alt="" coords="256,5,416,32"/>
-<area shape="rect" id="node4" href="$classExternalSequence.html#a64a4fad365448d9b767a4ed8b0c589d5" title="Decode a block by looking up indexed events. " alt="" coords="247,57,425,98"/>
-<area shape="rect" id="node3" href="$parsemr_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="Entry point for console program. " alt="" coords="473,5,524,32"/>
+<area shape="rect" id="Node000001" title="Display an output message." alt="" coords="765,242,977,267"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a7846a4f983f704bba837c620c14a06fa" title="Search the file stream for section headers e.g. [RF], [GRAD] etc." alt="" coords="503,5,705,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="854,231,832,195,800,150,761,105,716,66,681,48,684,43,719,62,765,102,804,147,836,192,859,228"/>
+<area shape="rect" id="Node000003" href="$classExternalSequence.html#a64a4fad365448d9b767a4ed8b0c589d5" title="Decode a block by looking up indexed events." alt="" coords="5,120,200,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="849,233,794,178,757,151,716,129,646,107,573,94,499,88,425,88,355,93,289,102,180,123,179,117,288,96,354,88,425,83,499,82,574,88,648,102,718,124,760,146,797,174,853,230"/>
+<area shape="rect" id="Node000004" href="$classExternalSequence.html#ad289f7878a8db08a9fde911b9dff0e46" title="Decode only the ext trap part of the block." alt="" coords="248,120,443,160"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="843,235,787,195,753,176,717,161,647,145,575,136,505,133,443,134,443,129,505,128,575,131,648,139,718,156,755,171,790,191,846,231"/>
+<area shape="rect" id="Node000005" href="$classExternalSequence.html#a4a4ef972585dd024a8eaf437aa151a19" title="Decompress a run&#45;length compressed shape." alt="" coords="491,171,717,211"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="803,241,688,213,689,208,805,236"/>
+<area shape="rect" id="Node000006" href="$structLabelValueStorage.html#acd3bc77a49a958d04a7937c842bd7b4d" title="current ADC&#45;relevant numeric label values as a simple vector" alt="" coords="529,235,679,275"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="752,257,680,257,680,252,752,252"/>
+<area shape="rect" id="Node000007" href="$classExternalSequence.html#ab9f9070c213b6e35850c4f7352cce32f" title="Construct a sequence block from the library events." alt="" coords="501,299,707,325"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="799,273,664,302,663,297,797,268"/>
+<area shape="rect" id="Node000008" href="$classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c" title="Load the sequence from file." alt="" coords="258,401,433,426"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="841,277,785,308,718,339,662,355,583,372,420,403,419,398,582,367,660,349,716,333,782,304,838,272"/>
+<area shape="rect" id="Node000009" href="$classExternalSequence.html#af453fdae8fc5f6c949900ddfd4bfc1df" title="Load the sequence from a single stream." alt="" coords="15,419,190,459"/>
+<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="861,281,839,319,808,364,768,407,744,425,718,440,650,466,577,482,503,490,429,492,358,488,292,481,182,461,183,456,293,476,359,483,429,486,503,485,576,477,648,461,716,435,741,421,764,403,804,360,835,316,856,278"/>
+<area shape="rect" id="Node000010" href="$classExternalSequence.html#ab1217ab4d88059d1ae512ca7518dc988" title="Reset the sequence in memory." alt="" coords="514,401,694,426"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="851,279,794,332,758,360,719,384,668,403,666,398,716,379,755,355,791,327,847,275"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="234,143,200,143,200,137,234,137"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="477,192,365,186,248,175,183,163,184,157,248,169,366,181,477,186"/>
+<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="488,171,442,162,443,156,489,165"/>
+<area shape="poly" id="edge11_Node000008_Node000008" title=" " alt="" coords="389,391,386,387,378,383,345,379,319,381,305,386,303,392,310,399,306,402,297,392,302,382,318,376,345,374,380,378,389,383,393,388"/>
+<area shape="poly" id="edge12_Node000008_Node000009" title=" " alt="" coords="244,427,191,432,190,427,244,421"/>
+<area shape="poly" id="edge15_Node000010_Node000008" title=" " alt="" coords="500,416,433,416,433,411,500,411"/>
 </map>

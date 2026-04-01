@@ -1,0 +1,12 @@
+<map id="ExternalSequence::load_from_buffer" name="ExternalSequence::load_from_buffer">
+<area shape="rect" id="Node000001" title="Load the sequence from a single stream." alt="" coords="5,47,180,87"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a85f0b642cd6eb8c9dd51efbb31df672c" title="Load the sequence from file." alt="" coords="228,29,403,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,55,214,51,215,56,181,60"/>
+<area shape="rect" id="Node000003" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message." alt="" coords="679,29,891,55"/>
+<area shape="poly" id="edge6_Node000001_Node000003" title=" " alt="" coords="180,69,386,73,508,71,630,65,708,54,708,60,631,70,508,77,386,79,180,74"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="279,31,271,21,275,11,290,5,315,3,346,6,358,15,355,20,344,11,315,8,292,10,279,15,277,20,283,28"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="375,27,450,15,541,10,631,15,704,24,703,30,630,21,541,16,451,21,375,32"/>
+<area shape="rect" id="Node000004" href="$classExternalSequence.html#ab1217ab4d88059d1ae512ca7518dc988" title="Reset the sequence in memory." alt="" coords="451,29,631,55"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="403,39,437,39,437,45,403,45"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="631,39,665,39,665,45,631,45"/>
+</map>

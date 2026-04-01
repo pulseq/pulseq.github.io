@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['delay',['delay',['../structADCEvent.html#a236795db94984633378f7de078ff25c3',1,'ADCEvent::delay()'],['../classSeqBlock.html#a615a927642a92fe86f22eac40e99c12d',1,'SeqBlock::delay()']]],
-  ['duration',['duration',['../classSeqBlock.html#a386858b2846e427b2c8134e7db20723f',1,'SeqBlock']]],
-  ['dwelltime',['dwellTime',['../structADCEvent.html#a6bb587a894a8a3a313c3aa7698192e9d',1,'ADCEvent']]]
+  ['center_0',['center',['../structRFEvent.html#ab9e4e9019ba8b7c36c48f814d6d1a36d',1,'RFEvent']]],
+  ['comment_5fchar_1',['COMMENT_CHAR',['../classExternalSequence.html#a91cf110409ee9d51911cbaee7e6dbc12',1,'ExternalSequence']]]
 ];

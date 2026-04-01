@@ -1,5 +1,17 @@
 <map id="SeqBlock" name="SeqBlock">
-<area shape="rect" id="node2" href="$structGradEvent.html" title="Gradient event data. " alt="" coords="5,5,88,32"/>
-<area shape="rect" id="node3" href="$structADCEvent.html" title="ADC readout event. " alt="" coords="113,5,194,32"/>
-<area shape="rect" id="node4" href="$structRFEvent.html" title="RF event data. " alt="" coords="218,5,289,32"/>
+<area shape="rect" id="Node000001" title="Sequence block." alt="" coords="342,93,425,119"/>
+<area shape="rect" id="Node000002" href="$structRFEvent.html" title="RF event data." alt="" coords="5,5,81,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,32,221,67,342,94,341,99,220,72,93,37"/>
+<area shape="rect" id="Node000003" href="$structGradEvent.html" title="Gradient event data." alt="" coords="106,5,197,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,33,280,67,349,91,348,96,278,72,191,38"/>
+<area shape="rect" id="Node000004" href="$structADCEvent.html" title="ADC readout event." alt="" coords="221,5,308,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="293,37,369,91,366,95,290,41"/>
+<area shape="rect" id="Node000005" href="$structTriggerEvent.html" title="Trigger event (extension)" alt="" coords="332,5,435,31"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="386,45,386,93,381,93,381,45"/>
+<area shape="rect" id="Node000006" href="$structRotationEvent.html" title="Rotation event (extension)" alt="" coords="459,5,574,31"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="489,40,403,95,400,91,486,36"/>
+<area shape="rect" id="Node000007" href="$structSoftDelayEvent.html" title=" " alt="" coords="598,5,721,31"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="617,38,519,72,426,97,424,92,517,67,616,33"/>
+<area shape="rect" id="Node000008" href="$structRfShimmingEvent.html" title="RF shimming event (extension)" alt="" coords="745,5,883,31"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="766,37,633,72,521,91,425,103,425,98,520,86,632,67,764,32"/>
 </map>

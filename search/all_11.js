@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['samples_0',['samples',['../structCompressedShape.html#a9117f28c0eb440c7319d319d43091c7c',1,'CompressedShape']]],
+  ['scanner_20implementations_1',['Scanner implementations',['../index.html#autotoc_md3',1,'']]],
+  ['seqblock_2',['seqblock',['../classSeqBlock.html',1,'SeqBlock'],['../classSeqBlock.html#a7cb77b9c95ece649c049d5eb009abc27',1,'SeqBlock::SeqBlock()']]],
+  ['sequence_20examples_3',['Matlab/Octave sequence examples',['../index.html#autotoc_md2',1,'']]],
+  ['sequence_20programming_20with_20pulseq_20ii_4',['February 24-26, 2026: A Three-Day ISMRM Virtual Meeting Series &quot;Vendor-Agnostic Pulse Sequence Programming with Pulseq II&quot;',['../news.html#autotoc_md8',1,'']]],
+  ['series_20november_2015_2017_202023_5',['ISMRM Virtual Meeting Series - November 15-17, 2023',['../tutorials.html#autotoc_md17',1,'']]],
+  ['series_20vendor_20agnostic_20pulse_20sequence_20programming_20with_20pulseq_20ii_6',['February 24-26, 2026: A Three-Day ISMRM Virtual Meeting Series &quot;Vendor-Agnostic Pulse Sequence Programming with Pulseq II&quot;',['../news.html#autotoc_md8',1,'']]],
+  ['setactualsoftdelay_5fru_7',['setActualSoftDelay_ru',['../classSeqBlock.html#af2946105eef83b6e78955efaacbe4f5b',1,'SeqBlock']]],
+  ['setprintfunction_8',['SetPrintFunction',['../classExternalSequence.html#a9a82b5f6f0aed6ac614489b676db10be',1,'ExternalSequence']]],
+  ['shapes_9',['Pulseq Times and Shapes',['../docs.html#autotoc_md19',1,'']]],
+  ['siemens_10',['siemens',['../news.html#autotoc_md11',1,'August 2025: new minor release and new Pulseq interpreter release for Siemens'],['../news.html#autotoc_md12',1,'February 2025: new major release and new Pulseq interpreter release for Siemens'],['../news.html#autotoc_md9',1,'February 2026: new Pulseq Interpreter release for Siemens']]],
+  ['skipcomments_11',['skipComments',['../classExternalSequence.html#ae80b6eac21ecfbe8fb6ecf6930c1b8bf',1,'ExternalSequence']]],
+  ['soft_5fdelay_5fhint_5flength_12',['SOFT_DELAY_HINT_LENGTH',['../ExternalSequence_8h.html#a2da00cfad3b6d07795bf925120b9f889',1,'ExternalSequence.h']]],
+  ['softdelay_13',['softDelay',['../classSeqBlock.html#a049cc28547a68e3a7e4a91370a44749b',1,'SeqBlock']]],
+  ['softdelayevent_14',['SoftDelayEvent',['../structSoftDelayEvent.html',1,'']]],
+  ['software_20with_20pulseq_20support_15',['software with pulseq support',['../links.html#autotoc_md13',1,'Open-source software with Pulseq support'],['../links.html#autotoc_md14',1,'Proprietary software with Pulseq support']]],
+  ['source_20code_16',['Download source code',['../index.html#autotoc_md4',1,'']]],
+  ['source_20code_20repository_17',['Source code repository',['../index.html#autotoc_md1',1,'']]],
+  ['source_20software_20with_20pulseq_20support_18',['Open-source software with Pulseq support',['../links.html#autotoc_md13',1,'']]],
+  ['specification_19',['Main Pulseq file format specification',['../docs.html#autotoc_md18',1,'']]],
+  ['stripwhitespace_20',['stripWhiteSpace',['../classExternalSequence.html#a5920744cfbca0e769387aea8d948debc',1,'ExternalSequence']]],
+  ['support_21',['support',['../links.html#autotoc_md13',1,'Open-source software with Pulseq support'],['../links.html#autotoc_md14',1,'Proprietary software with Pulseq support']]],
+  ['supported_20by_22',['Supported by',['../index.html#autotoc_md7',1,'']]]
+];

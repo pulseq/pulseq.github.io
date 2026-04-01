@@ -1,8 +1,9 @@
 <map id="ExternalSequence::load" name="ExternalSequence::load">
-<area shape="rect" id="node2" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message. " alt="" coords="228,5,421,32"/>
-<area shape="rect" id="node3" href="$classExternalSequence.html#a7cfd1aeba9bac7a5f110942780475cc7" title="Search the file stream for section headers e.g. [RF], [GRAD] etc. " alt="" coords="233,57,417,98"/>
-<area shape="rect" id="node4" href="$classExternalSequence.html#aa3c10f4bf9d1c851d1041c3961260ecc" title="Read a line from the input stream independent of line ending. " alt="" coords="484,123,659,149"/>
-<area shape="rect" id="node5" href="$classExternalSequence.html#a42ee03d51708cab806a96139c5bacd5d" title="Skip the comments and empty lines in the given input stream. " alt="" coords="213,173,436,200"/>
-<area shape="rect" id="node6" href="$classExternalSequence.html#a66b1bbc2b27281533fa5df466016a83a" title="Check the IDs contains references to valid events in the library. " alt="" coords="223,225,427,266"/>
-<area shape="rect" id="node7" href="$classExternalSequence.html#a4f8ec2a770a0a593214dfdd7212311db" title="Lookup the custom definition. " alt="" coords="219,291,430,317"/>
+<area shape="rect" id="Node000001" title="Load the sequence from file." alt="" coords="5,29,180,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="56,31,48,21,52,11,68,5,93,3,124,7,136,16,133,20,122,11,93,8,69,10,56,15,53,20,60,27"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#a1836fdfd6d36a0f7130c6ee76b8b4f15" title="Display an output message." alt="" coords="456,29,668,55"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="180,39,442,39,442,45,180,45"/>
+<area shape="rect" id="Node000003" href="$classExternalSequence.html#ab1217ab4d88059d1ae512ca7518dc988" title="Reset the sequence in memory." alt="" coords="228,55,408,80"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="180,49,215,53,214,58,180,54"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="408,55,442,52,443,57,408,61"/>
 </map>

@@ -1,3 +1,6 @@
 <map id="ExternalSequence::load" name="ExternalSequence::load">
-<area shape="rect" id="node2" href="$parsemr_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="Entry point for console program. " alt="" coords="213,5,264,32"/>
+<area shape="rect" id="Node000001" title="Load the sequence from file." alt="" coords="228,29,403,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="355,20,344,11,315,8,292,10,279,15,277,20,283,28,279,31,271,21,275,11,290,5,315,3,346,6,358,15"/>
+<area shape="rect" id="Node000002" href="$classExternalSequence.html#af453fdae8fc5f6c949900ddfd4bfc1df" title="Load the sequence from a single stream." alt="" coords="5,22,180,62"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="214,45,180,45,180,39,214,39"/>
 </map>
